@@ -31,6 +31,7 @@ fun runCommandsJson(templateYaml: String, exerciseYamls: Array<String>, commands
             "stepForward" -> EngineCommand.StepForward
             "stepBackward" -> EngineCommand.StepBackward
             "noteUnobserved" -> EngineCommand.NoteUnobserved(dto.ms)
+            "acknowledge" -> EngineCommand.Acknowledge
             else -> error("unknown command ${dto.op}")
         }
     }

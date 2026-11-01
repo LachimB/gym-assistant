@@ -13,6 +13,7 @@ fun reduce(plan: CompiledPlan, state: EngineState, command: EngineCommand): Engi
         EngineCommand.StepForward -> step(plan, state, forward = true)
         EngineCommand.StepBackward -> step(plan, state, forward = false)
         is EngineCommand.NoteUnobserved -> noteUnobserved(state, command.ms)
+        EngineCommand.Acknowledge -> acknowledge(state)
     }
 }
 
@@ -49,6 +50,11 @@ fun snapshot(plan: CompiledPlan, state: EngineState): PhaseSnapshot {
         completedPhaseIndexes = state.completedPhaseIndexes.sorted(),
         simulatedCue = cue,
     )
+}
+
+private fun acknowledge(state: EngineState): EngineState {
+    if (state.status != SessionStatus.Completed || state.completionAcknowledged) return state
+    return state.copy(completionAcknowledged = true)
 }
 
 private fun start(plan: CompiledPlan, state: EngineState): EngineState {
