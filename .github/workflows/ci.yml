@@ -19,4 +19,5 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Check package hygiene
         run: python tools/validate_starter.py && python tools/check_repo_hygiene.py
-# Android emulator and web E2E workflows added during M0. This CI does not yet build apps.
+# M0 also runs the engine and web unit tests in later jobs in this file.
+# Multi-version Android emulator CI is mandatory from M1, not in the M0 engine spike.

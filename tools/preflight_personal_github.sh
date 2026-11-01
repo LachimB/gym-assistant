@@ -9,6 +9,24 @@ if [[ ! "$EXPECTED_GITHUB_OWNER" =~ ^[a-zA-Z0-9-]+$ ]]; then echo 'Invalid expec
 if [[ ! "$EXPECTED_GIT_AUTHOR_EMAIL" =~ ^[^[:space:]@]+@[^[:space:]@]+$ ]]; then echo 'Invalid personal email format' >&2; exit 2; fi
 # Hard safety gate for the previously used company domain, not the sole proof of identity.
 if [[ "$(printf %s "$EXPECTED_GIT_AUTHOR_EMAIL" | tr "[:upper:]" "[:lower:]")" == *'@bolt.eu' ]]; then echo 'Company author email prohibited' >&2; exit 2; fi
+# Confirmed 2026-11-01. GitHub login LachimB. Author name MichalB is separate.
+# Withdrawn logins: michal-buzek (starter package) and MichalB (interim instruction).
+: "${EXPECTED_GIT_AUTHOR_NAME:?Set EXPECTED_GIT_AUTHOR_NAME to the confirmed personal author name}"
+CONFIRMED_PERSONAL_OWNER='LachimB'
+CONFIRMED_PERSONAL_NAME='MichalB'
+CONFIRMED_PERSONAL_EMAIL='<private-contact-redacted>'
+if [[ "$EXPECTED_GITHUB_OWNER" != "$CONFIRMED_PERSONAL_OWNER" ]]; then
+  echo "STOP: EXPECTED_GITHUB_OWNER must be the confirmed personal login ${CONFIRMED_PERSONAL_OWNER}." >&2
+  exit 1
+fi
+if [[ "$EXPECTED_GIT_AUTHOR_NAME" != "$CONFIRMED_PERSONAL_NAME" ]]; then
+  echo "STOP: EXPECTED_GIT_AUTHOR_NAME must be the confirmed personal author name ${CONFIRMED_PERSONAL_NAME}." >&2
+  exit 1
+fi
+if [[ "$(printf %s "$EXPECTED_GIT_AUTHOR_EMAIL" | tr '[:upper:]' '[:lower:]')" != "$CONFIRMED_PERSONAL_EMAIL" ]]; then
+  echo 'STOP: EXPECTED_GIT_AUTHOR_EMAIL does not match the confirmed personal author email.' >&2
+  exit 1
+fi
 for v in GH_TOKEN GITHUB_TOKEN GH_ENTERPRISE_TOKEN GITHUB_ENTERPRISE_TOKEN; do
   if [[ -n "$(printenv "$v" 2>/dev/null || true)" ]]; then echo "STOP: $v is set and can override personal gh auth; clear/resolve it before continuing" >&2; exit 1; fi
 done
@@ -30,7 +48,7 @@ expected_local="${EXPECTED_LOCAL_REPO_PATH:-<private-path>"
 if [[ "$root" != "$expected_local" ]]; then echo "STOP: repo path $root differs from personal expected $expected_local" >&2; exit 1; fi
 actual_email="$(git config --local --get user.email || true)"
 actual_name="$(git config --local --get user.name || true)"
-if [[ -z "$actual_name" || "$actual_email" != "$EXPECTED_GIT_AUTHOR_EMAIL" ]]; then
+if [[ "$actual_name" != "$EXPECTED_GIT_AUTHOR_NAME" || "$actual_email" != "$EXPECTED_GIT_AUTHOR_EMAIL" ]]; then
  echo 'STOP: repository-local author identity is missing or does not match explicitly confirmed personal identity' >&2; exit 1
 fi
 remote="$(git remote get-url origin 2>/dev/null || true)"
