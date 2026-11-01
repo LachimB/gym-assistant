@@ -227,6 +227,8 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
   `AGENTS.md`: say when no input is needed; otherwise state the exact action,
   location, expected response, and whether it blocks work. Final task updates
   must explicitly name the user's next action or say no input is needed.
+  Requests needing a response use the standalone bold **🔴 YOUR INPUT NEEDED**
+  signal; ordinary output stays concise without repeated no-input-needed updates.
 - Local evidence: clean `npm ci`, 12 web tests, 25 TypeScript engine tests, 23 Python
   tests, schema/traceability validator, and production build all pass. Built 108
   modules successfully. Kotlin/Android source is unchanged; no Android build or
