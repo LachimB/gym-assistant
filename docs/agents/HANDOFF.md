@@ -48,7 +48,7 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 | Both show phase progression and pause, resume, step forward, and step backward; a skip does not complete a rep | Web pass. Pause held scheduled time at 3,000 ms and raised pause to 1,000 ms. Step forward landed on hold at scheduled 4,000 ms without moving observed time. Step back returned to prepare at scheduled 0 ms and kept observed 3,000 ms and pause 1,000 ms. Android buttons exist in the debug UI. Their on-device behavior is **not tested**. Unit tests cover skip and unobserved-gap recovery on both engines. |
 | Virtual clock tests match the 50,000 ms phase order. Wall time and speech are not the clock source | Pass on the JVM and TypeScript suites. The browser wall-clock toggle is display-only. |
 | Written analysis chooses shared KMP/JS or separate engines | Pass. ADR-0002 chooses separate engines and keeps the JSON fixtures as the contract. |
-| CI runs tests and rejects unexpected private fixtures or credentials | Workflow updated to run Python contracts, `:engine:jvmTest`, `:cloud-adapters:test`, and the two npm test suites. GitHub's result is pending until that workflow runs. Hygiene check remains `tools/check_repo_hygiene.py`. |
+| CI runs tests and rejects unexpected private fixtures or credentials | Pass on pull request 2. The workflow runs Python contracts, `:engine:jvmTest`, `:cloud-adapters:test`, and the two npm test suites. Hygiene check remains `tools/check_repo_hygiene.py`. |
 | Installation and browser instructions plus physical-device smoke notes | Instructions are in `apps/android/README.md` and `apps/web/README.md`. Smoke notes are in `docs/milestones/m0-device-notes.md`. The interactive phone script is **not tested**. |
 
 ## Next actions
@@ -70,7 +70,7 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
 - Android: Pixel 10a, Android 17, debug APK installed. Interactive smoke not tested. No process-death claim.
 - Web URL: `http://127.0.0.1:5173` on the local Vite server. No hosted preview.
 - New external services: none.
-- Unresolved: phone smoke, GitHub Actions result for the new jobs, and any later decision to share the engine despite the Kotlin/JS packaging.
+- Unresolved: phone smoke, and any later decision to share the engine despite the Kotlin/JS packaging. Pull request 2 checks passed: contracts, engine, and web.
 
 ## Approved domain extension: Decisions #79–#97
 
