@@ -57,7 +57,7 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 | Completion acknowledgment | Pass. After the final phase, Android shows Complete Workout and the web simulator shows Finish Simulation. Start, Pause, and Resume are not shown in the terminal state. Acknowledging shows the total scheduled duration and the observed execution duration. Restart returns to the loaded prototype. No Workout Session is stored. |
 
 ## Next actions
-1. Recommended next M0 slice (requires agreement before implementation): fix Android/web clock-adapter pause accounting using injected-clock integration tests. Paused elapsed time must increase only `pauseMs`; resume must not consume paused time as running time. Preserve the event-conformance contract and carry fractional browser timing without per-frame rounding drift. No persistence or new service is needed.
+1. Review the clock-accounting slice on `codex/m0-clock-accounting`, then complete the remaining phone smoke below. Android/web now use injected-clock adapters to settle elapsed time at timer callbacks and commands, preserve pause counters, and carry browser fractional milliseconds. M0 closure still requires user approval and the outstanding device evidence.
 2. Finish the remaining phone smoke in `docs/milestones/m0-device-notes.md`: on-device pause, resume, and step, plus screen-off and on. Do not add a foreground service unless that smoke shows the activity timer is insufficient and there is a separate yes. Do not treat the clean process restart as recovery. Long-duration background reliability is still untested. Unfinished-session recovery waits for M1.
 3. Keep GitHub writes on `LachimB` with token variables unset. Author stays `MichalB <<private-contact-redacted>>` in the repository only.
 4. Do not start Google OAuth, hosting, Play signing, or a billable resource without a separate approval.
@@ -85,8 +85,8 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
   User accepted the independent review and authorized commit, push, and a focused
   PR targeting `m0-prototype` after the P3 rewind coverage gap was addressed.
   Published implementation commit: `3d945be1dd790acb3dc0e5525bbcf888de913fcf`.
-  Review: [PR #3](https://github.com/LachimB/gym-assistant/pull/3), open against
-  `m0-prototype`; the PR checks show the live CI result for the current head.
+  Review: [PR #3](https://github.com/LachimB/gym-assistant/pull/3), merged by the
+  user into `m0-prototype`; contracts, engine, and web CI passed before merge.
   Personal credential preflight passed as `LachimB`; push used the repository's
   credential wrapper. Do not merge automatically. M0 remains open.
 - Scope: GA-EXE-003 / GA-WEB-003. Both reducers now snapshot the consumed observed
@@ -123,6 +123,38 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
 - Limits: no UI clock-adapter changes, persistent recovery, new services, device
   install, or new phone/browser observations. App pause accounting, runtime input
   validation, remaining device smoke, and M0 closure are still outstanding.
+
+## Clock-adapter accounting — 2026-11-01
+
+- Approved slice: `codex/m0-clock-accounting`, based on merged `origin/m0-prototype`
+  at `d8bf65f`. PR #1 and #3 were merged by the user; PR #2 stays open against main.
+- Android uses `ClockedExecution` (common Kotlin, injected elapsedRealtime clock);
+  web uses independent `SimulatorClock` (injected performance.now). Both settle
+  elapsed time in the prior status before actions. Paused time grows without
+  consuming scheduled/observed running time. Browser running/pause fractions are
+  separate, and wall-clock toggle/restart anchors exclude disabled/old intervals.
+- Reducer semantics and shared full-event fixtures are unchanged. No persistence,
+  M1 features, new service, permission, dependency, or schema migration was added.
+  Explicit gap inputs reanchor without inventing progress; automatic gap detection
+  and process recovery are not implemented.
+- Tests: five Kotlin adapter integration tests and nine web adapter tests use the
+  real reducers. They cover between-callback actions, coarse/fractional ticks,
+  pause/resume, navigation/end, explicit running/paused gaps, toggles, and reset.
+  Isolated TypeScript mutations dropping paused time and rounding every frame
+  caused two and five assertion failures respectively; production files unchanged.
+- Local validation: Kotlin engine 12 tests, store 1, TypeScript engine 25, web 12,
+  Python contracts 23 (73 total). Fresh Kotlin production/test compilation plus
+  Android assembly passed with `--rerun-tasks --no-build-cache`; 43 tasks executed.
+  Contract validator and repository hygiene pass. Existing web build still fails
+  on missing Node test type declarations (now also reported by the new fixture-
+  loading test); the root build-configuration issue is deliberately not fixed.
+- Browser smoke on localhost: during Pause, scheduled/observed stayed at 4,021 ms
+  while pause grew from 138 ms to 24,424 ms. Resume plus stopping preview yielded
+  scheduled/observed 4,136 ms and pause 27,176 ms. Browser smoke verifies React
+  wiring; it is not Android, background-tab, or long-duration evidence.
+- Remaining: physical-phone pause/resume/navigation and screen-off checks, runtime
+  malformed-input handling, known web production build failure, and existing
+  Android Gradle plugin / compileSdk warning. M0 remains open. Do not auto-merge.
 
 ## Approved domain extension: Decisions #79–#97
 

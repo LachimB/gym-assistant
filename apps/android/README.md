@@ -4,6 +4,11 @@ Debug application id `dev.gymassistant.m0.debug`. This is not the production id.
 
 The countdown uses `SystemClock.elapsedRealtime()` deltas. Pause time, observed running time, and unobserved gaps are separate. Cue text is simulated. The screen stays on while the activity is open. There is no foreground service in this build, so timing after the process is killed is not claimed.
 
+Timer callbacks and button presses use the injected-clock `ClockedExecution`
+adapter. Pause freezes scheduled/observed running time while pause duration grows;
+Resume first settles the paused interval. JVM adapter tests do not replace the
+remaining phone pause/resume/navigation and screen-off smoke checks.
+
 ```bash
 cd <private-path>
 ./gradlew :android:assembleDebug
