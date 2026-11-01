@@ -12,3 +12,8 @@ npm run dev
 Open the URL Vite prints. The default is `http://127.0.0.1:5173`.
 
 Use **Virtual +1s** when comparing the screen with the 50,000 ms golden timeline. **Use wall clock** moves the scheduled clock from the browser timer while the tab is in the foreground. A background tab is not evidence. On-screen cue text is simulated audio, not speech synthesis.
+
+While wall-clock preview is enabled, Pause freezes scheduled/observed running
+time and accumulates the separate pause counter. Resume excludes that paused
+interval. Turning the wall clock off stops automatic accounting; virtual advances
+still work. Fractional frame intervals are carried rather than rounded per frame.
