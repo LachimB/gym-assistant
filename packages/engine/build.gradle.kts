@@ -3,6 +3,11 @@ plugins {
     kotlin("plugin.serialization")
 }
 
+// Fixture edits must invalidate local test results even when Kotlin is unchanged.
+tasks.withType<Test>().configureEach {
+    inputs.dir(rootProject.file("examples")).withPropertyName("conformanceFixtures")
+}
+
 kotlin {
     jvm()
     js(IR) {

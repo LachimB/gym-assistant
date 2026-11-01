@@ -127,15 +127,20 @@ private fun advanceRunning(plan: CompiledPlan, state: EngineState, ms: Long): En
         if (target >= phase.endMs) {
             completed += phase.index
             scheduled = phase.endMs
+            // Both events describe the boundary, not the start of this advance.
+            val boundaryState = state.copy(
+                scheduledElapsedMs = scheduled,
+                observedRunMs = state.observedRunMs + (scheduled - state.scheduledElapsedMs),
+            )
             events += event(
-                state.copy(scheduledElapsedMs = scheduled, observedRunMs = state.observedRunMs + (scheduled - state.scheduledElapsedMs), completedPhaseIndexes = completed),
+                boundaryState,
                 "phaseCompleted",
                 phase.index,
             )
             val next = activePhase(plan, scheduled)
             if (next != null) {
                 events += event(
-                    state.copy(scheduledElapsedMs = scheduled),
+                    boundaryState,
                     "phaseStarted",
                     next.index,
                 )
