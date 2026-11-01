@@ -21,11 +21,16 @@
 
 - Explicitly state whether user input/action is needed now. When none is needed,
   say so and continue authorized work without requesting redundant confirmation.
+- Requests requiring the user's response must stand out under a standalone
+  **🔴 YOUR INPUT NEEDED** heading (bold with a red marker; do not rely on HTML
+  text colors being supported). Immediately give the exact action and location.
+  Reserve this signal for real requests, not routine status. Keep other output
+  concise and avoid repeated no-input-needed messages during routine progress.
 - When input is needed, specify the exact decision/action, where to do it (this
   chat, GitHub, or the phone), and the expected response. Distinguish required
   input that blocks work from optional feedback, and say whether work is waiting.
-- End task-completion updates with **Your next action:** followed by the concrete
-  request, or **No input needed** when there is no request. Do not leave the user
+- End task-completion updates with **🔴 YOUR INPUT NEEDED** followed by the concrete
+  request, or a brief **No input needed** when there is no request. Do not leave the user
   to infer a review, approval, merge, or test request from a progress report.
 - Test requests must give steps, expected observations, and what results to send
   back. Approval requests must identify the exact scope/action being approved.
