@@ -14,6 +14,7 @@ fun reduce(plan: CompiledPlan, state: EngineState, command: EngineCommand): Engi
         EngineCommand.StepBackward -> step(plan, state, forward = false)
         is EngineCommand.NoteUnobserved -> noteUnobserved(state, command.ms)
         EngineCommand.Acknowledge -> acknowledge(state)
+        EngineCommand.EndEarly -> endEarly(state)
     }
 }
 
@@ -55,6 +56,20 @@ fun snapshot(plan: CompiledPlan, state: EngineState): PhaseSnapshot {
 private fun acknowledge(state: EngineState): EngineState {
     if (state.status != SessionStatus.Completed || state.completionAcknowledged) return state
     return state.copy(completionAcknowledged = true)
+}
+
+private fun endEarly(state: EngineState): EngineState {
+    if (
+        state.status != SessionStatus.Running &&
+        state.status != SessionStatus.Paused &&
+        state.status != SessionStatus.RecoveredPaused
+    ) {
+        return state
+    }
+    return state.copy(
+        status = SessionStatus.Completed,
+        completionAcknowledged = true,
+    )
 }
 
 private fun start(plan: CompiledPlan, state: EngineState): EngineState {

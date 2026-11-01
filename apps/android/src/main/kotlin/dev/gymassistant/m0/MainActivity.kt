@@ -97,6 +97,15 @@ class MainActivity : ComponentActivity() {
                                     PrototypeButton("Back") { stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.StepBackward) }
                                     PrototypeButton("Forward") { stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.StepForward) }
                                 }
+                                if (
+                                    state.status == SessionStatus.Running ||
+                                    state.status == SessionStatus.Paused ||
+                                    state.status == SessionStatus.RecoveredPaused
+                                ) {
+                                    PrototypeButton("End Workout") {
+                                        stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.EndEarly)
+                                    }
+                                }
                             }
                         }
                     }

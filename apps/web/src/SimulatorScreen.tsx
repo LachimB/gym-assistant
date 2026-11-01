@@ -25,6 +25,8 @@ export function SimulatorScreen({
 }) {
   const view = useMemo(() => snapshot(plan, state), [plan, state]);
   const terminal = state.status === "completed";
+  const started =
+    state.status === "running" || state.status === "paused" || state.status === "recoveredPaused";
 
   if (state.completionAcknowledged) {
     return (
@@ -76,6 +78,9 @@ export function SimulatorScreen({
             <button type="button" onClick={onToggleWallClock}>
               {wallClock ? "Stop wall clock" : "Use wall clock"}
             </button>
+            {started ? (
+              <button type="button" onClick={() => onCommand({ op: "endEarly" })}>End Simulation</button>
+            ) : null}
           </>
         )}
       </div>

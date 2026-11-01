@@ -60,7 +60,7 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 1. Finish the remaining phone smoke in `docs/milestones/m0-device-notes.md`: on-device pause, resume, and step, plus screen-off and on. Do not add a foreground service unless that smoke shows the activity timer is insufficient and there is a separate yes. Do not treat the clean process restart as recovery. Long-duration background reliability is still untested. Unfinished-session recovery waits for M1.
 2. Keep GitHub writes on `LachimB` with token variables unset. Author stays `MichalB <michal.buzek@gmail.com>` in the repository only.
 3. Do not start Google OAuth, hosting, Play signing, or a billable resource without a separate approval.
-4. End Workout Early, partial-progress summaries, and a workout logging system belong to a later milestone. M0 only acknowledges that the prototype reached its final phase.
+4. Early end is available in the prototype; detailed partial-performance summaries stay later.
 
 ## Clock categories
 

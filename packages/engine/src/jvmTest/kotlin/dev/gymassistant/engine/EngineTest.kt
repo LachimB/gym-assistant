@@ -122,6 +122,44 @@ class EngineTest {
         assertEquals(acknowledged, reduce(plan, acknowledged, EngineCommand.Acknowledge))
     }
 
+    @Test
+    fun endEarlyAcknowledgesPartialRunWithoutCompletingRemainingPhases() {
+        val plan = loadPlan()
+        val running = reduceAll(plan, listOf(EngineCommand.Start, EngineCommand.Advance(4_174)))
+        val ended = reduce(plan, running, EngineCommand.EndEarly)
+        assertEquals(SessionStatus.Completed, ended.status)
+        assertEquals(true, ended.completionAcknowledged)
+        assertEquals(running.scheduledElapsedMs, ended.scheduledElapsedMs)
+        assertEquals(running.observedRunMs, ended.observedRunMs)
+        assertEquals(running.pauseMs, ended.pauseMs)
+        assertEquals(running.unobservedGapMs, ended.unobservedGapMs)
+        assertEquals(running.completedPhaseIndexes, ended.completedPhaseIndexes)
+        assertEquals(running.events, ended.events)
+        assertTrue(ended.completedPhaseIndexes.size < plan.phases.size)
+        assertEquals(ended, reduce(plan, ended, EngineCommand.Advance(10_000)))
+        assertEquals(ended, reduce(plan, ended, EngineCommand.EndEarly))
+
+        val paused = reduce(plan, running, EngineCommand.Pause)
+        val endedPaused = reduce(plan, paused, EngineCommand.EndEarly)
+        assertEquals(SessionStatus.Completed, endedPaused.status)
+        assertEquals(true, endedPaused.completionAcknowledged)
+        assertEquals(paused.scheduledElapsedMs, endedPaused.scheduledElapsedMs)
+        assertEquals(paused.observedRunMs, endedPaused.observedRunMs)
+        assertEquals(paused.pauseMs, endedPaused.pauseMs)
+        assertEquals(paused.unobservedGapMs, endedPaused.unobservedGapMs)
+        assertEquals(paused.completedPhaseIndexes, endedPaused.completedPhaseIndexes)
+        assertEquals(endedPaused, reduce(plan, endedPaused, EngineCommand.Advance(5_000)))
+
+        assertEquals(initialState(), reduce(plan, initialState(), EngineCommand.EndEarly))
+
+        val full = reduceAll(plan, listOf(EngineCommand.Start, EngineCommand.Advance(50_000)))
+        assertEquals(50_000L, full.scheduledElapsedMs)
+        assertEquals(50_000L, full.observedRunMs)
+        assertEquals(plan.phases.indices.toSet(), full.completedPhaseIndexes)
+        assertEquals(false, full.completionAcknowledged)
+        assertEquals(full, reduce(plan, full, EngineCommand.EndEarly))
+    }
+
     private fun loadPlan(): CompiledPlan {
         val template = root.resolve("templates/composite-pyramid.yaml").readText()
         val exercises = listOf(
