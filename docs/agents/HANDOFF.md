@@ -78,6 +78,47 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
 - New external services: none.
 - Unresolved: screen-off, on-device pause/resume/step, long-duration background reliability, M1 unfinished-session recovery, and any later decision to share the engine despite the Kotlin/JS packaging. M0 stays open. Pull request 2 is https://github.com/LachimB/gym-assistant/pull/2.
 
+## Event timestamp conformance review — 2026-11-01
+
+- Branch: `codex/m0-event-conformance`, based on `m0-prototype` at `df7f3db`.
+  User accepted the independent review and authorized commit, push, and a focused
+  PR targeting `m0-prototype` after the P3 rewind coverage gap was addressed.
+  Do not merge automatically. M0 remains open.
+- Scope: GA-EXE-003 / GA-WEB-003. Both reducers now snapshot the consumed observed
+  running time at each crossed phase boundary for completion and next-phase start.
+  Scheduled, pause, and unobserved counters retain their separate meanings. The
+  event-counter contract is in `docs/architecture/execution.md`; separate Kotlin
+  and TypeScript engines remain the ADR-0002 decision.
+- Shared evidence: `examples/expected/composite-pyramid.events.json` contains seven
+  independent expected full-event sequences and final counter/completion states.
+  Both engines exercise all seven under three advance partitions (21 combinations
+  per engine): coarse, 1,000 ms, and irregular 1/333/4,096 ms. Cases cover overshoot,
+  pause/resume, running/paused gaps, explicit recovery, skip, and rewind. Gradle
+  declares the example fixtures as test inputs so fixture edits invalidate results.
+- Regression proof: before modifying the reducers, the first five shared cases
+  caused 12 TypeScript failures and the new Kotlin conformance test failed. Old
+  tests checked event names and final counters but missed stale event timestamps.
+- Independent review: no blocking implementation defects reported by the user;
+  one demonstrated P3 coverage gap concerned rewind after phases had completed.
+  Added checkpoints before and immediately after rewind: `[0, 1]` at scheduled
+  12,000 ms becomes `[0]` at 4,000 ms while observed remains 12,000 ms. Replayed
+  hold completes at scheduled 12,000 ms / observed 20,000 ms. Both engines pass
+  without additional production changes. An isolated TypeScript mutation that
+  disabled completion clearing failed at the intermediate checkpoint in all
+  three partitions; final-state-only checks could have missed that mutation.
+- Validation: Python 23 tests; TypeScript engine 25 tests (21 new); web 3 tests;
+  Kotlin engine 7 tests (one new test runs all 21 combinations); store 1 test.
+  Fresh compilation of Kotlin production and test sources was verified with
+  `./gradlew :engine:jvmTest :cloud-adapters:test :android:assembleDebug --rerun-tasks --no-build-cache`
+  (43 tasks executed; no compiled-class cache reuse).
+  Android debug build passes. Contract validator and repository hygiene pass.
+  Web production build still fails on missing Node type declarations in
+  `apps/web/src/simulator.test.ts`; deliberately outside this change. The existing
+  Android Gradle plugin / compileSdk compatibility warning remains.
+- Limits: no UI clock-adapter changes, persistent recovery, new services, device
+  install, or new phone/browser observations. App pause accounting, runtime input
+  validation, remaining device smoke, and M0 closure are still outstanding.
+
 ## Approved domain extension: Decisions #79–#97
 
 Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonical names: Training Season, Training Program, Training Template, Workout Session. Basic organization is P0 for the daily-use release. The M0 executable fixture stays a standalone template. Organization schemas and contract tests exist. The prototype does not resolve Program membership at runtime. Most important unresolved M2 detail: deterministic expansion of limited set-use adjustments within an explicit composite step order. Before implementing user-facing promotion, require explicit approval, a scope preview, and a stale-revision check.
