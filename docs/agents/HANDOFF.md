@@ -165,6 +165,9 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
 
 - Approved separate slice: `codex/ci-maintenance`, based on `origin/m0-prototype`
   at `a55c63e`, including merged PR #4. PR #2 stays open against main.
+  Published implementation `1cc3520b113de737441259ffc0b8ccf7f9bfbcf9` is in
+  [PR #5](https://github.com/LachimB/gym-assistant/pull/5), targeting `m0-prototype`.
+  The PR checks and their annotations are the live remote validation record.
 - Replaces deprecated Node-20-based actions with reviewed stable releases:
   checkout 7.0.1, setup-python 7.1.0, setup-java 6.1.0, setup-node 7.1.0.
   Official tagged action manifests declare Node 24. Test toolchains remain
