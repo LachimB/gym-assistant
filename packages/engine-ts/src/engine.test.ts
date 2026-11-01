@@ -105,4 +105,45 @@ describe("typescript engine", () => {
     expect(acknowledged.observedRunMs).toBeLessThan(acknowledged.scheduledElapsedMs);
     expect(reduce(plan, acknowledged, { op: "acknowledge" })).toEqual(acknowledged);
   });
+
+  it("ends a partial run early without completing the remaining phases", () => {
+    const plan = loadPlan();
+    const running = reduceAll(plan, [
+      { op: "start" },
+      { op: "advance", ms: 4174 },
+    ]);
+    const ended = reduce(plan, running, { op: "endEarly" });
+    expect(ended.status).toBe("completed");
+    expect(ended.completionAcknowledged).toBe(true);
+    expect(ended.scheduledElapsedMs).toBe(running.scheduledElapsedMs);
+    expect(ended.observedRunMs).toBe(running.observedRunMs);
+    expect(ended.pauseMs).toBe(running.pauseMs);
+    expect(ended.unobservedGapMs).toBe(running.unobservedGapMs);
+    expect(ended.completedPhaseIndexes).toEqual(running.completedPhaseIndexes);
+    expect(ended.events).toEqual(running.events);
+    expect(ended.completedPhaseIndexes.length).toBeLessThan(plan.phases.length);
+    expect(reduce(plan, ended, { op: "advance", ms: 10000 })).toEqual(ended);
+    expect(reduce(plan, ended, { op: "endEarly" })).toEqual(ended);
+
+    const paused = reduce(plan, running, { op: "pause" });
+    const endedPaused = reduce(plan, paused, { op: "endEarly" });
+    expect(endedPaused.status).toBe("completed");
+    expect(endedPaused.completionAcknowledged).toBe(true);
+    expect(endedPaused.scheduledElapsedMs).toBe(paused.scheduledElapsedMs);
+    expect(endedPaused.observedRunMs).toBe(paused.observedRunMs);
+    expect(endedPaused.pauseMs).toBe(paused.pauseMs);
+    expect(endedPaused.unobservedGapMs).toBe(paused.unobservedGapMs);
+    expect(endedPaused.completedPhaseIndexes).toEqual(paused.completedPhaseIndexes);
+    expect(reduce(plan, endedPaused, { op: "advance", ms: 5000 })).toEqual(endedPaused);
+
+    const full = reduceAll(plan, [
+      { op: "start" },
+      { op: "advance", ms: 50000 },
+    ]);
+    expect(full.scheduledElapsedMs).toBe(50000);
+    expect(full.observedRunMs).toBe(50000);
+    expect(full.completedPhaseIndexes).toEqual(plan.phases.map((phase) => phase.index));
+    expect(full.completionAcknowledged).toBe(false);
+    expect(reduce(plan, full, { op: "endEarly" })).toEqual(full);
+  });
 });

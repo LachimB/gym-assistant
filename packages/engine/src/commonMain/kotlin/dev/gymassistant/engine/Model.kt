@@ -65,6 +65,7 @@ sealed class EngineCommand {
     data object StepBackward : EngineCommand()
     data class NoteUnobserved(val ms: Long) : EngineCommand()
     data object Acknowledge : EngineCommand()
+    data object EndEarly : EngineCommand()
 }
 
 @Serializable

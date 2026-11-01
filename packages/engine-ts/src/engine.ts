@@ -53,7 +53,8 @@ export type EngineCommand =
   | { op: "stepForward" }
   | { op: "stepBackward" }
   | { op: "noteUnobserved"; ms: number }
-  | { op: "acknowledge" };
+  | { op: "acknowledge" }
+  | { op: "endEarly" };
 
 type YamlMap = Record<string, unknown>;
 
@@ -256,6 +257,12 @@ export function reduce(plan: CompiledPlan, state: EngineState, command: EngineCo
   if (command.op === "acknowledge") {
     if (state.status !== "completed" || state.completionAcknowledged) return state;
     return { ...state, completionAcknowledged: true };
+  }
+  if (command.op === "endEarly") {
+    if (state.status !== "running" && state.status !== "paused" && state.status !== "recoveredPaused") {
+      return state;
+    }
+    return { ...state, status: "completed", completionAcknowledged: true };
   }
   if (command.op === "noteUnobserved") {
     if (state.status !== "running" && state.status !== "paused") return state;
