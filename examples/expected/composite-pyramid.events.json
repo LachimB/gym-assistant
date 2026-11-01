@@ -1,0 +1,245 @@
+{
+  "template": "templates/composite-pyramid.yaml",
+  "exercises": [
+    "exercises/bridge-band-family.yaml",
+    "exercises/plank-family.yaml"
+  ],
+  "advancePartitionsMs": [
+    [60000],
+    [1000],
+    [1, 333, 4096]
+  ],
+  "cases": [
+    {
+      "name": "uninterrupted overshoot",
+      "commands": [
+        {"op": "start"},
+        {"op": "advance", "ms": 60000}
+      ],
+      "expectedEvents": [
+        {"type": "sessionStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 4000, "observedRunMs": 4000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 4000, "observedRunMs": 4000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 12000, "observedRunMs": 12000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseStarted", "scheduledElapsedMs": 12000, "observedRunMs": 12000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 2},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 14000, "observedRunMs": 14000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 2},
+        {"type": "phaseStarted", "scheduledElapsedMs": 14000, "observedRunMs": 14000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 3},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 20000, "observedRunMs": 20000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 3},
+        {"type": "phaseStarted", "scheduledElapsedMs": 20000, "observedRunMs": 20000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 4},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 24000, "observedRunMs": 24000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 4},
+        {"type": "phaseStarted", "scheduledElapsedMs": 24000, "observedRunMs": 24000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 5},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 32000, "observedRunMs": 32000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 5},
+        {"type": "phaseStarted", "scheduledElapsedMs": 32000, "observedRunMs": 32000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 6},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 42000, "observedRunMs": 42000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 6},
+        {"type": "phaseStarted", "scheduledElapsedMs": 42000, "observedRunMs": 42000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 7},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 44000, "observedRunMs": 44000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 7},
+        {"type": "phaseStarted", "scheduledElapsedMs": 44000, "observedRunMs": 44000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 8},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 50000, "observedRunMs": 50000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 8}
+      ],
+      "expectedState": {
+        "status": "completed",
+        "scheduledElapsedMs": 50000,
+        "observedRunMs": 50000,
+        "pauseMs": 0,
+        "unobservedGapMs": 0,
+        "completedPhaseIndexes": [0, 1, 2, 3, 4, 5, 6, 7, 8]
+      }
+    },
+    {
+      "name": "pause then cross multiple boundaries",
+      "commands": [
+        {"op": "start"},
+        {"op": "advance", "ms": 1000},
+        {"op": "pause"},
+        {"op": "advance", "ms": 5000},
+        {"op": "resume"},
+        {"op": "advance", "ms": 11000}
+      ],
+      "expectedEvents": [
+        {"type": "sessionStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "pause", "scheduledElapsedMs": 1000, "observedRunMs": 1000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": null},
+        {"type": "resume", "scheduledElapsedMs": 1000, "observedRunMs": 1000, "pauseMs": 5000, "unobservedGapMs": 0, "phaseIndex": null},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 4000, "observedRunMs": 4000, "pauseMs": 5000, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 4000, "observedRunMs": 4000, "pauseMs": 5000, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 12000, "observedRunMs": 12000, "pauseMs": 5000, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseStarted", "scheduledElapsedMs": 12000, "observedRunMs": 12000, "pauseMs": 5000, "unobservedGapMs": 0, "phaseIndex": 2}
+      ],
+      "expectedState": {
+        "status": "running",
+        "scheduledElapsedMs": 12000,
+        "observedRunMs": 12000,
+        "pauseMs": 5000,
+        "unobservedGapMs": 0,
+        "completedPhaseIndexes": [0, 1]
+      }
+    },
+    {
+      "name": "running gap waits for explicit resume",
+      "commands": [
+        {"op": "start"},
+        {"op": "advance", "ms": 1000},
+        {"op": "noteUnobserved", "ms": 8000},
+        {"op": "advance", "ms": 50000}
+      ],
+      "expectedEvents": [
+        {"type": "sessionStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "unobservedGap", "scheduledElapsedMs": 1000, "observedRunMs": 1000, "pauseMs": 0, "unobservedGapMs": 8000, "phaseIndex": null}
+      ],
+      "expectedState": {
+        "status": "recoveredPaused",
+        "scheduledElapsedMs": 1000,
+        "observedRunMs": 1000,
+        "pauseMs": 0,
+        "unobservedGapMs": 8000,
+        "completedPhaseIndexes": []
+      }
+    },
+    {
+      "name": "paused gap then resume to exact boundary",
+      "commands": [
+        {"op": "start"},
+        {"op": "advance", "ms": 1000},
+        {"op": "pause"},
+        {"op": "advance", "ms": 5000},
+        {"op": "noteUnobserved", "ms": 8000},
+        {"op": "advance", "ms": 10000},
+        {"op": "resume"},
+        {"op": "advance", "ms": 3000}
+      ],
+      "expectedEvents": [
+        {"type": "sessionStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "pause", "scheduledElapsedMs": 1000, "observedRunMs": 1000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": null},
+        {"type": "unobservedGap", "scheduledElapsedMs": 1000, "observedRunMs": 1000, "pauseMs": 5000, "unobservedGapMs": 8000, "phaseIndex": null},
+        {"type": "resumeAfterGap", "scheduledElapsedMs": 1000, "observedRunMs": 1000, "pauseMs": 5000, "unobservedGapMs": 8000, "phaseIndex": null},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 4000, "observedRunMs": 4000, "pauseMs": 5000, "unobservedGapMs": 8000, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 4000, "observedRunMs": 4000, "pauseMs": 5000, "unobservedGapMs": 8000, "phaseIndex": 1}
+      ],
+      "expectedState": {
+        "status": "running",
+        "scheduledElapsedMs": 4000,
+        "observedRunMs": 4000,
+        "pauseMs": 5000,
+        "unobservedGapMs": 8000,
+        "completedPhaseIndexes": [0]
+      }
+    },
+    {
+      "name": "skip rewind and running gap preserve observed time",
+      "commands": [
+        {"op": "start"},
+        {"op": "advance", "ms": 1000},
+        {"op": "stepForward"},
+        {"op": "stepBackward"},
+        {"op": "advance", "ms": 4000},
+        {"op": "noteUnobserved", "ms": 8000},
+        {"op": "advance", "ms": 50000},
+        {"op": "resume"},
+        {"op": "advance", "ms": 8000}
+      ],
+      "expectedEvents": [
+        {"type": "sessionStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "skip", "scheduledElapsedMs": 4000, "observedRunMs": 1000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseStarted", "scheduledElapsedMs": 4000, "observedRunMs": 1000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "rewind", "scheduledElapsedMs": 0, "observedRunMs": 1000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 0, "observedRunMs": 1000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 4000, "observedRunMs": 5000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 4000, "observedRunMs": 5000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "unobservedGap", "scheduledElapsedMs": 4000, "observedRunMs": 5000, "pauseMs": 0, "unobservedGapMs": 8000, "phaseIndex": null},
+        {"type": "resumeAfterGap", "scheduledElapsedMs": 4000, "observedRunMs": 5000, "pauseMs": 0, "unobservedGapMs": 8000, "phaseIndex": null},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 12000, "observedRunMs": 13000, "pauseMs": 0, "unobservedGapMs": 8000, "phaseIndex": 1},
+        {"type": "phaseStarted", "scheduledElapsedMs": 12000, "observedRunMs": 13000, "pauseMs": 0, "unobservedGapMs": 8000, "phaseIndex": 2}
+      ],
+      "expectedState": {
+        "status": "running",
+        "scheduledElapsedMs": 12000,
+        "observedRunMs": 13000,
+        "pauseMs": 0,
+        "unobservedGapMs": 8000,
+        "completedPhaseIndexes": [0, 1]
+      }
+    },
+    {
+      "name": "skip then finish a phase without completing the skipped phase",
+      "commands": [
+        {"op": "start"},
+        {"op": "advance", "ms": 1000},
+        {"op": "stepForward"},
+        {"op": "advance", "ms": 8000}
+      ],
+      "expectedEvents": [
+        {"type": "sessionStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "skip", "scheduledElapsedMs": 4000, "observedRunMs": 1000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseStarted", "scheduledElapsedMs": 4000, "observedRunMs": 1000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 12000, "observedRunMs": 9000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseStarted", "scheduledElapsedMs": 12000, "observedRunMs": 9000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 2}
+      ],
+      "expectedState": {
+        "status": "running",
+        "scheduledElapsedMs": 12000,
+        "observedRunMs": 9000,
+        "pauseMs": 0,
+        "unobservedGapMs": 0,
+        "completedPhaseIndexes": [1]
+      }
+    },
+    {
+      "name": "rewind completed hold then replay it",
+      "commands": [
+        {"op": "start"},
+        {"op": "advance", "ms": 12000},
+        {"op": "stepBackward"},
+        {"op": "advance", "ms": 8000}
+      ],
+      "checkpoints": [
+        {
+          "afterCommand": 2,
+          "expectedState": {
+            "status": "running",
+            "scheduledElapsedMs": 12000,
+            "observedRunMs": 12000,
+            "pauseMs": 0,
+            "unobservedGapMs": 0,
+            "completedPhaseIndexes": [0, 1]
+          }
+        },
+        {
+          "afterCommand": 3,
+          "expectedState": {
+            "status": "running",
+            "scheduledElapsedMs": 4000,
+            "observedRunMs": 12000,
+            "pauseMs": 0,
+            "unobservedGapMs": 0,
+            "completedPhaseIndexes": [0]
+          }
+        }
+      ],
+      "expectedEvents": [
+        {"type": "sessionStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 0, "observedRunMs": 0, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 4000, "observedRunMs": 4000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 0},
+        {"type": "phaseStarted", "scheduledElapsedMs": 4000, "observedRunMs": 4000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 12000, "observedRunMs": 12000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseStarted", "scheduledElapsedMs": 12000, "observedRunMs": 12000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 2},
+        {"type": "rewind", "scheduledElapsedMs": 4000, "observedRunMs": 12000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseStarted", "scheduledElapsedMs": 4000, "observedRunMs": 12000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseCompleted", "scheduledElapsedMs": 12000, "observedRunMs": 20000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 1},
+        {"type": "phaseStarted", "scheduledElapsedMs": 12000, "observedRunMs": 20000, "pauseMs": 0, "unobservedGapMs": 0, "phaseIndex": 2}
+      ],
+      "expectedState": {
+        "status": "running",
+        "scheduledElapsedMs": 12000,
+        "observedRunMs": 20000,
+        "pauseMs": 0,
+        "unobservedGapMs": 0,
+        "completedPhaseIndexes": [0, 1]
+      }
+    }
+  ]
+}

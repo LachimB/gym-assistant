@@ -284,10 +284,15 @@ export function reduce(plan: CompiledPlan, state: EngineState, command: EngineCo
       if (target >= phase.endMs) {
         completed.add(phase.index);
         scheduled = phase.endMs;
-        const completedState = { ...state, scheduledElapsedMs: scheduled, completedPhaseIndexes: [...completed] };
-        events.push(event(completedState, "phaseCompleted", phase.index));
+        // Both events describe the boundary, not the start of this advance.
+        const boundaryState = {
+          ...state,
+          scheduledElapsedMs: scheduled,
+          observedRunMs: state.observedRunMs + (scheduled - state.scheduledElapsedMs),
+        };
+        events.push(event(boundaryState, "phaseCompleted", phase.index));
         const next = activePhase(plan, scheduled);
-        if (next) events.push(event({ ...state, scheduledElapsedMs: scheduled }, "phaseStarted", next.index));
+        if (next) events.push(event(boundaryState, "phaseStarted", next.index));
       } else {
         scheduled = target;
       }
