@@ -128,6 +128,10 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
 
 - Approved slice: `codex/m0-clock-accounting`, based on merged `origin/m0-prototype`
   at `d8bf65f`. PR #1 and #3 were merged by the user; PR #2 stays open against main.
+  Published implementation: `5aa176fcd16d58052d241db2c33abe17324e8366` in
+  [PR #4](https://github.com/LachimB/gym-assistant/pull/4), targeting `m0-prototype`.
+  See PR checks for live CI results. Personal credential preflight passed as
+  `LachimB`; the push used the repository's credential wrapper. Do not auto-merge.
 - Android uses `ClockedExecution` (common Kotlin, injected elapsedRealtime clock);
   web uses independent `SimulatorClock` (injected performance.now). Both settle
   elapsed time in the prior status before actions. Paused time grows without
