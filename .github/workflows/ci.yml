@@ -39,11 +39,17 @@ jobs:
           package-manager-cache: false
       - name: TypeScript engine tests
         working-directory: packages/engine-ts
-        run: npm install && npm test
+        run: npm ci && npm test
+      - name: Audit engine test dependencies
+        working-directory: packages/engine-ts
+        run: npm audit --include=dev --audit-level=moderate
       - name: Web simulator tests
         working-directory: apps/web
-        run: npm install && npm test
+        run: npm ci && npm test
       - name: Web production build
         working-directory: apps/web
         run: npm run build
+      - name: Audit web dependencies
+        working-directory: apps/web
+        run: npm audit --include=dev --audit-level=moderate
 # Multi-version Android emulator CI is mandatory from M1, not in this M0 workflow.
