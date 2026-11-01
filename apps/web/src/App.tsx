@@ -1,38 +1,33 @@
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import templateYaml from "../../../examples/templates/composite-pyramid.yaml?raw";
 import bridgeYaml from "../../../examples/exercises/bridge-band-family.yaml?raw";
 import plankYaml from "../../../examples/exercises/plank-family.yaml?raw";
-import { compileTemplate, initialState, reduce, type EngineCommand, type EngineState } from "@engine";
+import { compileTemplate, type EngineCommand } from "@engine";
 import { SimulatorScreen } from "./SimulatorScreen";
+import { SimulatorClock } from "./SimulatorClock";
 
 const plan = compileTemplate(templateYaml, [bridgeYaml, plankYaml]);
 
 export function App() {
-  const [state, setState] = useState<EngineState>(initialState);
+  const [clock] = useState(() => new SimulatorClock(plan, () => performance.now()));
+  const [state, setState] = useState(clock.state);
   const [wallClock, setWallClock] = useState(false);
-  const lastTick = useRef<number | null>(null);
 
   useEffect(() => {
-    if (!wallClock || state.status !== "running") {
-      lastTick.current = null;
+    if (!wallClock || (state.status !== "running" && state.status !== "paused")) {
       return;
     }
     let frame = 0;
-    const tick = (now: number) => {
-      const previous = lastTick.current ?? now;
-      lastTick.current = now;
-      const delta = Math.round(now - previous);
-      if (delta > 0) {
-        setState((current) => reduce(plan, current, { op: "advance", ms: delta }));
-      }
+    const tick = () => {
+      setState(clock.tick());
       frame = requestAnimationFrame(tick);
     };
     frame = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(frame);
-  }, [wallClock, state.status]);
+  }, [clock, wallClock, state.status]);
 
   function send(command: EngineCommand) {
-    setState((current) => reduce(plan, current, command));
+    setState(clock.send(command));
   }
 
   return (
@@ -41,10 +36,14 @@ export function App() {
       state={state}
       wallClock={wallClock}
       onCommand={send}
-      onToggleWallClock={() => setWallClock((value) => !value)}
+      onToggleWallClock={() => {
+        const enabled = !clock.wallClock;
+        setState(clock.setWallClock(enabled));
+        setWallClock(enabled);
+      }}
       onRestart={() => {
         setWallClock(false);
-        setState(initialState());
+        setState(clock.reset());
       }}
     />
   );

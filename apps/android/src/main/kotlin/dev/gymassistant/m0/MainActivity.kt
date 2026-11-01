@@ -24,12 +24,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import dev.gymassistant.engine.ClockedExecution
 import dev.gymassistant.engine.EngineCommand
-import dev.gymassistant.engine.EngineState
 import dev.gymassistant.engine.SessionStatus
 import dev.gymassistant.engine.compileTemplate
-import dev.gymassistant.engine.initialState
-import dev.gymassistant.engine.reduce
 import dev.gymassistant.engine.snapshot
 import kotlin.math.ceil
 
@@ -46,20 +44,14 @@ class MainActivity : ComponentActivity() {
         setContent {
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    val stateHolder = remember { mutableStateOf(initialState()) }
+                    val clock = remember { ClockedExecution(plan, SystemClock::elapsedRealtime) }
+                    val stateHolder = remember { mutableStateOf(clock.state) }
                     val state = stateHolder.value
                     val view = snapshot(plan, state)
                     LaunchedEffect(Unit) {
-                        var lastTick = SystemClock.elapsedRealtime()
                         while (true) {
                             kotlinx.coroutines.delay(50)
-                            val now = SystemClock.elapsedRealtime()
-                            val delta = now - lastTick
-                            lastTick = now
-                            val current = stateHolder.value
-                            if (current.status == SessionStatus.Running && delta > 0) {
-                                stateHolder.value = reduce(plan, current, EngineCommand.Advance(delta))
-                            }
+                            stateHolder.value = clock.tick()
                         }
                     }
                     Column(modifier = Modifier.padding(24.dp), verticalArrangement = Arrangement.spacedBy(12.dp)) {
@@ -69,7 +61,7 @@ class MainActivity : ComponentActivity() {
                             Text("Scheduled duration ${state.scheduledElapsedMs} ms")
                             Text("Observed execution ${state.observedRunMs} ms")
                             Text("This prototype does not save a Workout Session.")
-                            PrototypeButton("Restart") { stateHolder.value = initialState() }
+                            PrototypeButton("Restart") { stateHolder.value = clock.reset() }
                         } else {
                             Text("Gym Assistant", style = MaterialTheme.typography.headlineSmall)
                             Text(view.phaseName ?: if (view.status == "completed") "Complete" else "Ready", style = MaterialTheme.typography.displaySmall)
@@ -85,17 +77,17 @@ class MainActivity : ComponentActivity() {
                             }
                             if (state.status == SessionStatus.Completed) {
                                 PrototypeButton("Complete Workout") {
-                                    stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.Acknowledge)
+                                    stateHolder.value = clock.send(EngineCommand.Acknowledge)
                                 }
                             } else {
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    PrototypeButton("Start") { stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.Start) }
-                                    PrototypeButton("Pause") { stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.Pause) }
-                                    PrototypeButton("Resume") { stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.Resume) }
+                                    PrototypeButton("Start") { stateHolder.value = clock.send(EngineCommand.Start) }
+                                    PrototypeButton("Pause") { stateHolder.value = clock.send(EngineCommand.Pause) }
+                                    PrototypeButton("Resume") { stateHolder.value = clock.send(EngineCommand.Resume) }
                                 }
                                 Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
-                                    PrototypeButton("Back") { stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.StepBackward) }
-                                    PrototypeButton("Forward") { stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.StepForward) }
+                                    PrototypeButton("Back") { stateHolder.value = clock.send(EngineCommand.StepBackward) }
+                                    PrototypeButton("Forward") { stateHolder.value = clock.send(EngineCommand.StepForward) }
                                 }
                                 if (
                                     state.status == SessionStatus.Running ||
@@ -103,7 +95,7 @@ class MainActivity : ComponentActivity() {
                                     state.status == SessionStatus.RecoveredPaused
                                 ) {
                                     PrototypeButton("End Workout") {
-                                        stateHolder.value = reduce(plan, stateHolder.value, EngineCommand.EndEarly)
+                                        stateHolder.value = clock.send(EngineCommand.EndEarly)
                                     }
                                 }
                             }
