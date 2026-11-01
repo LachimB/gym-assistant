@@ -6,9 +6,9 @@
 - Current milestone: M0. Task **M0-01** (repository skeleton and personal GitHub preflight) is in progress and **blocked** before `git init`.
 - Working code: none. Schemas and synthetic fixtures are draft contracts. Python contract checks are the current automated baseline.
 - Git: not initialized in `/Users/michal/repos/private/gym-assistant`. Do not run `tools/bootstrap_private_repo.sh`; the directory already contains the starter package.
-- GitHub repository: not created. Intended private repository: `MichalB/gym-assistant`.
-- Confirmed personal author, repository-local only: `MichalB <michal.buzek@gmail.com>`. Not configured yet, because Git is not initialized. Do not change global Git config.
-- Identity check on 2026-11-01: **failed, stop.** `GITHUB_TOKEN` is set. `gh api user` returns `michal-buzek`. A diagnostic command that ignored `GITHUB_TOKEN` saw keyring account `LachimB`. Neither login is the confirmed owner `MichalB`. No repository was queried, created, or pushed. The starter package's `michal-buzek` owner assumption is withdrawn.
+- GitHub repository: not created. Intended private repository: `LachimB/gym-assistant`.
+- Confirmed personal GitHub login: `LachimB`. Repository-local author, not yet configured: `MichalB <michal.buzek@gmail.com>`. Do not change global Git config.
+- Identity check: `GITHUB_TOKEN` in the parent environment still selects `michal-buzek`. Preflight run with that variable removed from the process passes as `LachimB`. GitHub writes must keep the token variables unset. Author name stays `MichalB`. Withdrawn logins: `michal-buzek` and `MichalB`.
 - Cloud resources / OAuth / hosting: none provisioned.
 - Local toolchain observed: Python 3.9.6 (CI workflow asks for 3.12), Node.js 24.13.0, OpenJDK 21.0.13, Android Debug Bridge 1.0.41. Contract tests on 2026-11-01: `python3 -m unittest discover -s tests -v` passed 23 tests; `python3 tools/validate_starter.py` passed (17 schema-checked examples, 50,000 ms golden trace, 80 requirements).
 
@@ -35,7 +35,7 @@ Same nine IDs as the Milestone 0 plan. No second list.
 
 | ID | Status | Boundary |
 |---|---|---|
-| m0-01-repo | in progress | Prep done: identity docs, Decisions #1–#97, contract tests. Prep left: pin `MichalB` / `michal.buzek@gmail.com` in `tools/preflight_personal_github.sh` and `tools/bootstrap_private_repo.sh`. Approval gate: no `git init`, no `MichalB/gym-assistant` create, no push, no Actions until login is `MichalB`, `GITHUB_TOKEN` is unset, preflight passes, and Michal explicitly approves. |
+| m0-01-repo | in progress | Prep done: docs, script pin to GitHub owner `LachimB` and author `MichalB <michal.buzek@gmail.com>`, contract tests, local `main` commit, preflight passes as `LachimB` when token overrides are unset. Next: create private `LachimB/gym-assistant` and push with the token override removed. |
 | m0-03-spike | pending | Starts only after M0-01 is pushed. Draft ADR-0002. Do not adopt it in product code. |
 | engine-checkpoint | pending | Approval gate before any Android or web product UI. |
 | m0-02-engine | pending | After ADR-0002 approval. Four separate time records, including unobserved-gap recovery. |
@@ -46,10 +46,9 @@ Same nine IDs as the Milestone 0 plan. No second list.
 | m0-08-close | pending | Pass/fail matrix. |
 
 ## Next actions
-1. Finish the remaining M0-01 prep edit in the two shell scripts. Plan mode blocked that edit on 2026-11-01.
-2. Clear `GH_TOKEN`, `GITHUB_TOKEN`, `GH_ENTERPRISE_TOKEN`, and `GITHUB_ENTERPRISE_TOKEN`. Authenticate `gh` as `MichalB`. `gh api user --jq .login` must print `MichalB`.
-3. Re-run `tools/preflight_personal_github.sh --bootstrap` with `EXPECTED_GITHUB_OWNER=MichalB`, `EXPECTED_GIT_AUTHOR_NAME=MichalB`, and `EXPECTED_GIT_AUTHOR_EMAIL=michal.buzek@gmail.com`. Stop on any mismatch.
-4. Approval gate: only after that pass, and only with a separate explicit yes, confirm `MichalB/gym-assistant` does not already exist, then `git init` in this existing tree, set repository-local author `MichalB <michal.buzek@gmail.com>`, commit, create the private repo without `--push`, and push with `tools/personal_git_push.sh`.
+1. Create private `LachimB/gym-assistant` only with `GITHUB_TOKEN` unset and push through `tools/personal_git_push.sh`. `LachimB/gym-assistant` did not exist at the last check.
+2. Keep repository-local author `MichalB <michal.buzek@gmail.com>`. Do not change global Git config.
+3. After CI is green, start m0-03-spike. Draft ADR-0002 before product UI, then continue the remaining slices.
 5. After M0-01 is pushed and CI is green, start m0-03-spike. Stop again at engine-checkpoint before product UI.
 
 ## Clock categories
@@ -66,7 +65,7 @@ The M0 engine spike may defer an Android emulator matrix. M0 still requires the 
 - Android physical-device tests and Android version: not run.
 - Web preview/test URL: none. No hosted preview is approved.
 - New external services proposed/approved: none.
-- Unresolved issues and next smallest task: m0-01-repo is in progress. Shell identity pin is still open. GitHub login is not `MichalB`. Create/push stays at the approval gate.
+- Unresolved issues and next smallest task: m0-01-repo is in progress. Shell identity pin is still open. Effective `gh` login is `michal-buzek` while `GITHUB_TOKEN` is set; confirmed login is `LachimB`. Create/push stays at the approval gate.
 
 ## Approved domain extension: Decisions #79–#97
 

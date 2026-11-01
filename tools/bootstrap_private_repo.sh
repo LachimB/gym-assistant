@@ -5,7 +5,8 @@ TARGET='/Users/michal/repos/private/gym-assistant'
 : "${EXPECTED_GITHUB_OWNER:?Confirm personal owner in env before running}"
 : "${EXPECTED_GIT_AUTHOR_NAME:?Confirm personal Git author name in env before running}"
 : "${EXPECTED_GIT_AUTHOR_EMAIL:?Confirm personal Git author email in env before running}"
-if [[ "$EXPECTED_GITHUB_OWNER" != 'michal-buzek' ]]; then echo 'STOP: expected personal account requires explicit re-review of owner; edit reviewed script after approval.' >&2; exit 1; fi
+if [[ "$EXPECTED_GITHUB_OWNER" != 'LachimB' || "$EXPECTED_GIT_AUTHOR_NAME" != 'MichalB' ]]; then echo 'STOP: confirmed personal GitHub owner is LachimB and author name is MichalB.' >&2; exit 1; fi
+if [[ "$(printf %s "$EXPECTED_GIT_AUTHOR_EMAIL" | tr '[:upper:]' '[:lower:]')" != 'michal.buzek@gmail.com' ]]; then echo 'STOP: confirmed personal author email does not match.' >&2; exit 1; fi
 bash "$(dirname "$0")/preflight_personal_github.sh" --bootstrap
 if [[ -e "$TARGET" ]]; then echo "STOP: target already exists ($TARGET); inspect manually, this script will not overwrite" >&2; exit 1; fi
 printf '\nThis will initialize a NEW PRIVATE GitHub repo %s/gym-assistant at %s.\n' "$EXPECTED_GITHUB_OWNER" "$TARGET"

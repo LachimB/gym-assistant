@@ -1,6 +1,6 @@
 # macOS + Cursor bootstrap (personal accounts only)
 
-Target repo: `/Users/michal/repos/private/gym-assistant`; name `gym-assistant`; confirmed personal GitHub owner: `MichalB`. The starter package originally assumed `michal-buzek`. That assumption is withdrawn. `gh api user --jq .login` must return exactly `MichalB` before any GitHub write.
+Target repo: `/Users/michal/repos/private/gym-assistant`; name `gym-assistant`; confirmed personal GitHub owner: `LachimB`. The starter package originally assumed `michal-buzek`, and a later instruction said `MichalB`. Both are withdrawn as the GitHub login. `gh api user --jq .login` must return exactly `LachimB` before any GitHub write. Git author name stays `MichalB`; author email stays `michal.buzek@gmail.com`.
 
 ## Step 0 — Inspect, do not copy existing project credentials
 
@@ -28,7 +28,7 @@ The confirmed personal author email for this repository is `michal.buzek@gmail.c
 ```bash
 # Clear overrides first. A set GITHUB_TOKEN makes gh ignore the keyring account.
 unset GH_TOKEN GITHUB_TOKEN GH_ENTERPRISE_TOKEN GITHUB_ENTERPRISE_TOKEN
-export EXPECTED_GITHUB_OWNER='MichalB'
+export EXPECTED_GITHUB_OWNER='LachimB'
 export EXPECTED_GIT_AUTHOR_NAME='MichalB'
 export EXPECTED_GIT_AUTHOR_EMAIL='michal.buzek@gmail.com'
 # Before initializing a new repo use --bootstrap (validates account and author intent).
@@ -39,25 +39,25 @@ This stops on token environment overrides and requires the actual effective `gh 
 
 ## Step 3 — Initialize the existing directory (only after user approves creation)
 
-Do **not** run `tools/bootstrap_private_repo.sh`. It exits when `/Users/michal/repos/private/gym-assistant` already exists, and it still needs a reviewed edit so its hardcoded owner is `MichalB` rather than the withdrawn `michal-buzek` value.
+Do **not** run `tools/bootstrap_private_repo.sh`. It exits when `/Users/michal/repos/private/gym-assistant` already exists, The script now pins GitHub owner `LachimB`. It still exits when this directory already exists, so use the manual steps below.
 
-The starter package is already in the target directory. After preflight `--bootstrap` passes as `MichalB`, and after a separate yes to create the remote:
+The starter package is already in the target directory. After preflight `--bootstrap` passes as `LachimB`, and after a separate yes to create the remote:
 
 ```bash
 cd /Users/michal/repos/private/gym-assistant
-# Stop if `gh repo view MichalB/gym-assistant` shows an existing repository.
+# Stop if `gh repo view LachimB/gym-assistant` shows an existing repository.
 git init -b main
 git config --local user.name 'MichalB'
 git config --local user.email 'michal.buzek@gmail.com'
 git add .
 git commit -m 'Add Gym Assistant starter specification'
 # Do not pass --push. The default helper can select the wrong account.
-gh repo create MichalB/gym-assistant --private --source=. --remote=origin
+gh repo create LachimB/gym-assistant --private --source=. --remote=origin
 bash tools/preflight_personal_github.sh
 bash tools/personal_git_push.sh --set-upstream origin main
 ```
 
-Creating the remote, pushing, and relying on GitHub Actions each need explicit approval. If `MichalB/gym-assistant` already exists, stop and do not overwrite its history. GitHub Actions on a private repository can consume included minutes; stop before enabling a workflow that would be billed.
+Creating the remote, pushing, and relying on GitHub Actions each need explicit approval. If `LachimB/gym-assistant` already exists, stop and do not overwrite its history. GitHub Actions on a private repository can consume included minutes; stop before enabling a workflow that would be billed.
 
 ## Step 4 — Validate in Cursor
 
