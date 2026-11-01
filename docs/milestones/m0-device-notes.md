@@ -1,20 +1,49 @@
 # M0 physical-device notes — 2026-11-01
 
+Two observations on the same day, on a Pixel 10a running Android 17. Package `dev.gymassistant.m0.debug` (provisional debug id, not the production id). APK `apps/android/build/outputs/apk/debug/android-debug.apk`.
+
+## First attempt: lock screen blocked the UI
+
 The debug APK was installed on the attached phone. The interactive smoke in `docs/milestones/m0.md` was not observed, because the phone stayed on the lock screen.
 
 | Item | Result |
 |---|---|
 | Model | Pixel 10a |
 | Android version | 17 |
-| Package | `dev.gymassistant.m0.debug` (provisional debug id, not the production id) |
-| APK | `apps/android/build/outputs/apk/debug/android-debug.apk` |
 | Install | `adb install -r` succeeded |
 | Launch | `am start` delivered `dev.gymassistant.m0.MainActivity` |
 | Focused window | `com.android.systemui` dream / alternate bouncer. The Gym Assistant screen was not visible. |
 | Screen off and on | Not tested |
 | Pause, resume, step | Not tested on the device |
-| Process death | Not tested. This build does not claim timing across process death. |
+| Process death | Not observed in this attempt. A later check the same day is recorded below. |
 | Foreground service | Not added. That permission needs a separate yes. |
 | Audio | Not device audio. The UI is a simulated cue label. |
 
-Repeat the smoke after unlocking the phone: start the fixture, finish the first prepare and hold, confirm the next phase, pause and check that the remaining time stops, resume, step forward and back, turn the screen off and on, and write down the clock. A result after Android kills the process is an observation, not a timing pass.
+## Later the same day: locked screen, execution continued
+
+Michal ran Gym Assistant with the screen locked. Workout execution continued in the background. This is a successful basic screen-lock / background-execution test, dated 2026-11-01.
+
+Screen-off was not separately described. This note records the locked-screen background continuation he reported. It is not proof of process-death recovery, and it is not proof of long-duration background reliability. Long-duration background reliability remains untested.
+
+| Item | Result |
+|---|---|
+| Screen locked, execution continued | Pass. Basic screen-lock / background-execution test on 2026-11-01. |
+| Screen off and on | Not tested. Not described separately from the locked screen. |
+| Long-duration background reliability | Not tested. |
+| Pause, resume, step on device | Not tested. |
+| Foreground service | Not added. |
+
+## Later the same day: process termination
+
+Michal started a workout, progressed into the execution sequence, terminated the process while it was unfinished, and reopened Gym Assistant. Dated 2026-11-01, Pixel 10a, Android 17.
+
+| Item | Result |
+|---|---|
+| Clean application restart | Pass. The app restarted cleanly and did not crash. |
+| Unfinished workout state | Lost. The previous execution position was not restored. |
+| Persistent workout recovery | Unsupported / not implemented. M0 does not record a Workout Session. |
+| Full process-death recovery | Not passed. A clean restart is not recovery of the unfinished workout. |
+
+Losing the unfinished workout is acceptable for M0. Persistent Workout Session recording and recovery are out of M0 scope, so this is a known limitation, not an unexpected M0 failure. Reliable unfinished-session recovery is mandatory in M1 and is not an M0 acceptance gate. See `docs/milestones/m1.md`.
+
+Screen-off, on-device pause/resume/step, and long-duration background reliability are still not tested. Repeat those checks when the phone is unlocked: finish the first prepare and hold, confirm the next phase, pause and check that the remaining time stops, resume, step forward and back, turn the screen off and on, and write down the clock.

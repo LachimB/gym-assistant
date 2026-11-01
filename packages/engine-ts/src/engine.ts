@@ -41,6 +41,7 @@ export interface EngineState {
   pauseMs: number;
   unobservedGapMs: number;
   completedPhaseIndexes: number[];
+  completionAcknowledged: boolean;
   events: EngineEvent[];
 }
 
@@ -51,7 +52,8 @@ export type EngineCommand =
   | { op: "advance"; ms: number }
   | { op: "stepForward" }
   | { op: "stepBackward" }
-  | { op: "noteUnobserved"; ms: number };
+  | { op: "noteUnobserved"; ms: number }
+  | { op: "acknowledge" };
 
 type YamlMap = Record<string, unknown>;
 
@@ -212,6 +214,7 @@ export function initialState(): EngineState {
     pauseMs: 0,
     unobservedGapMs: 0,
     completedPhaseIndexes: [],
+    completionAcknowledged: false,
     events: [],
   };
 }
@@ -249,6 +252,10 @@ export function reduce(plan: CompiledPlan, state: EngineState, command: EngineCo
       return { ...state, status: "running", events: [...state.events, event(state, "resumeAfterGap", null)] };
     }
     return state;
+  }
+  if (command.op === "acknowledge") {
+    if (state.status !== "completed" || state.completionAcknowledged) return state;
+    return { ...state, completionAcknowledged: true };
   }
   if (command.op === "noteUnobserved") {
     if (state.status !== "running" && state.status !== "paused") return state;

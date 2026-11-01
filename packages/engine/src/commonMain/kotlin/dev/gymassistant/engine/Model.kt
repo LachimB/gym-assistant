@@ -52,6 +52,7 @@ data class EngineState(
     val pauseMs: Long = 0,
     val unobservedGapMs: Long = 0,
     val completedPhaseIndexes: Set<Int> = emptySet(),
+    val completionAcknowledged: Boolean = false,
     val events: List<EngineEvent> = emptyList(),
 )
 
@@ -63,6 +64,7 @@ sealed class EngineCommand {
     data object StepForward : EngineCommand()
     data object StepBackward : EngineCommand()
     data class NoteUnobserved(val ms: Long) : EngineCommand()
+    data object Acknowledge : EngineCommand()
 }
 
 @Serializable

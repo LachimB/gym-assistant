@@ -3,6 +3,7 @@ package dev.gymassistant.engine
 import java.io.File
 import kotlin.test.Test
 import kotlin.test.assertEquals
+import kotlin.test.assertTrue
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.json.Json
 
@@ -75,6 +76,50 @@ class EngineTest {
         assertEquals(plan.phases.indices.toSet(), state.completedPhaseIndexes)
         assertEquals(50_000L, state.observedRunMs)
         assertEquals(0L, state.pauseMs)
+        assertEquals(false, state.completionAcknowledged)
+    }
+
+    @Test
+    fun completedStateIgnoresLiveCommands() {
+        val plan = loadPlan()
+        val finished = reduceAll(plan, listOf(EngineCommand.Start, EngineCommand.Advance(50_000)))
+        assertEquals(SessionStatus.Completed, finished.status)
+        listOf(
+            EngineCommand.Start,
+            EngineCommand.Pause,
+            EngineCommand.Resume,
+            EngineCommand.Advance(1_000),
+            EngineCommand.StepForward,
+            EngineCommand.StepBackward,
+            EngineCommand.NoteUnobserved(2_000),
+        ).forEach { command ->
+            assertEquals(finished, reduce(plan, finished, command))
+        }
+    }
+
+    @Test
+    fun acknowledgePreservesTimingAndTrace() {
+        val plan = loadPlan()
+        val running = reduceAll(plan, listOf(EngineCommand.Start, EngineCommand.Advance(1_000)))
+        assertEquals(running, reduce(plan, running, EngineCommand.Acknowledge))
+
+        val finished = reduceAll(
+            plan,
+            listOf(EngineCommand.Start, EngineCommand.StepForward, EngineCommand.Advance(50_000)),
+        )
+        assertEquals(SessionStatus.Completed, finished.status)
+        val acknowledged = reduce(plan, finished, EngineCommand.Acknowledge)
+        assertEquals(true, acknowledged.completionAcknowledged)
+        assertEquals(SessionStatus.Completed, acknowledged.status)
+        assertEquals(finished.scheduledElapsedMs, acknowledged.scheduledElapsedMs)
+        assertEquals(finished.observedRunMs, acknowledged.observedRunMs)
+        assertEquals(finished.pauseMs, acknowledged.pauseMs)
+        assertEquals(finished.unobservedGapMs, acknowledged.unobservedGapMs)
+        assertEquals(finished.completedPhaseIndexes, acknowledged.completedPhaseIndexes)
+        assertEquals(finished.events, acknowledged.events)
+        assertEquals(50_000L, acknowledged.scheduledElapsedMs)
+        assertTrue(acknowledged.observedRunMs < acknowledged.scheduledElapsedMs)
+        assertEquals(acknowledged, reduce(plan, acknowledged, EngineCommand.Acknowledge))
     }
 
     private fun loadPlan(): CompiledPlan {
