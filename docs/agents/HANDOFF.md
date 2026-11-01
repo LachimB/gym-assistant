@@ -58,7 +58,7 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 
 ## Next actions
 1. Review the recorded physical-phone evidence in `docs/milestones/m0-device-notes.md`. The four guided short scenarios passed by user report on the verified PR #4 APK. PR #5 CI maintenance is merged; all jobs passed with zero annotations. M0 closure still needs explicit approval; keep PR #2 open.
-2. Recommended next implementation slice, pending agreement: fix the known web production-build Node typing/configuration failure and add the web build to CI. Review remaining M0 gaps before closing the milestone; do not silently turn later audio/recovery/organization requirements into completed work.
+2. Review the approved web-build fix on `codex/m0-web-build`: Node 22 test declarations are a direct dev dependency and CI runs the production build. Next proposed slice is a separate review of existing Vitest/tinypool audit findings, including critical ratings; no dependency upgrade is authorized by that proposal. Review remaining gaps before M0 closure.
 3. Keep long-duration background reliability, numerical device drift measurement, and other OS/audio scenarios clearly unproven. No foreground service without separate approval. Unfinished-session recovery waits for M1.
 4. Follow the user-approved automatic debug-APK installation workflow in `working-agreement.md` after local builds. Do not uninstall or clear data.
 5. Keep GitHub writes on `LachimB` with token variables unset; repository author stays `MichalB <michal.buzek@gmail.com>`. No OAuth, hosting, signing, new service or billable resource without the required approvals.
@@ -209,6 +209,41 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
 - Proposed next small task: repair web production build and run it in CI. No fix
   implemented here. Review remaining gaps, then seek explicit M0 closure approval;
   do not merge PR #2 or claim daily-use readiness automatically.
+
+## Web production build — 2026-11-01
+
+- Approved slice: `codex/m0-web-build`, from merged `m0-prototype` at `193f3bd`
+  (PR #6 merged). PR #2 stays open. No runtime application or engine changes.
+- Reproduced six compiler errors before the fix: the two web fixture tests could
+  not resolve `node:fs`, `node:path`, or `import.meta.dirname`. Vitest passed because
+  it transpiles without the production build's TypeScript check.
+- Added direct dev dependency `@types/node` 22.20.5, matching project/CI Node 22,
+  and its declaration-only `undici-types` dependency. No existing package versions
+  changed or were removed. npm regenerated some peer metadata in the lockfile.
+  No test exclusion, type-check relaxation, tsconfig change, or source workaround.
+- CI now runs `npm run build` after web tests in the existing `web` job. The build
+  includes `tsc --noEmit` and Vite bundling; triggers/permissions/jobs are unchanged.
+- User requested explicit communication in every project chat. Persisted in
+  `AGENTS.md`: say when no input is needed; otherwise state the exact action,
+  location, expected response, and whether it blocks work. Final task updates
+  must explicitly name the user's next action or say no input is needed.
+  Requests needing a response use the standalone bold **🔴 YOUR INPUT NEEDED**
+  signal; ordinary output stays concise without repeated no-input-needed updates.
+- Local evidence: clean `npm ci`, 12 web tests, 25 TypeScript engine tests, 23 Python
+  tests, schema/traceability validator, and production build all pass. Built 108
+  modules successfully. Kotlin/Android source is unchanged; no Android build or
+  installation was needed for this slice. CI reruns all existing suites remotely.
+- Production-bundle browser smoke on localhost port 4173 passed: start, virtual
+  advance, pause (scheduled/observed/pause 1,000/1,000/1,000 ms), resume,
+  Forward/Back (scheduled 0, observed/pause 1,000 ms), and End Simulation. The final
+  screen still states that it does not record a Workout Session.
+- npm audit found three existing development dependency findings: moderate
+  `@vitest/mocker`, critical `tinypool`, critical `vitest`. Baseline and updated
+  lockfile audits were identical. Recorded upstream advisories in testing docs;
+  no force-upgrade or exploitability claim. Separate dependency review recommended.
+- Existing Android tooling warning, missing numerical device drift logs, and
+  long-duration/other-OS/audio evidence remain. M0 closure still needs explicit
+  approval; do not merge PR #2 or advance to M1 automatically.
 
 ## Approved domain extension: Decisions #79–#97
 

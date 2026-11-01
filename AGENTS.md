@@ -17,6 +17,26 @@
 9. Keep personal/source and import data segregated and backups outside the active app directory. Legacy sheet read-only after successful migration.
 10. Do not create real accounts, resources, billable services, send invitations, deploy publicly, or perform data-destructive actions without explicit user approval.
 
+## Communication with the project owner
+
+- Explicitly state whether user input/action is needed now. When none is needed,
+  say so and continue authorized work without requesting redundant confirmation.
+- Requests requiring the user's response must stand out under a standalone
+  **🔴 YOUR INPUT NEEDED** heading (bold with a red marker; do not rely on HTML
+  text colors being supported). Immediately give the exact action and location.
+  Reserve this signal for real requests, not routine status. Keep other output
+  concise and avoid repeated no-input-needed messages during routine progress.
+- When input is needed, specify the exact decision/action, where to do it (this
+  chat, GitHub, or the phone), and the expected response. Distinguish required
+  input that blocks work from optional feedback, and say whether work is waiting.
+- End task-completion updates with **🔴 YOUR INPUT NEEDED** followed by the concrete
+  request, or a brief **No input needed** when there is no request. Do not leave the user
+  to infer a review, approval, merge, or test request from a progress report.
+- Test requests must give steps, expected observations, and what results to send
+  back. Approval requests must identify the exact scope/action being approved.
+  Explain whether approval is a chat reply, GitHub review/merge, or an environment
+  permission prompt; do not imply that a separate approval screen exists.
+
 ## Agent loop
 
 Read requirements → read open gap/ADR decisions → select approved issue/milestone → implement smallest viable slice → tests and CI → document changes → verify actual device/web behavior → update `docs/agents/HANDOFF.md` → open small PR → obtain approvals where necessary.
