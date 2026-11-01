@@ -1,0 +1,112 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gym-assistant:schema:execution-plan:1.0.0",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "templateId",
+    "revisionId",
+    "planFormatVersion",
+    "expectedDurationMs",
+    "phases"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "templateId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "revisionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "planFormatVersion": {
+      "const": "1.0.0"
+    },
+    "expectedDurationMs": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "oneOf": [
+          {
+            "type": "object",
+            "required": [
+              "stepId",
+              "phaseId",
+              "setId",
+              "repetitionIndex",
+              "startMs",
+              "endMs",
+              "name"
+            ],
+            "properties": {
+              "stepId": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+              },
+              "phaseId": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+              },
+              "setId": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+              },
+              "repetitionIndex": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "startMs": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "endMs": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "name": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          {
+            "type": "object",
+            "required": [
+              "stepId",
+              "startMs",
+              "endMs",
+              "name"
+            ],
+            "properties": {
+              "stepId": {
+                "type": "string",
+                "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+              },
+              "startMs": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "endMs": {
+                "type": "integer",
+                "minimum": 1
+              },
+              "name": {
+                "const": "rest"
+              }
+            },
+            "additionalProperties": false
+          }
+        ]
+      }
+    }
+  },
+  "additionalProperties": false
+}

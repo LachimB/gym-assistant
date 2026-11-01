@@ -1,0 +1,21 @@
+name: Bug report (sanitized)
+description: Do not attach private session data without deliberate redaction
+title: '[bug] '
+labels: ['bug']
+body:
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Synthetic or redacted reproduction
+    validations:
+      required: true
+  - type: textarea
+    id: expected
+    attributes:
+      label: Expected vs actual behavior
+    validations:
+      required: true
+  - type: textarea
+    id: environment
+    attributes:
+      label: Device/OS/app version and test references (no personal data)

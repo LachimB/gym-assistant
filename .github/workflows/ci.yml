@@ -1,0 +1,22 @@
+name: Validate starter contracts
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  contracts:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Install contract test tools
+        run: python -m pip install -r tools/requirements.txt
+      - name: Run fixture and traceability tests
+        run: python -m unittest discover -s tests -v
+      - name: Check package hygiene
+        run: python tools/validate_starter.py && python tools/check_repo_hygiene.py
+# Android emulator and web E2E workflows added during M0. This CI does not yet build apps.

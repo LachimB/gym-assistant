@@ -1,0 +1,21 @@
+schemaVersion: 1.0.0
+programId: program_corrective
+revisionId: program_corrective_rev1
+names: {en: Corrective Training}
+status: active
+goals: [Mobility and movement quality]
+suggestedWeeklyFrequency: 2
+templateMemberships:
+  - membershipId: membership_corrective_demo
+    templateId: template_composite_demo
+    versionPolicy: {mode: latest}
+    overrides:
+      - blockId: block_alternating
+        occurrenceId: occurrence_hip_lift
+        setId: set_hip_red
+        values:
+          resistance:
+            bands: [{equipmentId: band_black, count: 1, placement: knees}]
+    lastValidated:
+      templateRevisionId: revision_demo_v1
+      effectivePlanHash: synthetic-effective-plan-v1

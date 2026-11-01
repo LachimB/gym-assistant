@@ -1,0 +1,38 @@
+{
+  "schemaVersion": "1.0.0",
+  "promotionId": "promotion_demo_001",
+  "sourceSessionId": "session_synthetic_001",
+  "status": "reviewed",
+  "target": {
+    "kind": "programOverride",
+    "programId": "program_corrective",
+    "membershipId": "membership_corrective_demo",
+    "expectedProgramRevisionId": "program_corrective_rev1"
+  },
+  "selectedChanges": [
+    {
+      "blockId": "block_alternating",
+      "occurrenceId": "occurrence_hip_lift",
+      "setId": "set_hip_red",
+      "field": "resistance",
+      "plannedValue": {
+        "bands": [
+          {
+            "equipmentId": "band_black",
+            "count": 1,
+            "placement": "knees"
+          }
+        ]
+      },
+      "actualValue": {
+        "bands": [
+          {
+            "equipmentId": "band_blue",
+            "count": 1,
+            "placement": "knees"
+          }
+        ]
+      }
+    }
+  ]
+}

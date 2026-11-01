@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "jobId": "job_synthetic_session_001",
+  "sessionId": "session_synthetic_001",
+  "sessionRevision": 1,
+  "journalYear": 2026,
+  "journalMonth": 10,
+  "status": "pending",
+  "attemptCount": 0
+}

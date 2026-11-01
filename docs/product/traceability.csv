@@ -1,0 +1,81 @@
+requirement_id,milestone,evidence_status,test_reference
+GA-DOM-001,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-DOM-002,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-DOM-003,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-DOM-004,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-DOM-005,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-DOM-006,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-DOM-007,M2-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DOM-007 pending
+GA-DOM-008,M2-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DOM-008 pending
+GA-DOM-009,M2-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DOM-009 pending
+GA-EXE-001,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-001 pending
+GA-EXE-002,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-002 pending
+GA-EXE-003,M1-M2,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-EXE-004,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-004 pending
+GA-EXE-005,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-005 pending
+GA-EXE-006,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-006 pending
+GA-EXE-007,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-007 pending
+GA-EXE-008,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-008 pending
+GA-EXE-009,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-009 pending
+GA-EXE-010,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-010 pending
+GA-EXE-011,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-011 pending
+GA-EXE-012,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-012 pending
+GA-EXE-013,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-013 pending
+GA-EXE-014,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-014 pending
+GA-EXE-015,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-015 pending
+GA-WEB-001,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-001 pending
+GA-WEB-002,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-002 pending
+GA-WEB-003,M0-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-WEB-004,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-004 pending
+GA-WEB-005,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-005 pending
+GA-DATA-001,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-001 pending
+GA-DATA-002,M1-M4,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-DATA-003,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-003 pending
+GA-DATA-004,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-004 pending
+GA-DATA-005,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-005 pending
+GA-DATA-006,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-006 pending
+GA-DATA-007,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-007 pending
+GA-DATA-008,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-008 pending
+GA-DATA-009,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-009 pending
+GA-DATA-010,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-010 pending
+GA-DATA-011,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-011 pending
+GA-DATA-012,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-012 pending
+GA-SEC-001,M1-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SEC-001 pending
+GA-SEC-002,M1-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SEC-002 pending
+GA-SEC-003,M1-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SEC-003 pending
+GA-SEC-004,M1-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SEC-004 pending
+GA-SEC-005,M1-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SEC-005 pending
+GA-SHARE-001,Post-MVP,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SHARE-001 pending
+GA-SHARE-002,Post-MVP,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SHARE-002 pending
+GA-OPS-001,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-001 pending
+GA-OPS-002,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-002 pending
+GA-OPS-003,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-003 pending
+GA-OPS-004,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-004 pending
+GA-OPS-005,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-005 pending
+GA-OPS-006,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-006 pending
+GA-OPS-007,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-007 pending
+GA-OPS-008,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-008 pending
+GA-OPS-009,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-009 pending
+GA-OPS-010,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-010 pending
+GA-OPS-011,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-011 pending
+GA-ORG-001,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-002,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-003,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-004,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-005,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-006,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-007,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-008,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-009,M0-M2,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-010,M0-M2,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-011,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-012,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-013,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-014,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-015,M0-M2,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-016,M0-M2,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-017,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-018,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-019,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-020,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md
+GA-ORG-021,M1-M5,synthetic-schema-checks-only; runtime-not-implemented,tests/test_organization_contracts.py; docs/architecture/seasons-programs-and-promotion.md

@@ -1,0 +1,62 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gym-assistant:schema:journal-job:1.0.0",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "jobId",
+    "sessionId",
+    "sessionRevision",
+    "journalYear",
+    "journalMonth",
+    "status"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "jobId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "sessionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "sessionRevision": {
+      "type": "integer",
+      "minimum": 1
+    },
+    "journalYear": {
+      "type": "integer",
+      "minimum": 2000
+    },
+    "journalMonth": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 12
+    },
+    "status": {
+      "enum": [
+        "pending",
+        "inProgress",
+        "completed",
+        "failed",
+        "conflict"
+      ]
+    },
+    "lastAttemptAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "attemptCount": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "errorCode": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

@@ -1,0 +1,120 @@
+{
+  "schemaVersion": "1.0.0",
+  "sessionId": "session_synthetic_001",
+  "templateId": "template_composite_demo",
+  "revisionId": "revision_demo_v1",
+  "executionPlanHash": "illustrative-hash-not-a-cryptographic-digest",
+  "engineVersion": "prototype-0.0",
+  "startedAt": "2026-10-03T09:00:00+02:00",
+  "finishedAt": "2026-10-03T09:00:50+02:00",
+  "timeZone": "Europe/Berlin",
+  "localTrainingDate": "2026-10-03",
+  "status": "completed",
+  "sourcePlanSnapshot": {
+    "templateId": "template_composite_demo",
+    "revisionId": "revision_demo_v1",
+    "planFormatVersion": "1.0.0"
+  },
+  "events": [
+    {
+      "eventId": "event_start_001",
+      "type": "sessionStarted",
+      "recordedAt": "2026-10-03T09:00:00+02:00",
+      "planStepId": "step_hip_1",
+      "scheduledElapsedMs": 0,
+      "actualElapsedMs": 0
+    },
+    {
+      "eventId": "event_end_001",
+      "type": "sessionCompleted",
+      "recordedAt": "2026-10-03T09:00:50+02:00",
+      "planStepId": "step_plank_2",
+      "scheduledElapsedMs": 50000,
+      "actualElapsedMs": 50000
+    }
+  ],
+  "overallRpe": 4,
+  "personalQualityRating": 4,
+  "journalSummary": "Synthetic example only; no real person or performance data.",
+  "notes": "",
+  "performanceBySet": [
+    {
+      "setId": "set_hip_yellow",
+      "completedRepetitions": 1,
+      "rpe": 4,
+      "resistanceActual": {
+        "bands": [
+          {
+            "equipmentId": "band_yellow",
+            "count": 1,
+            "placement": "knees"
+          }
+        ]
+      },
+      "blockId": "block_alternating",
+      "occurrenceId": "occurrence_hip_lift",
+      "variationId": "hip_lift_level_1"
+    },
+    {
+      "setId": "set_hip_red",
+      "completedRepetitions": 1,
+      "rpe": 5,
+      "resistanceActual": {
+        "bands": [
+          {
+            "equipmentId": "band_blue",
+            "count": 1,
+            "placement": "knees"
+          }
+        ]
+      },
+      "blockId": "block_alternating",
+      "occurrenceId": "occurrence_hip_lift",
+      "variationId": "hip_lift_level_2"
+    },
+    {
+      "setId": "set_plank_red",
+      "completedRepetitions": 2,
+      "rpe": 4,
+      "resistanceActual": {
+        "bands": [
+          {
+            "equipmentId": "band_red",
+            "count": 1,
+            "placement": "hands"
+          }
+        ]
+      },
+      "blockId": "block_alternating",
+      "occurrenceId": "occurrence_plank",
+      "variationId": "plank_level_1"
+    }
+  ],
+  "timing": {
+    "scheduledDurationMs": 50000,
+    "activeDurationMs": 40000,
+    "restDurationMs": 10000,
+    "totalDurationMs": 50000
+  },
+  "organizationContext": {
+    "season": {
+      "seasonId": "season_2026_2027",
+      "revisionId": "season_rev1",
+      "name": "Training Season 2026–2027",
+      "participationId": "participation_corrective_2026"
+    },
+    "program": {
+      "programId": "program_corrective",
+      "revisionId": "program_corrective_rev1",
+      "name": "Corrective Training",
+      "membershipId": "membership_corrective_demo"
+    },
+    "selectedAt": "2026-10-03T09:00:00+02:00"
+  },
+  "effectiveConfigurationSnapshot": {
+    "templateRevisionId": "revision_demo_v1",
+    "programRevisionId": "program_corrective_rev1",
+    "membershipId": "membership_corrective_demo",
+    "overrideFingerprint": "synthetic-override-hash-v1"
+  }
+}

@@ -1,0 +1,21 @@
+schemaVersion: 1.0.0
+familyId: exercise_bridge_band
+names:
+  en: Quadruped hip lift
+  cs: Kyčlozdvih na všech čtyřech
+shortNames:
+  en: Hip lift
+  cs: Kyčlozdvih
+description:
+  en: Synthetic training example used only for automated testing.
+tags: [strength, mobility]
+equipmentIds: [band_yellow, band_red]
+variations:
+  - variationId: hip_lift_level_1
+    names: {en: Hip lift L1, cs: Kyčlozdvih L1}
+    instructions:
+      en: Synthetic test instructions; not physiotherapy advice.
+  - variationId: hip_lift_level_2
+    names: {en: Hip lift L2, cs: Kyčlozdvih L2}
+    instructions:
+      en: Different range of motion for synthetic testing.

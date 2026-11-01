@@ -1,0 +1,8 @@
+schemaVersion: 1.0.0
+familyId: exercise_plank
+names: {en: Controlled plank, cs: Prkno s kontrolou}
+shortNames: {en: Plank, cs: Prkno}
+variations:
+  - variationId: plank_level_1
+    names: {en: Plank L1, cs: Prkno L1}
+    instructions: {en: Synthetic example; not medical instructions.}

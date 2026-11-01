@@ -1,0 +1,127 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gym-assistant:schema:training-season:1.0.0",
+  "title": "Training Season (draft initial contract)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "seasonId",
+    "revisionId",
+    "names",
+    "status"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "seasonId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "revisionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "planned",
+        "active",
+        "paused",
+        "completed",
+        "abandoned"
+      ]
+    },
+    "names": {
+      "type": "object",
+      "minProperties": 1,
+      "propertyNames": {
+        "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+      },
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "description": {
+      "type": "object",
+      "additionalProperties": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    },
+    "focus": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "goals": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "tags": {
+      "type": "array",
+      "uniqueItems": true,
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "visual": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "type": "string"
+        },
+        "icon": {
+          "type": "string"
+        }
+      },
+      "additionalProperties": false
+    },
+    "startDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "endDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "suggestedWeeklyFrequency": {
+      "type": "integer",
+      "minimum": 0
+    },
+    "suggestedRotation": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+      }
+    },
+    "archivedAt": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "format": "date-time"
+    },
+    "clonedFromId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    }
+  },
+  "additionalProperties": false
+}
