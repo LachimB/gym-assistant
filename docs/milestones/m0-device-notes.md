@@ -81,3 +81,52 @@ state on return in these short scenarios; it cannot establish continuous callbac
 or audio delivery during suspension. Long-duration reliability, interruption/audio
 policies, other Android versions, and persistent recovery remain unproven or later
 milestone work. M0 closure and merging PR #2 still require review and approval.
+
+## Numerical foreground clock baseline — closeout capture
+
+On 2026-11-01, Codex operated the same verified APK through ADB on the unlocked
+Pixel 10a / Android 17 (API 37). A fresh synthetic run used Start → running samples
+→ Pause → paused samples → Resume → running samples → End Workout. No application
+source, permissions, persistence, or device data was changed. The successful run
+ended through End Workout. Screen-off behavior was not repeated in this capture.
+
+The sanitized [timing log](m0-device-timing.json) records relative device uptime
+before/after each screenshot, command brackets, and visually transcribed UI
+counters. No serial number, absolute uptime, private record, or raw screenshot is
+committed. Reproduce by reading `adb shell cat /proc/uptime`, capturing the UI with
+`adb exec-out screencap -p`, then reading uptime again for each sample. Use one
+origin and retain the first uptime field to 10 ms resolution. Refresh UI control
+bounds before each tap: the simulated-cue text changes layout. An initial capture
+with stale button bounds missed Pause and is excluded; it is not app evidence.
+
+| Sample | Relative uptime bracket (ms) | Scheduled (ms) | Observed running (ms) | Pause (ms) | Unobserved (ms) |
+|---|---|---|---|---|---|
+| running_a | 4,720–5,380 | 2,329 | 2,329 | 0 | 0 |
+| running_b | 13,460–14,030 | 11,056 | 11,056 | 0 | 0 |
+| paused_a | 16,700–17,310 | 13,992 | 13,992 | 332 | 0 |
+| paused_b | 22,390–22,930 | 13,992 | 13,992 | 5,979 | 0 |
+| resumed_a | 25,510–26,110 | 14,265 | 14,265 | 8,805 | 0 |
+| resumed_b | 31,240–31,870 | 20,030 | 20,030 | 8,805 | 0 |
+
+For consecutive samples A/B, the capture-time elapsed interval is
+`[B.before − A.after, B.after − A.before]`, expanded by 20 ms conservatively for
+uptime quantization. Compare this interval with the relevant displayed counter's
+increment. The interval is sampling uncertainty, not an approved error tolerance.
+
+| Pair | Displayed increment (ms) | Reference elapsed interval (ms) | Counter minus reference interval (ms) |
+|---|---|---|---|
+| Running | 8,727 running | 8,060–9,330 | −603 to +667 |
+| Paused | 5,647 pause | 5,060–6,250 | −603 to +587 |
+| Resumed | 5,765 running | 5,110–6,380 | −615 to +655 |
+
+All three increments lie within their reference intervals. Scheduled/observed
+time froze at 13,992 ms during pause; pause stayed at 8,805 ms after resume; every
+sample reports zero unobserved time. This supplies the requested short numerical
+baseline and supports the expected foreground accounting behavior. The display
+samples are not event timestamps. Screenshots take 0.54–0.66 seconds to bracket;
+the UI's nominal 50 ms refresh can also lag, with no measured upper bound on
+rendering latency. These intervals therefore are not rigorous total drift bounds.
+No exact clock precision, long-duration reliability, continuous screen-off
+callbacks/audio, or process-death recovery is established. GAP-17 still requires
+approved performance thresholds and broader M5 measurements. User-reported short
+screen-off passes remain separate evidence above.
