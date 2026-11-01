@@ -98,6 +98,29 @@ detection, durable recovery, or UI clock-adapter accounting.
 
 ## Clock model and Android restrictions
 
+The M0 Android `ClockedExecution` adapter samples injected monotonic milliseconds
+at timer callbacks and immediately before each user command. It advances the
+reducer in the **old** status before applying pause/resume/navigation/end, so an
+interval between callbacks cannot leak into the next status. Paused intervals
+advance only `pauseMs`. Loaded, recovered-paused, and completed states consume no
+running or pause time; restart resets the sampling anchor.
+
+The web `SimulatorClock` follows the same ordering using injected `performance.now()`.
+Animation frames continue while user-paused if wall-clock preview is enabled.
+Fractional milliseconds accumulate separately for running and paused time; only
+whole milliseconds enter the reducer, so each counter can defer less than 1 ms
+without rounding every frame or transferring running fractions to pause time.
+Disabling wall-clock preview settles the prior interval; disabled intervals are
+excluded. Re-enabling anchors at the toggle. Explicit virtual advances remain
+additive and work with preview disabled. Restart disables preview and clears both
+fractional accumulators. Commands/clock samples are processed outside React state
+updaters, avoiding duplicate clock mutation when StrictMode replays an updater.
+
+An explicitly supplied unobserved-gap command reanchors without first consuming
+the uncertain interval. It does not implement automatic gap detection. Both
+adapters remain process-local: these tests do not establish Android screen-off
+reliability, browser-suspension policy, or persisted process-death recovery.
+
 Use a monotonic elapsed clock while execution is alive; keep an anchor, pause offsets, scheduled phase deadlines and separately measured actual event timestamps. Avoid per-second timer accumulation; derive UI countdown from monotonic differences. After app process termination, boot, or device power loss the original monotonic anchor may no longer be comparable. **Never invent that elapsed exercise happened while unobserved**; recover from durable checkpoint, show time uncertainty and obtain explicit user confirmation before resuming. Evaluate foreground-service type/permissions and notification handling on Android 12+ according to platform policies. WorkManager is suitable for *deferred sync*, not a guaranteed subsecond live exercise loop. No blanket exact-alarm permission requirement unless justified and approved.
 
 ## Interruption policy

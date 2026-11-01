@@ -42,8 +42,18 @@ The completed-hold rewind case first verifies `[0, 1]` at 12,000 ms, then `[0]`
 after rewinding to 4,000 ms, and finally the replay boundary at scheduled 12,000 ms
 and observed 20,000 ms. An isolated mutation that retained completed phases on
 rewind failed at the intermediate checkpoint in all three TypeScript partitions.
-Existing engine jobs in CI run these tests. Platform clock adapters, physical
-background behavior, and persistent recovery still need separate integration tests.
+Existing engine jobs in CI run these tests. These pure reducer cases alone do not
+prove clock-adapter wiring, physical background behavior, or persistent recovery.
+
+`ClockedExecutionTest` (JVM, using the same adapter compiled into Android) and
+`apps/web/src/SimulatorClock.test.ts` inject monotonic samples into the real
+reducers. They verify pause/resume between timer callbacks, timer-frequency
+independence, navigation/end settlement, explicit uncertain intervals, and reset.
+Web coverage also includes 60 Hz/fractional frames, separate fractional buckets,
+and wall-clock toggles versus virtual advances. These run in the existing engine
+and web CI jobs without a device or new dependency. An isolated TypeScript mutation
+dropping paused intervals failed two tests; per-frame rounding failed five.
+Android UI/device lifecycle behavior still needs physical-phone evidence.
 
 The synthetic golden timeline covers two different exercises, separate hip-lift sets with **different variations and band amounts**, interleaving of reps, a timed rest and 50,000ms scheduled runtime. It does not yet cover actual background audio, user voice, free-form manual rep timing, error handling or external Drive OAuth. Those must be added later and never reported as already tested.
 
