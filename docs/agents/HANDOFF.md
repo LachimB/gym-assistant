@@ -223,6 +223,10 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
   No test exclusion, type-check relaxation, tsconfig change, or source workaround.
 - CI now runs `npm run build` after web tests in the existing `web` job. The build
   includes `tsc --noEmit` and Vite bundling; triggers/permissions/jobs are unchanged.
+- User requested explicit communication in every project chat. Persisted in
+  `AGENTS.md`: say when no input is needed; otherwise state the exact action,
+  location, expected response, and whether it blocks work. Final task updates
+  must explicitly name the user's next action or say no input is needed.
 - Local evidence: clean `npm ci`, 12 web tests, 25 TypeScript engine tests, 23 Python
   tests, schema/traceability validator, and production build all pass. Built 108
   modules successfully. Kotlin/Android source is unchanged; no Android build or
