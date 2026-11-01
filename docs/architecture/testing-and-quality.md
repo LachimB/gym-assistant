@@ -77,6 +77,23 @@ CI maintenance acceptance requires all three jobs passing and inspection of thei
 annotations for action-runtime deprecation and runner-migration warnings. A green
 job alone does not establish that its annotations are clean.
 
+The web job also runs `npm run build` after the simulator tests. This executes
+`tsc --noEmit` over the existing `src` scope, including tests, then Vite's production
+bundle build. `@types/node` 22 is a direct web development dependency for the
+fixture tests' Node imports and `import.meta.dirname`; test inclusion and strict
+compiler settings are preserved. Vitest's transpile-only success is insufficient
+evidence that the production type-check/build succeeds.
+
+Dependency-audit follow-up (2026-11-01): a baseline-versus-updated lockfile audit
+reported identical existing development-toolchain findings: `@vitest/mocker`
+(moderate), `tinypool` (critical), and `vitest` (critical). The typing-only fix does
+not change any existing package version. These findings need a separate dependency
+review; no forced audit upgrade or unsupported claim of exploitability is included.
+Advisories include [Vitest/mock traversal](https://github.com/advisories/GHSA-82fw-gwwq-j7x9),
+[mock registration](https://github.com/advisories/GHSA-qxg6-89mg-rqv8),
+[Tinypool worker options](https://github.com/advisories/GHSA-5gmw-xhrv-c9v3), and
+[Tinypool run options](https://github.com/advisories/GHSA-85c8-ppgw-ccpr).
+
 Run schema checks in CI and dedicated Kotlin/TS engine test matrices in M0. M0 acceptance also includes the composite fixture, virtual-clock tests, and deterministic cross-platform traces. An Android emulator matrix may be deferred during the M0 engine spike; physical-phone smoke remains an M0 gate. From M1 onward, automated emulator testing across supported Android versions is mandatory, plus physical-device smoke on accepted builds. Decisions #48 and #54 stay in force. A physical-device pass must record OS, model (without unnecessary personal identifiers), app build, scenario, observed audio/clock behavior, expected vs actual. Persist results in GitHub Issues or redacted test reports.
 
 ## New organizational conformance scenarios (#79–#97)

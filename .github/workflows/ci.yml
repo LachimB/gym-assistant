@@ -43,4 +43,7 @@ jobs:
       - name: Web simulator tests
         working-directory: apps/web
         run: npm install && npm test
+      - name: Web production build
+        working-directory: apps/web
+        run: npm run build
 # Multi-version Android emulator CI is mandatory from M1, not in this M0 workflow.
