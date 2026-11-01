@@ -1,3 +1,14 @@
-# Web app placeholder (M0 implementation target)
+# Web simulator
 
-The React/TypeScript project is **not yet implemented**. M0 adds a browser simulator that consumes the same versioned plan and emits a testable phase sequence; no real session logging from web. React should not depend on hardcoded Vitalista or cloud integration. No handwritten JavaScript source; TypeScript only.
+Local browser dry-run of the synthetic composite workout. It does not record a Workout Session and it does not call any hosted service.
+
+```bash
+cd apps/web
+npm install
+npm test
+npm run dev
+```
+
+Open the URL Vite prints. The default is `http://127.0.0.1:5173`.
+
+Use **Virtual +1s** when comparing the screen with the 50,000 ms golden timeline. **Use wall clock** moves the scheduled clock from the browser timer while the tab is in the foreground. A background tab is not evidence. On-screen cue text is simulated audio, not speech synthesis.

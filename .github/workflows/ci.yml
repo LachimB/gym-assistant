@@ -19,5 +19,27 @@ jobs:
         run: python -m unittest discover -s tests -v
       - name: Check package hygiene
         run: python tools/validate_starter.py && python tools/check_repo_hygiene.py
-# M0 also runs the engine and web unit tests in later jobs in this file.
-# Multi-version Android emulator CI is mandatory from M1, not in the M0 engine spike.
+  engine:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Kotlin engine and in-memory store
+        run: ./gradlew :engine:jvmTest :cloud-adapters:test
+  web:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: TypeScript engine tests
+        working-directory: packages/engine-ts
+        run: npm install && npm test
+      - name: Web simulator tests
+        working-directory: apps/web
+        run: npm install && npm test
+# Multi-version Android emulator CI is mandatory from M1, not in this M0 workflow.
