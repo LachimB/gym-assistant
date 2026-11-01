@@ -59,6 +59,24 @@ The synthetic golden timeline covers two different exercises, separate hip-lift 
 
 ## Release and regression policy
 
+CI uses the explicit `ubuntu-24.04` hosted runner label, avoiding the automatic
+Ubuntu-release migration of `ubuntu-latest` (the 24.04 image still receives normal
+updates). Actions are upgraded to reviewed stable release refs:
+`checkout@v7.0.1`, `setup-python@v7.1.0`, `setup-java@v6.1.0`, and
+`setup-node@v7.1.0`. Their `action.yml` files declare Node 24; this is the actions'
+internal runtime, separate from the test toolchains (Python 3.12, Temurin 21,
+Node 22). `package-manager-cache: false` preserves the existing uncached npm
+setup despite newer setup-node automatic-cache behavior. Workflow triggers,
+read-only repository permissions, and test/hygiene commands are unchanged.
+
+Reviewed upstream release notes: [checkout](https://github.com/actions/checkout/releases/tag/v7.0.1),
+[setup-python](https://github.com/actions/setup-python/releases/tag/v7.1.0),
+[setup-java](https://github.com/actions/setup-java/releases/tag/v6.1.0), and
+[setup-node](https://github.com/actions/setup-node/releases/tag/v7.1.0).
+CI maintenance acceptance requires all three jobs passing and inspection of their
+annotations for action-runtime deprecation and runner-migration warnings. A green
+job alone does not establish that its annotations are clean.
+
 Run schema checks in CI and dedicated Kotlin/TS engine test matrices in M0. M0 acceptance also includes the composite fixture, virtual-clock tests, and deterministic cross-platform traces. An Android emulator matrix may be deferred during the M0 engine spike; physical-phone smoke remains an M0 gate. From M1 onward, automated emulator testing across supported Android versions is mandatory, plus physical-device smoke on accepted builds. Decisions #48 and #54 stay in force. A physical-device pass must record OS, model (without unnecessary personal identifiers), app build, scenario, observed audio/clock behavior, expected vs actual. Persist results in GitHub Issues or redacted test reports.
 
 ## New organizational conformance scenarios (#79–#97)
