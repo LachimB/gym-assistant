@@ -1,0 +1,10 @@
+{
+  "schemaVersion": "1.0.0",
+  "importId": "import_synthetic_001",
+  "sourceType": "pdf",
+  "sourceObjectRef": "synthetic-document-not-a-real-file",
+  "status": "needsReview",
+  "uncertainItems": [
+    {"fieldPath":"sections[0].blocks[0].occurrences[0].sets[0].resistance","reason":"Synthetic unclear band label","confidence":0.35,"sourceCitation":"synthetic page 1, cell B4"}
+  ]
+}

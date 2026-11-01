@@ -1,0 +1,153 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gym-assistant:schema:promotion-proposal:1.0.0",
+  "title": "Promotion Proposal (draft initial contract)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "promotionId",
+    "sourceSessionId",
+    "status",
+    "target",
+    "selectedChanges"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "promotionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "sourceSessionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "reviewed",
+        "approved",
+        "applied",
+        "rejected"
+      ]
+    },
+    "target": {
+      "oneOf": [
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "programId",
+            "membershipId",
+            "expectedProgramRevisionId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "programOverride"
+            },
+            "programId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            },
+            "membershipId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            },
+            "expectedProgramRevisionId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            }
+          },
+          "additionalProperties": false
+        },
+        {
+          "type": "object",
+          "required": [
+            "kind",
+            "templateId",
+            "expectedTemplateRevisionId"
+          ],
+          "properties": {
+            "kind": {
+              "const": "templateRevision"
+            },
+            "templateId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            },
+            "expectedTemplateRevisionId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            }
+          },
+          "additionalProperties": false
+        }
+      ]
+    },
+    "selectedChanges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "blockId",
+          "occurrenceId",
+          "setId",
+          "field",
+          "plannedValue",
+          "actualValue"
+        ],
+        "properties": {
+          "blockId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "occurrenceId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "setId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "field": {
+            "enum": [
+              "repetitions",
+              "leftRepetitions",
+              "rightRepetitions",
+              "resistance",
+              "phaseDurationMs",
+              "restDurationMs",
+              "tempo"
+            ]
+          },
+          "phaseId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "plannedValue": {},
+          "actualValue": {}
+        },
+        "additionalProperties": false
+      }
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approvedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "approvedBy": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "resultRevisionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    }
+  },
+  "additionalProperties": false
+}

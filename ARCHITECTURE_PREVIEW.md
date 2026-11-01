@@ -1,0 +1,12 @@
+# Architecture and milestone preview (approved direction)
+
+**Product:** Gym Assistant, English UI with multilingual exercise names and descriptions; native Android for actual workouts, React/TypeScript web for authoring/analysis/dry-run. **Training data:** YAML versioned templates, JSON immutable sessions/events, Google Drive user-selected visible storage, separate backup folder, annual derived Google Sheets journal. **Execution engine:** compiled immutable plan and monotonic virtual-time-friendly state machine; M0 decides shared KMP Kotlin/JS vs independent conformant Kotlin/TypeScript. **Privacy:** direct device-to-user-storage preferred; no server-side personal history copies. **Services:** independent passwordless identity, optional provider-selectable BYOK AI and future sharing; provider approval + explicit billing confirmation. **Repository:** private personal `gym-assistant` monorepo, Cursor on macOS, cross-agent instructions.
+
+Roadmap: **M0** Android+web proof with 50-second composite/pyramid fixture and timing evidence → **M1** real template → authorized Drive → Android recorded session → web history/recovery → **M2** advanced execution/audio/simulator → **M3** graphical/YAML editor, library, reviewed PDF AI import → **M4** history migration, Sheets, backup/restore → **M5** security, compatibility, performance, real-use acceptance.
+
+The complete picture and Mermaid diagrams are in `docs/architecture/overview.md`. **26 unresolved/unverified questions** are deliberately listed in `docs/architecture/open-questions.md`, with priorities and owner-milestone recommendations. No new product decision has been invented to close them.
+
+
+## Post-approval extension (#79–#97)
+
+Optional Season/Program organization is not a new execution dependency. A Program may participate in multiple Seasons with continuous identity and independent lifecycle; user may have one active Season and several active Programs, including standalone ones. Training Templates are versioned independent reusable definitions and Workout Sessions capture immutable resolved versions, Program override provenance, and optional Season/Program historical context. Program override upgrades must validate; incompatible upgrades retain last valid plan. Explicit post-workout selective promotion creates new revisions, never rewrites completed sessions. Basic organization included in first release; M0 engine feasibility unchanged. Read `docs/architecture/seasons-programs-and-promotion.md`.

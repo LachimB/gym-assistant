@@ -1,0 +1,87 @@
+{
+  "schemaVersion": "1.0.0",
+  "templateId": "template_composite_demo",
+  "revisionId": "revision_demo_v1",
+  "planFormatVersion": "1.0.0",
+  "expectedDurationMs": 50000,
+  "phases": [
+    {
+      "stepId": "step_hip_1",
+      "startMs": 0,
+      "endMs": 4000,
+      "name": "prepare",
+      "phaseId": "phase_prepare_hip",
+      "setId": "set_hip_yellow",
+      "repetitionIndex": 1
+    },
+    {
+      "stepId": "step_hip_1",
+      "startMs": 4000,
+      "endMs": 12000,
+      "name": "hold",
+      "phaseId": "phase_hold_hip",
+      "setId": "set_hip_yellow",
+      "repetitionIndex": 1
+    },
+    {
+      "stepId": "step_plank_1",
+      "startMs": 12000,
+      "endMs": 14000,
+      "name": "prepare",
+      "phaseId": "phase_prepare_plank",
+      "setId": "set_plank_red",
+      "repetitionIndex": 1
+    },
+    {
+      "stepId": "step_plank_1",
+      "startMs": 14000,
+      "endMs": 20000,
+      "name": "hold",
+      "phaseId": "phase_hold_plank",
+      "setId": "set_plank_red",
+      "repetitionIndex": 1
+    },
+    {
+      "stepId": "step_hip_2",
+      "startMs": 20000,
+      "endMs": 24000,
+      "name": "prepare",
+      "phaseId": "phase_prepare_hip_red",
+      "setId": "set_hip_red",
+      "repetitionIndex": 1
+    },
+    {
+      "stepId": "step_hip_2",
+      "startMs": 24000,
+      "endMs": 32000,
+      "name": "hold",
+      "phaseId": "phase_hold_hip_red",
+      "setId": "set_hip_red",
+      "repetitionIndex": 1
+    },
+    {
+      "stepId": "step_rest_1",
+      "startMs": 32000,
+      "endMs": 42000,
+      "name": "rest"
+    },
+    {
+      "stepId": "step_plank_2",
+      "startMs": 42000,
+      "endMs": 44000,
+      "name": "prepare",
+      "phaseId": "phase_prepare_plank",
+      "setId": "set_plank_red",
+      "repetitionIndex": 2
+    },
+    {
+      "stepId": "step_plank_2",
+      "startMs": 44000,
+      "endMs": 50000,
+      "name": "hold",
+      "phaseId": "phase_hold_plank",
+      "setId": "set_plank_red",
+      "repetitionIndex": 2
+    }
+  ]
+}

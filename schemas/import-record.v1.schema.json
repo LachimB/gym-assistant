@@ -1,0 +1,80 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gym-assistant:schema:import-record:1.0.0",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "importId",
+    "sourceType",
+    "sourceObjectRef",
+    "status",
+    "uncertainItems"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "importId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "sourceType": {
+      "enum": [
+        "pdf",
+        "googleSheet",
+        "yaml",
+        "json"
+      ]
+    },
+    "sourceObjectRef": {
+      "type": "string",
+      "minLength": 1
+    },
+    "status": {
+      "enum": [
+        "draft",
+        "needsReview",
+        "approved",
+        "rejected"
+      ]
+    },
+    "uncertainItems": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "fieldPath",
+          "reason"
+        ],
+        "properties": {
+          "fieldPath": {
+            "type": "string",
+            "minLength": 1
+          },
+          "reason": {
+            "type": "string",
+            "minLength": 1
+          },
+          "confidence": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 1
+          },
+          "sourceCitation": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "resultTemplateId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "approvedByUser": {
+      "type": "boolean"
+    }
+  },
+  "additionalProperties": false
+}

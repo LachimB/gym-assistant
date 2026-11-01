@@ -1,0 +1,401 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gym-assistant:schema:template:1.0.0",
+  "title": "Training Template (reusable immutable revision; draft contract)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "templateId",
+    "revisionId",
+    "names",
+    "sections"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "templateId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "revisionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "names": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      },
+      "propertyNames": {
+        "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+      }
+    },
+    "description": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "string",
+        "minLength": 1
+      },
+      "propertyNames": {
+        "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+      }
+    },
+    "sourceRefs": {
+      "type": "array",
+      "items": {
+        "type": "string",
+        "minLength": 1
+      }
+    },
+    "sections": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "sectionId",
+          "names",
+          "blocks"
+        ],
+        "properties": {
+          "sectionId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "names": {
+            "type": "object",
+            "minProperties": 1,
+            "additionalProperties": {
+              "type": "string",
+              "minLength": 1
+            },
+            "propertyNames": {
+              "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+            }
+          },
+          "blocks": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": [
+                "blockId",
+                "names",
+                "kind",
+                "occurrences",
+                "order"
+              ],
+              "properties": {
+                "blockId": {
+                  "type": "string",
+                  "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                },
+                "names": {
+                  "type": "object",
+                  "minProperties": 1,
+                  "additionalProperties": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "propertyNames": {
+                    "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+                  }
+                },
+                "kind": {
+                  "enum": [
+                    "simple",
+                    "composite"
+                  ]
+                },
+                "occurrences": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "type": "object",
+                    "required": [
+                      "occurrenceId",
+                      "exerciseId",
+                      "sets"
+                    ],
+                    "properties": {
+                      "occurrenceId": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                      },
+                      "exerciseId": {
+                        "type": "string",
+                        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                      },
+                      "namesOverride": {
+                        "type": "object",
+                        "minProperties": 1,
+                        "additionalProperties": {
+                          "type": "string",
+                          "minLength": 1
+                        },
+                        "propertyNames": {
+                          "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+                        }
+                      },
+                      "sets": {
+                        "type": "array",
+                        "minItems": 1,
+                        "items": {
+                          "type": "object",
+                          "required": [
+                            "setId",
+                            "variationId",
+                            "repetitions",
+                            "phases"
+                          ],
+                          "properties": {
+                            "setId": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                            },
+                            "variationId": {
+                              "type": "string",
+                              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                            },
+                            "repetitions": {
+                              "type": "integer",
+                              "minimum": 1
+                            },
+                            "side": {
+                              "enum": [
+                                "left",
+                                "right",
+                                "bilateral",
+                                "alternating"
+                              ]
+                            },
+                            "phases": {
+                              "type": "array",
+                              "minItems": 1,
+                              "items": {
+                                "type": "object",
+                                "required": [
+                                  "phaseId",
+                                  "name",
+                                  "mode"
+                                ],
+                                "properties": {
+                                  "phaseId": {
+                                    "type": "string",
+                                    "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                                  },
+                                  "name": {
+                                    "type": "string",
+                                    "minLength": 1
+                                  },
+                                  "mode": {
+                                    "enum": [
+                                      "timed",
+                                      "manual"
+                                    ]
+                                  },
+                                  "durationMs": {
+                                    "type": "integer",
+                                    "minimum": 1
+                                  },
+                                  "voiceCue": {
+                                    "type": "object",
+                                    "minProperties": 1,
+                                    "additionalProperties": {
+                                      "type": "string",
+                                      "minLength": 1
+                                    },
+                                    "propertyNames": {
+                                      "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+                                    }
+                                  },
+                                  "transition": {
+                                    "enum": [
+                                      "immediate",
+                                      "waitForTap",
+                                      "timedPause"
+                                    ]
+                                  }
+                                },
+                                "allOf": [
+                                  {
+                                    "if": {
+                                      "properties": {
+                                        "mode": {
+                                          "const": "timed"
+                                        }
+                                      }
+                                    },
+                                    "then": {
+                                      "required": [
+                                        "durationMs"
+                                      ]
+                                    }
+                                  }
+                                ],
+                                "additionalProperties": false
+                              }
+                            },
+                            "resistance": {
+                              "type": "object",
+                              "properties": {
+                                "bands": {
+                                  "type": "array",
+                                  "items": {
+                                    "type": "object",
+                                    "required": [
+                                      "equipmentId",
+                                      "count",
+                                      "placement"
+                                    ],
+                                    "properties": {
+                                      "equipmentId": {
+                                        "type": "string",
+                                        "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                                      },
+                                      "count": {
+                                        "type": "integer",
+                                        "minimum": 1
+                                      },
+                                      "placement": {
+                                        "type": "string",
+                                        "minLength": 1
+                                      }
+                                    },
+                                    "additionalProperties": false
+                                  }
+                                },
+                                "weight": {
+                                  "type": "object",
+                                  "required": [
+                                    "value",
+                                    "unit"
+                                  ],
+                                  "properties": {
+                                    "value": {
+                                      "type": "number",
+                                      "minimum": 0
+                                    },
+                                    "unit": {
+                                      "enum": [
+                                        "kg",
+                                        "lb"
+                                      ]
+                                    }
+                                  },
+                                  "additionalProperties": false
+                                },
+                                "notes": {
+                                  "type": "string",
+                                  "minLength": 1
+                                }
+                              },
+                              "additionalProperties": false
+                            },
+                            "rpeTarget": {
+                              "type": "number",
+                              "minimum": 0,
+                              "maximum": 10
+                            }
+                          },
+                          "additionalProperties": false
+                        }
+                      }
+                    },
+                    "additionalProperties": false
+                  }
+                },
+                "order": {
+                  "type": "array",
+                  "minItems": 1,
+                  "items": {
+                    "oneOf": [
+                      {
+                        "type": "object",
+                        "required": [
+                          "stepId",
+                          "kind",
+                          "setId",
+                          "repetitionIndex"
+                        ],
+                        "properties": {
+                          "stepId": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                          },
+                          "kind": {
+                            "const": "repetition"
+                          },
+                          "setId": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                          },
+                          "repetitionIndex": {
+                            "type": "integer",
+                            "minimum": 1
+                          }
+                        },
+                        "additionalProperties": false
+                      },
+                      {
+                        "type": "object",
+                        "required": [
+                          "stepId",
+                          "kind",
+                          "durationMs"
+                        ],
+                        "properties": {
+                          "stepId": {
+                            "type": "string",
+                            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                          },
+                          "kind": {
+                            "const": "rest"
+                          },
+                          "durationMs": {
+                            "type": "integer",
+                            "minimum": 1
+                          },
+                          "label": {
+                            "type": "object",
+                            "minProperties": 1,
+                            "additionalProperties": {
+                              "type": "string",
+                              "minLength": 1
+                            },
+                            "propertyNames": {
+                              "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+                            }
+                          }
+                        },
+                        "additionalProperties": false
+                      }
+                    ]
+                  }
+                },
+                "instructions": {
+                  "type": "object",
+                  "minProperties": 1,
+                  "additionalProperties": {
+                    "type": "string",
+                    "minLength": 1
+                  },
+                  "propertyNames": {
+                    "pattern": "^[a-z]{2}(-[A-Z]{2})?$"
+                  }
+                }
+              },
+              "additionalProperties": false
+            }
+          }
+        },
+        "additionalProperties": false
+      }
+    }
+  },
+  "additionalProperties": false
+}

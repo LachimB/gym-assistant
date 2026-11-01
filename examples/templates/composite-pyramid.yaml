@@ -1,0 +1,58 @@
+schemaVersion: 1.0.0
+templateId: template_composite_demo
+revisionId: revision_demo_v1
+names:
+  en: Synthetic alternating pyramid
+  cs: Syntetická střídavá pyramida
+description:
+  en: Synthetic nonclinical test; alternates individual repetitions from two exercise sets.
+sections:
+  - sectionId: section_strength
+    names: {en: Strength, cs: Posilování}
+    blocks:
+      - blockId: block_alternating
+        names: {en: Alternating block, cs: Střídavý blok}
+        kind: composite
+        occurrences:
+          - occurrenceId: occurrence_hip_lift
+            exerciseId: exercise_bridge_band
+            sets:
+              - setId: set_hip_yellow
+                variationId: hip_lift_level_1
+                repetitions: 1
+                side: bilateral
+                resistance:
+                  bands:
+                    - {equipmentId: band_yellow, count: 1, placement: knees}
+                phases:
+                  - {phaseId: phase_prepare_hip, name: prepare, mode: timed, durationMs: 4000}
+                  - {phaseId: phase_hold_hip, name: hold, mode: timed, durationMs: 8000}
+              - setId: set_hip_red
+                variationId: hip_lift_level_2
+                repetitions: 1
+                side: bilateral
+                resistance:
+                  bands:
+                    - {equipmentId: band_red, count: 2, placement: knees}
+                phases:
+                  - {phaseId: phase_prepare_hip_red, name: prepare, mode: timed, durationMs: 4000}
+                  - {phaseId: phase_hold_hip_red, name: hold, mode: timed, durationMs: 8000}
+          - occurrenceId: occurrence_plank
+            exerciseId: exercise_plank
+            sets:
+              - setId: set_plank_red
+                variationId: plank_level_1
+                repetitions: 2
+                side: bilateral
+                resistance:
+                  bands:
+                    - {equipmentId: band_red, count: 1, placement: hands}
+                phases:
+                  - {phaseId: phase_prepare_plank, name: prepare, mode: timed, durationMs: 2000}
+                  - {phaseId: phase_hold_plank, name: hold, mode: timed, durationMs: 6000}
+        order:
+          - {stepId: step_hip_1, kind: repetition, setId: set_hip_yellow, repetitionIndex: 1}
+          - {stepId: step_plank_1, kind: repetition, setId: set_plank_red, repetitionIndex: 1}
+          - {stepId: step_hip_2, kind: repetition, setId: set_hip_red, repetitionIndex: 1}
+          - {stepId: step_rest_1, kind: rest, durationMs: 10000, label: {en: Transition rest}}
+          - {stepId: step_plank_2, kind: repetition, setId: set_plank_red, repetitionIndex: 2}

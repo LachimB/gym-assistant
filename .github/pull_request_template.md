@@ -1,0 +1,18 @@
+## Change and scope
+
+Related issue / milestone:
+Requirement IDs:
+
+## Acceptance evidence
+
+Tests/CI:
+Android phone test (device, OS, result) or why not applicable:
+Web preview and test or why not applicable:
+
+## Privacy and operations
+
+- [ ] No real user records, original private PDFs or secrets in Git.
+- [ ] No new unapproved external services or billable resources.
+- [ ] Approval obtained for architecture/security/destructive changes where applicable.
+- [ ] Agent handoff/ADRs/docs updated.
+- [ ] Data migration/rollback impacts assessed.

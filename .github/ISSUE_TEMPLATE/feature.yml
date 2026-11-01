@@ -1,0 +1,22 @@
+name: Milestone implementation task
+description: Requirement-traceable development slice
+title: '[M0] '
+labels: ['implementation']
+body:
+  - type: input
+    id: requirements
+    attributes:
+      label: Requirement IDs
+      placeholder: GA-EXE-003, GA-WEB-003
+    validations:
+      required: true
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria and executable tests
+    validations:
+      required: true
+  - type: textarea
+    id: risks
+    attributes:
+      label: External service / security / data risks and approvals

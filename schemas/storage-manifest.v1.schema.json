@@ -1,0 +1,45 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gym-assistant:schema:manifest:1.0.0",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "storageFormatVersion",
+    "environment",
+    "userStorageId",
+    "rootObjectId",
+    "createdAt"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "storageFormatVersion": {
+      "const": "1.0.0"
+    },
+    "environment": {
+      "enum": [
+        "development",
+        "staging",
+        "production"
+      ]
+    },
+    "userStorageId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "rootObjectId": {
+      "type": "string",
+      "minLength": 1
+    },
+    "createdAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "lastMigrationVersion": {
+      "type": "string",
+      "minLength": 1
+    }
+  },
+  "additionalProperties": false
+}

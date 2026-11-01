@@ -1,0 +1,6 @@
+schemaVersion: 1.0.0
+programId: program_standalone_mobility
+revisionId: program_mobility_rev1
+names: {en: Daily Mobility}
+status: active
+templateMemberships: []

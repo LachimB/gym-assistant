@@ -1,0 +1,5 @@
+---
+description: Binding Gym Assistant project constraints and workflow
+alwaysApply: true
+---
+Read `AGENTS.md` and `docs/architecture/seasons-programs-and-promotion.md` before any implementation. Treat `docs/product/requirements.md` and `docs/product/decision-register.md` as binding. Read `docs/architecture/open-questions.md` and current milestone before choosing libraries/providers. Only personal GitHub account; preflight required before GitHub write actions. Explicit approval for any external service; separate explicit approval before enabling billable resources. Do not commit private PDFs, real sessions, secrets or company data. Update `docs/agents/HANDOFF.md` and ADRs when choices change. Work in small tested PRs. M0 is a feasibility prototype.
