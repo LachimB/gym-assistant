@@ -11,7 +11,7 @@ Milestone 0 has to execute `examples/templates/composite-pyramid.yaml` with a vi
 ## What was measured
 
 - Kotlin common code in `packages/engine` compiles to the JVM and to Kotlin/JS IR.
-- `./gradlew :engine:jvmTest` matches `examples/expected/composite-pyramid.timeline.json` (50,000 ms, eight phases) and the pause / step / unobserved-gap script.
+- `./gradlew :engine:jvmTest` matches `examples/expected/composite-pyramid.timeline.json` (50,000 ms, nine phases) and the pause / step / unobserved-gap script.
 - `packages/engine-ts` Vitest matches the same golden phases and the same script: scheduled 4,000 ms, observed 4,000 ms, pause 5,000 ms, unobserved 8,000 ms, only phase 0 completed after a skip and rewind.
 - `./gradlew :engine:jsNodeProductionLibrary` succeeds. A Node process can `require` the generated CommonJS file and `compileTimelineJson` returns the golden phases. The same command script returns the numbers above.
 - The generated output is not a single ESM module. It is a CommonJS factory plus separate files for kaml, okio, kotlinx-serialization, and the Kotlin stdlib, with dependency names such as `gym-assistant:engine`. The TypeScript declaration is a namespace, not a typed reducer the React code can import directly.

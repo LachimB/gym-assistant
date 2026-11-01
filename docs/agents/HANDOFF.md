@@ -45,7 +45,7 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 | Android app installable on a physical Android 12+ phone, launch and run a fixture | Pass. Install succeeded on Pixel 10a / Android 17. Earlier launch was blocked by the lock screen; later fixture execution and the final guided pause/navigation/screen-off smoke passed by user report. See m0-device-notes.md for tested APK identity. |
 | Web simulator runs in a browser with the same fixture | Pass. `http://127.0.0.1:5173` showed prepare, hip-lift variation, yellow band, set, and rep. The page states that it does not record a Workout Session. |
 | Composite fixture alternates repetitions and has a timed rest plus differing resistance | Pass. Existing golden file: nine phases, 50,000 ms. Contract and both engine suites cover it. |
-| Both show phase progression and pause, resume, step forward, and step backward; a skip does not complete a rep | Pass for the basic prototype scope. Browser smoke and real-reducer clock/event tests pass. After the tested PR #4 APK was installed, the user reported phone pause/resume and Forward/Back while paused passing. Automated tests verify skipped phases are not fabricated as complete. No new numerical device trace was supplied. |
+| Both show phase progression and pause, resume, step forward, and step backward; a skip does not complete a rep | Pass for the basic prototype scope. Browser smoke and real-reducer clock/event tests pass. After the tested PR #4 APK was installed, the user reported phone pause/resume and Forward/Back while paused passing. Automated tests verify skipped phases are not fabricated as complete. Numerical foreground counters subsequently verified with capture uncertainty; see m0-device-notes.md. |
 | Virtual clock tests match the 50,000 ms phase order. Wall time and speech are not the clock source | Pass. JVM and TypeScript suites. Wall-clock preview drives the dry-run through the tested clock adapter; virtual time remains the conformance control. Acknowledgement does not change the 50,000 ms trace. |
 | Written analysis chooses shared KMP/JS or separate engines | Pass. ADR-0002 chooses separate engines and keeps the JSON fixtures as the contract. |
 | CI runs tests and rejects unexpected private fixtures or credentials | Pass on pull request 2. The workflow runs Python contracts, `:engine:jvmTest`, `:cloud-adapters:test`, and the two npm test suites. Hygiene check remains `tools/check_repo_hygiene.py`. |
@@ -57,11 +57,11 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 | Completion acknowledgment | Pass. After the final phase, Android shows Complete Workout and the web simulator shows Finish Simulation. Start, Pause, and Resume are not shown in the terminal state. Acknowledging shows the total scheduled duration and the observed execution duration. Restart returns to the loaded prototype. No Workout Session is stored. |
 
 ## Next actions
-1. Review the recorded physical-phone evidence in `docs/milestones/m0-device-notes.md`. The four guided short scenarios passed by user report on the verified PR #4 APK. PR #5 CI maintenance is merged; all jobs passed with zero annotations. M0 closure still needs explicit approval; keep PR #2 open.
-2. PR #7 (web production build) is merged. Review the approved dependency-security slice on `codex/m0-test-dependency-security`; both npm graphs now resolve patched Vitest/mocker 4.1.12 without Tinypool. Review the remaining timing evidence and architecture gaps before requesting explicit M0 closure approval.
-3. Keep long-duration background reliability, numerical device drift measurement, and other OS/audio scenarios clearly unproven. No foreground service without separate approval. Unfinished-session recovery waits for M1.
-4. Follow the user-approved automatic debug-APK installation workflow in `working-agreement.md` after local builds. Do not uninstall or clear data.
-5. Keep GitHub writes on `LachimB` with token variables unset; repository author stays `MichalB <michal.buzek@gmail.com>`. No OAuth, hosting, signing, new service or billable resource without the required approvals.
+1. Review the closeout evidence in `docs/milestones/m0.md` and `m0-device-notes.md`, including the sanitized numerical timing log. All eight M0 evidence boxes are checked; milestone approval is still pending. Keep PR #2 open until the user approves closure and chooses to merge it.
+2. PRs #3–#8 are merged into `m0-prototype`. Web production build, dependency audits, and all three CI jobs pass. The closeout branch `codex/m0-closeout` contains documentation/evidence only; review its PR before final PR #2 approval.
+3. Do not claim long-duration background reliability, precise numerical drift guarantees, or other-OS/audio behavior. No foreground service without separate approval. Unfinished-session persistence/recovery and emulator coverage are M1 work; do not start M1 automatically.
+4. Follow the approved automatic debug-APK installation workflow after local Android builds. Do not uninstall or clear data. No Android rebuild is needed for this docs-only slice.
+5. GitHub writes must use `LachimB` and personal preflight; no new service or billable resource without the required separate approvals.
 
 ## Clock categories
 
@@ -227,8 +227,9 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
   `AGENTS.md`: say when no input is needed; otherwise state the exact action,
   location, expected response, and whether it blocks work. Final task updates
   must explicitly name the user's next action or say no input is needed.
-  Requests needing a response use the standalone bold **🔴 YOUR INPUT NEEDED**
-  signal; ordinary output stays concise without repeated no-input-needed updates.
+  Requests needing a response use the exact bold three-line red-circle banner
+  defined in `AGENTS.md` (updated at the user's request); ordinary output stays
+  concise without repeated no-input-needed updates.
 - Local evidence: clean `npm ci`, 12 web tests, 25 TypeScript engine tests, 23 Python
   tests, schema/traceability validator, and production build all pass. Built 108
   modules successfully. Kotlin/Android source is unchanged; no Android build or
@@ -281,3 +282,31 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
 ## Approved domain extension: Decisions #79–#97
 
 Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonical names: Training Season, Training Program, Training Template, Workout Session. Basic organization is P0 for the daily-use release. The M0 executable fixture stays a standalone template. Organization schemas and contract tests exist. The prototype does not resolve Program membership at runtime. Most important unresolved M2 detail: deterministic expansion of limited set-use adjustments within an explicit composite step order. Before implementing user-facing promotion, require explicit approval, a scope preview, and a stale-revision check.
+
+## M0 closeout evidence — 2026-11-01
+
+- Approved closeout branch `codex/m0-closeout`, based on `m0-prototype` merge
+  `95ff463` (PR #8). No application, engine, schema, test, dependency or CI change.
+- Codex verified six foreground UI samples on the same checksum-verified Pixel
+  10a / Android 17 APK. Running increased 8,727 ms; paused running/scheduled stayed
+  at 13,992 ms while pause increased 5,647 ms; resumed running increased 5,765 ms
+  while pause stayed at 8,805 ms. All gaps were zero. Increments lie within the
+  sampled uptime intervals. Capture/render latency prevents precise drift bounds.
+- Reproducible method, limits, initial failed capture exclusion, and sanitized
+  counters/command brackets: `docs/milestones/m0-device-notes.md` and
+  `docs/milestones/m0-device-timing.json`. No raw device screenshots/identifiers
+  or private history committed. This is foreground evidence; prior screen-off
+  passes remain user-reported, not continuous callback/audio measurements.
+- Reconciled M0 checklist, GAP-02, timing/operations traceability and ADR-0002's
+  phase count (nine, not eight). No requirement or architecture decision weakened.
+- Preserved the user's exact bold three-line input-request banner in AGENTS.md.
+  Continue authorized work without waiting for another prompt; if actually blocked,
+  give the concrete requested action under that banner.
+- All M0 prototype evidence is assembled. Final milestone approval and PR #2
+  merge remain the user's decision. M1 persistence/recovery, supported-OS emulator
+  tests, long-duration/audio reliability, YAML hardening and quantified performance
+  acceptance remain carried work. Existing AGP/compileSdk warning is non-failing.
+- Closeout local verification: 23 Python tests and the starter validator passed
+  (17 example files, 80 mapped requirements); whitespace check passed. CI reruns
+  Kotlin/store, both npm suites, production build and audits on the closeout PR.
+  No local Android rebuild/reinstall for this evidence/documentation-only change.
