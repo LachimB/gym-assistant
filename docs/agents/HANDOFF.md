@@ -57,7 +57,7 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 | Completion acknowledgment | Pass. After the final phase, Android shows Complete Workout and the web simulator shows Finish Simulation. Start, Pause, and Resume are not shown in the terminal state. Acknowledging shows the total scheduled duration and the observed execution duration. Restart returns to the loaded prototype. No Workout Session is stored. |
 
 ## Next actions
-1. Review the clock-accounting slice on `codex/m0-clock-accounting`, then complete the remaining phone smoke below. Android/web now use injected-clock adapters to settle elapsed time at timer callbacks and commands, preserve pause counters, and carry browser fractional milliseconds. M0 closure still requires user approval and the outstanding device evidence.
+1. PR #4 (clock accounting) was merged by the user. Review the separate CI maintenance slice on `codex/ci-maintenance`, then complete the remaining phone smoke below. M0 closure still requires user approval and the outstanding device evidence.
 2. Finish the remaining phone smoke in `docs/milestones/m0-device-notes.md`: on-device pause, resume, and step, plus screen-off and on. Do not add a foreground service unless that smoke shows the activity timer is insufficient and there is a separate yes. Do not treat the clean process restart as recovery. Long-duration background reliability is still untested. Unfinished-session recovery waits for M1.
 3. Keep GitHub writes on `LachimB` with token variables unset. Author stays `MichalB <michal.buzek@gmail.com>` in the repository only.
 4. Do not start Google OAuth, hosting, Play signing, or a billable resource without a separate approval.
@@ -130,7 +130,8 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
   at `d8bf65f`. PR #1 and #3 were merged by the user; PR #2 stays open against main.
   Published implementation: `5aa176fcd16d58052d241db2c33abe17324e8366` in
   [PR #4](https://github.com/LachimB/gym-assistant/pull/4), targeting `m0-prototype`.
-  See PR checks for live CI results. Personal credential preflight passed as
+  Merged by the user; contracts, engine, and web checks passed before merge.
+  Personal credential preflight passed as
   `LachimB`; the push used the repository's credential wrapper. Do not auto-merge.
 - Android uses `ClockedExecution` (common Kotlin, injected elapsedRealtime clock);
   web uses independent `SimulatorClock` (injected performance.now). Both settle
@@ -159,6 +160,26 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
 - Remaining: physical-phone pause/resume/navigation and screen-off checks, runtime
   malformed-input handling, known web production build failure, and existing
   Android Gradle plugin / compileSdk warning. M0 remains open. Do not auto-merge.
+
+## CI maintenance — 2026-11-01
+
+- Approved separate slice: `codex/ci-maintenance`, based on `origin/m0-prototype`
+  at `a55c63e`, including merged PR #4. PR #2 stays open against main.
+- Replaces deprecated Node-20-based actions with reviewed stable releases:
+  checkout 7.0.1, setup-python 7.1.0, setup-java 6.1.0, setup-node 7.1.0.
+  Official tagged action manifests declare Node 24. Test toolchains remain
+  Python 3.12, Temurin 21, and Node 22. Explicitly disables setup-node automatic
+  package-manager caching to preserve the previous setup behavior.
+- All jobs use `ubuntu-24.04` to avoid the ubuntu-latest release migration.
+  This fixes the OS release, not the hosted image's patch level. Triggers,
+  repository permissions, test commands, and application code are unchanged.
+- Validation must include all three remote jobs and their complete annotations;
+  check passes alone do not prove that deprecation/migration warnings disappeared.
+  Local workflow parsing and comparison verify the preserved settings.
+- No new external service, permission, billable resource, dependency, deployment,
+  or data/schema change. Existing web production-build typing failure, Android
+  tooling warning, and outstanding device smoke remain outside this slice.
+  M0 remains open. Do not auto-merge.
 
 ## Approved domain extension: Decisions #79–#97
 

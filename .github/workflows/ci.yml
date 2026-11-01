@@ -7,10 +7,10 @@ permissions:
   contents: read
 jobs:
   contracts:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-python@v5
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-python@v7.1.0
         with:
           python-version: '3.12'
       - name: Install contract test tools
@@ -20,22 +20,23 @@ jobs:
       - name: Check package hygiene
         run: python tools/validate_starter.py && python tools/check_repo_hygiene.py
   engine:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-java@v4
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-java@v6.1.0
         with:
           distribution: temurin
           java-version: '21'
       - name: Kotlin engine and in-memory store
         run: ./gradlew :engine:jvmTest :cloud-adapters:test
   web:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@v4
-      - uses: actions/setup-node@v4
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-node@v7.1.0
         with:
           node-version: '22'
+          package-manager-cache: false
       - name: TypeScript engine tests
         working-directory: packages/engine-ts
         run: npm install && npm test
