@@ -18,9 +18,9 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 | M0-01 | Repository skeleton, personal GitHub preflight, CI, local docs | Private repo exists. CI workflow also runs the Kotlin JVM tests, the in-memory store tests, and the web unit tests. Emulator CI stays out of M0. |
 | M0-02 | Schema/fixture confirmation and virtual-clock verifier for the 50,000 ms plan | JVM and TypeScript tests cover the golden timeline, pause, step, and unobserved-gap recovery. |
 | M0-03 | KMP Kotlin/JS versus independent Kotlin and TypeScript engines; ADR-0002 | Measured. Separate engines for this prototype. |
-| M0-04 | Minimal Compose Android UI and debug install | Debug APK accepted as a first prototype on Pixel 10a. Complete Workout acknowledges the terminal state and does not save a Workout Session. Screen-off and long-duration background reliability are not tested. |
+| M0-04 | Minimal Compose Android UI and debug install | Debug APK accepted as a first prototype on Pixel 10a. Complete Workout acknowledges the terminal state and does not save a Workout Session. Short screen-off/on smoke was reported passing after the PR #4 APK install. Long-duration reliability is not tested. |
 | M0-05 | React browser simulator | Exercised on `http://127.0.0.1:5173`. No Workout Session write. Finish Simulation acknowledges the terminal state. |
-| M0-06 | Background timing and clock-semantics notes on a real Android 12+ phone | Basic screen-lock background continuation passed on 2026-11-01. Clean restart after process termination passed the same day. Persistent recovery is not implemented. Full process-death recovery did not pass. Screen-off and long-duration background reliability are not tested. |
+| M0-06 | Background timing and clock-semantics notes on a real Android 12+ phone | Basic screen-lock background continuation passed on 2026-11-01. Clean restart after process termination passed the same day. Persistent recovery is not implemented. Full process-death recovery did not pass. Short screen-off/on smoke was reported passing after the PR #4 APK install. Long-duration reliability is not tested. |
 | M0-07 | Provider-neutral in-memory store and a written Drive scope proposal | `InMemoryTrainingStore` tests and `drive.file` proposal. No OAuth. |
 | M0-08 | Architecture findings, demo, and explicit pass/fail matrix | This file. |
 
@@ -42,26 +42,26 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 
 | Checkbox in `docs/milestones/m0.md` | Result |
 |---|---|
-| Android app installable on a physical Android 12+ phone, launch and run a fixture | Pass. Install succeeded on Pixel 10a / Android 17. The first launch on 2026-11-01 was blocked by the lock screen, so that attempt did not show the workout. Later the same day the fixture ran. Screen-off was not separately tested. |
+| Android app installable on a physical Android 12+ phone, launch and run a fixture | Pass. Install succeeded on Pixel 10a / Android 17. Earlier launch was blocked by the lock screen; later fixture execution and the final guided pause/navigation/screen-off smoke passed by user report. See m0-device-notes.md for tested APK identity. |
 | Web simulator runs in a browser with the same fixture | Pass. `http://127.0.0.1:5173` showed prepare, hip-lift variation, yellow band, set, and rep. The page states that it does not record a Workout Session. |
-| Composite fixture alternates repetitions and has a timed rest plus differing resistance | Pass. Existing golden file: eight phases, 50,000 ms. Contract check still covers it. |
-| Both show phase progression and pause, resume, step forward, and step backward; a skip does not complete a rep | Partial. Web pass. Pause held scheduled time at 3,000 ms and raised pause to 1,000 ms. Step forward landed on hold at scheduled 4,000 ms without moving observed time. Step back returned to prepare at scheduled 0 ms and kept observed 3,000 ms and pause 1,000 ms. Android buttons exist in the debug UI. Their on-device behavior is **not tested**. Unit tests cover skip and unobserved-gap recovery on both engines. |
-| Virtual clock tests match the 50,000 ms phase order. Wall time and speech are not the clock source | Pass. JVM and TypeScript suites. The browser wall-clock toggle is display-only. Acknowledgement does not change the 50,000 ms trace. |
+| Composite fixture alternates repetitions and has a timed rest plus differing resistance | Pass. Existing golden file: nine phases, 50,000 ms. Contract and both engine suites cover it. |
+| Both show phase progression and pause, resume, step forward, and step backward; a skip does not complete a rep | Pass for the basic prototype scope. Browser smoke and real-reducer clock/event tests pass. After the tested PR #4 APK was installed, the user reported phone pause/resume and Forward/Back while paused passing. Automated tests verify skipped phases are not fabricated as complete. No new numerical device trace was supplied. |
+| Virtual clock tests match the 50,000 ms phase order. Wall time and speech are not the clock source | Pass. JVM and TypeScript suites. Wall-clock preview drives the dry-run through the tested clock adapter; virtual time remains the conformance control. Acknowledgement does not change the 50,000 ms trace. |
 | Written analysis chooses shared KMP/JS or separate engines | Pass. ADR-0002 chooses separate engines and keeps the JSON fixtures as the contract. |
 | CI runs tests and rejects unexpected private fixtures or credentials | Pass on pull request 2. The workflow runs Python contracts, `:engine:jvmTest`, `:cloud-adapters:test`, and the two npm test suites. Hygiene check remains `tools/check_repo_hygiene.py`. |
 | Installation and browser instructions plus physical-device smoke notes | Pass. Instructions are in `apps/android/README.md` and `apps/web/README.md`. Smoke notes are in `docs/milestones/m0-device-notes.md`. |
-| Basic screen-lock background execution | Pass. Pixel 10a, Android 17, 2026-11-01. Workout execution continued while the screen was locked. This is not proof of process-death recovery or long-duration background reliability. Long-duration background reliability is **not tested**. Screen-off was not separately tested. |
+| Basic screen-lock background execution | Pass. Pixel 10a, Android 17, 2026-11-01. Workout execution continued while the screen was locked. This is not proof of process-death recovery or long-duration background reliability. Long-duration background reliability is **not tested**. Short screen-off/on while running and paused was subsequently reported passing on the tested APK. |
 | Clean application restart after process termination | Pass. Pixel 10a, Android 17, 2026-11-01. Michal terminated an unfinished workout and reopened Gym Assistant. The app restarted cleanly and did not crash. |
 | Persistent workout recovery | Unsupported / not implemented. The unfinished execution position was lost. M0 does not record a Workout Session. Reliable recovery is mandatory in M1 and is not an M0 gate. |
 | Full process-death recovery | Not passed. Clean restart did not restore the previous execution position. |
 | Completion acknowledgment | Pass. After the final phase, Android shows Complete Workout and the web simulator shows Finish Simulation. Start, Pause, and Resume are not shown in the terminal state. Acknowledging shows the total scheduled duration and the observed execution duration. Restart returns to the loaded prototype. No Workout Session is stored. |
 
 ## Next actions
-1. PR #4 (clock accounting) was merged by the user. Review the separate CI maintenance slice on `codex/ci-maintenance`, then complete the remaining phone smoke below. M0 closure still requires user approval and the outstanding device evidence.
-2. Finish the remaining phone smoke in `docs/milestones/m0-device-notes.md`: on-device pause, resume, and step, plus screen-off and on. Do not add a foreground service unless that smoke shows the activity timer is insufficient and there is a separate yes. Do not treat the clean process restart as recovery. Long-duration background reliability is still untested. Unfinished-session recovery waits for M1.
-3. Keep GitHub writes on `LachimB` with token variables unset. Author stays `MichalB <<private-contact-redacted>>` in the repository only.
-4. Do not start Google OAuth, hosting, Play signing, or a billable resource without a separate approval.
-5. Early end is available in the prototype; detailed partial-performance summaries stay later.
+1. Review the recorded physical-phone evidence in `docs/milestones/m0-device-notes.md`. The four guided short scenarios passed by user report on the verified PR #4 APK. PR #5 CI maintenance is merged; all jobs passed with zero annotations. M0 closure still needs explicit approval; keep PR #2 open.
+2. Recommended next implementation slice, pending agreement: fix the known web production-build Node typing/configuration failure and add the web build to CI. Review remaining M0 gaps before closing the milestone; do not silently turn later audio/recovery/organization requirements into completed work.
+3. Keep long-duration background reliability, numerical device drift measurement, and other OS/audio scenarios clearly unproven. No foreground service without separate approval. Unfinished-session recovery waits for M1.
+4. Follow the user-approved automatic debug-APK installation workflow in `working-agreement.md` after local builds. Do not uninstall or clear data.
+5. Keep GitHub writes on `LachimB` with token variables unset; repository author stays `MichalB <<private-contact-redacted>>`. No OAuth, hosting, signing, new service or billable resource without the required approvals.
 
 ## Clock categories
 
@@ -167,7 +167,7 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
   at `a55c63e`, including merged PR #4. PR #2 stays open against main.
   Published implementation `1cc3520b113de737441259ffc0b8ccf7f9bfbcf9` is in
   [PR #5](https://github.com/LachimB/gym-assistant/pull/5), targeting `m0-prototype`.
-  The PR checks and their annotations are the live remote validation record.
+  Merged by the user. Final CI head `fed5d432a366cad0fb083c3df4f022465a10291b` passed contracts, engine, and web; full annotation endpoints were empty for all three jobs.
 - Replaces deprecated Node-20-based actions with reviewed stable releases:
   checkout 7.0.1, setup-python 7.1.0, setup-java 6.1.0, setup-node 7.1.0.
   Official tagged action manifests declare Node 24. Test toolchains remain
@@ -183,6 +183,32 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
   or data/schema change. Existing web production-build typing failure, Android
   tooling warning, and outstanding device smoke remain outside this slice.
   M0 remains open. Do not auto-merge.
+
+## Final phone smoke and remaining M0 review — 2026-11-01
+
+- Documentation branch: `codex/m0-device-evidence`, from merged `m0-prototype`
+  `a7c596f`. PR #2 remains open. No application or test behavior changed.
+- The first reported pause-counter failure was on an APK whose checksum did not
+  match the tested artifact. After `adb install -r` succeeded, the user reported
+  all four guided manual tests passed. Rechecking through ADB confirmed the
+  installed artifact matches the local APK. Phone: Pixel 10a, Android 17/API 37.
+- APK SHA-256: `7ff9c889489561e1c6ff7c0592070cf562cca88ead1fd38d6d385ea8fb301138`.
+  Application source contains PR #4 (`5aa176f`); later CI/docs changes are not app
+  behavior changes. Device scenarios and limits are in `m0-device-notes.md`.
+- Passes are user-reported: pause/resume after about 10 seconds; Forward/Back while
+  paused; screen off/on while running; screen off/on while paused. Codex verified
+  install/build/device identity, not the physical interactions or numeric drift.
+- No new counter logs, long-duration/continuous background/audio observations,
+  emulator matrix, or process recovery evidence. Historical earlier "not tested"
+  notes remain chronological; this section supplies the latest short-smoke result.
+- Existing automated evidence: 73 tests and Android assembly passed for PR #4;
+  subsequent PR #5 changed only CI/docs and passed all remote checks without
+  annotations. Documentation-only changes do not require rebuilding/reinstalling.
+- Persisted the user's request to auto-install successful local Android debug
+  builds when exactly one authorized device is connected. See working agreement.
+- Proposed next small task: repair web production build and run it in CI. No fix
+  implemented here. Review remaining gaps, then seek explicit M0 closure approval;
+  do not merge PR #2 or claim daily-use readiness automatically.
 
 ## Approved domain extension: Decisions #79–#97
 
