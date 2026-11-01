@@ -84,15 +84,14 @@ fixture tests' Node imports and `import.meta.dirname`; test inclusion and strict
 compiler settings are preserved. Vitest's transpile-only success is insufficient
 evidence that the production type-check/build succeeds.
 
-Dependency-audit follow-up (2026-11-01): a baseline-versus-updated lockfile audit
-reported identical existing development-toolchain findings: `@vitest/mocker`
-(moderate), `tinypool` (critical), and `vitest` (critical). The typing-only fix does
-not change any existing package version. These findings need a separate dependency
-review; no forced audit upgrade or unsupported claim of exploitability is included.
-Advisories include [Vitest/mock traversal](https://github.com/advisories/GHSA-82fw-gwwq-j7x9),
-[mock registration](https://github.com/advisories/GHSA-qxg6-89mg-rqv8),
-[Tinypool worker options](https://github.com/advisories/GHSA-5gmw-xhrv-c9v3), and
-[Tinypool run options](https://github.com/advisories/GHSA-85c8-ppgw-ccpr).
+Dependency security (2026-11-01): the web-build fix exposed existing audit findings
+in both npm packages. The separate [test-toolchain review](../operations/npm-dependency-security.md)
+updates Vitest/mocker to 4.1.12, removes Tinypool through Vitest 4's pool rewrite,
+and retains the existing Vite/application dependency versions. Both clean installs
+and all existing tests/build pass; full audits including dev dependencies report
+zero findings. The `web` CI job audits each package with
+`npm audit --include=dev --audit-level=moderate` so moderate-or-higher findings fail.
+See the review for advisories, migration rationale, configured exposure, and limits.
 
 Run schema checks in CI and dedicated Kotlin/TS engine test matrices in M0. M0 acceptance also includes the composite fixture, virtual-clock tests, and deterministic cross-platform traces. An Android emulator matrix may be deferred during the M0 engine spike; physical-phone smoke remains an M0 gate. From M1 onward, automated emulator testing across supported Android versions is mandatory, plus physical-device smoke on accepted builds. Decisions #48 and #54 stay in force. A physical-device pass must record OS, model (without unnecessary personal identifiers), app build, scenario, observed audio/clock behavior, expected vs actual. Persist results in GitHub Issues or redacted test reports.
 

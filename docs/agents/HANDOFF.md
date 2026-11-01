@@ -58,7 +58,7 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 
 ## Next actions
 1. Review the recorded physical-phone evidence in `docs/milestones/m0-device-notes.md`. The four guided short scenarios passed by user report on the verified PR #4 APK. PR #5 CI maintenance is merged; all jobs passed with zero annotations. M0 closure still needs explicit approval; keep PR #2 open.
-2. Review the approved web-build fix on `codex/m0-web-build`: Node 22 test declarations are a direct dev dependency and CI runs the production build. Next proposed slice is a separate review of existing Vitest/tinypool audit findings, including critical ratings; no dependency upgrade is authorized by that proposal. Review remaining gaps before M0 closure.
+2. PR #7 (web production build) is merged. Review the approved dependency-security slice on `codex/m0-test-dependency-security`; both npm graphs now resolve patched Vitest/mocker 4.1.12 without Tinypool. Review the remaining timing evidence and architecture gaps before requesting explicit M0 closure approval.
 3. Keep long-duration background reliability, numerical device drift measurement, and other OS/audio scenarios clearly unproven. No foreground service without separate approval. Unfinished-session recovery waits for M1.
 4. Follow the user-approved automatic debug-APK installation workflow in `working-agreement.md` after local builds. Do not uninstall or clear data.
 5. Keep GitHub writes on `LachimB` with token variables unset; repository author stays `MichalB <<private-contact-redacted>>`. No OAuth, hosting, signing, new service or billable resource without the required approvals.
@@ -244,6 +244,39 @@ The M0 engine spike does not include an Android emulator matrix. Automated emula
 - Existing Android tooling warning, missing numerical device drift logs, and
   long-duration/other-OS/audio evidence remain. M0 closure still needs explicit
   approval; do not merge PR #2 or advance to M1 automatically.
+
+## Test dependency security — 2026-11-01
+
+- Approved slice: `codex/m0-test-dependency-security`, from merged `m0-prototype`
+  at `7f00e33` (PR #7 merged). PR #2 remains open. No engine/application source,
+  test assertions, fixture, schema, permission, or Android change.
+- Both npm package baselines reported moderate mocker, critical Tinypool, and
+  critical aggregate Vitest findings. Reviewed all four linked upstream advisories
+  and the Vitest 4 migration guide. Repository scripts use `vitest run`; no direct
+  standalone mocker/interceptor plugin, browser-mode, or custom pool use found.
+  This is configured exposure assessment, not proof of non-exploitability.
+- Updated both packages to `vitest: ^4.1.12` (locked 4.1.12, including mocker), the
+  smallest patched major line covering both mocker issues. Vitest 4 removes
+  Tinypool. Existing Node 22 CI and Vite versions satisfy the supported range.
+- Web retains Vite 6.4.5; engine retains Vite 7.3.7, now an explicit dev dependency
+  to prevent an unrelated transitive Vite 8 upgrade. Existing TypeScript, React,
+  React DOM, and YAML versions retained. Only the test-toolchain graph changes.
+- Clean `npm ci` succeeds in both packages. Unchanged suites pass: engine TS 25,
+  web 12; web type-check/production build succeeds with the same asset names and
+  sizes as PR #7. Python contracts 23 and schema/traceability checks also pass.
+  No local Android build/reinstall needed for development-toolchain-only changes.
+- Both explicit audits including dev dependencies report zero findings at every
+  severity. CI uses `npm ci` and adds two `npm audit --include=dev --audit-level=moderate`
+  gates; existing tests and production build remain enabled. No forced upgrade,
+  overrides, advisory suppression, test edits, or changed application semantics.
+- Full rationale, upstream links, baseline counts, and repeatable commands:
+  `docs/operations/npm-dependency-security.md`. Zero current audit findings do not
+  guarantee absence of undiscovered vulnerabilities. CI advisory-feed failures
+  require investigation rather than skipping the gate.
+- Next: review this PR and remaining M0 acceptance gaps, including numerical phone
+  drift evidence and the existing Android tooling warning. Long-duration/audio/
+  other-OS/recovery requirements are still unproven or later milestone work.
+  M0 closure and merging PR #2 still require explicit approval. Do not auto-merge.
 
 ## Approved domain extension: Decisions #79–#97
 
