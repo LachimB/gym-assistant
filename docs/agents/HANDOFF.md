@@ -32,14 +32,18 @@
   Other API/physical-phone results are pending; do not claim full recovery acceptance.
 - New instrumentation tests use disposable databases only. New CI workflow covers
   API 31–36 and 37.0 plus an emulator-only host force-stop/relaunch test. Official
-  Android 12 emulator runs locally; Android 17 image is installing. User connected
-  a Pixel 10a / Android 17 for physical smoke; no phone change yet, pending Android
-  17 emulator evidence. New recovery actions were moved above the fold and source
+  Android 12 emulator runs locally; the stalled Android 17 download was stopped.
+  CI provides the Android 17 image. The previously connected Pixel 10a is now
+  disconnected; no phone change yet, pending Android 17 emulator evidence. New recovery actions were moved above the fold and source
   IDs behind Source details after visual inspection.
-- Draft PR #11: https://github.com/LachimB/gym-assistant/pull/11. Initial CI failures
-  were SDK/adb PATH and AVD-registry setup, before any instrumentation ran;
-  SDK/adb fixes are validated past installation, and explicit AVD-home registration
-  is being pushed for the next run. No failing Android test is counted as a pass. Standard contract/engine/web checks pass on `bfea650`.
+- Draft PR #11: https://github.com/LachimB/gym-assistant/pull/11. Android 14/15
+  previously passed database and process recovery together. Newer runs exposed
+  disposable-runner disk exhaustion on API 31–33, system launcher/UI ANRs, and a
+  host-test race between a saved checkpoint and the resumed UI. Runner-only NDK
+  cleanup restores disk headroom; the harness handles only known system ANRs and
+  checks visible resume controls. Latest local Android 12 host test passes
+  (6 ms restored, 104 ms after explicit resume). Full matrix rerun remains pending;
+  no failed run is counted as a pass. Workflow semantic validation passes.
 - See `docs/milestones/m1-recovery.md` for storage format, tests and limits. Remaining
   gates: actual emulator/phone results; canonical JSON projection/sync and real
   selected workout; independently approved Drive OAuth. A concrete synthetic-only proposal is in
