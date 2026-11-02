@@ -7,7 +7,7 @@
 - Working code: Kotlin reducer in `packages/engine`, independent TypeScript reducer in `packages/engine-ts`, localhost React simulator in `apps/web`, Compose debug app in `apps/android`, in-memory `TrainingStore` in `packages/cloud-adapters`.
 - GitHub: private `LachimB/gym-assistant`. Repository-local author is `LachimB <<private-contact-redacted>>`. Do not change global Git config. GitHub writes must unset `GITHUB_TOKEN` so the keyring login stays `LachimB`. Earlier login assumptions are withdrawn; `LachimB` is the user-confirmed owner.
 - Corrected two legacy identity notes that accidentally described `LachimB` as withdrawn; only the earlier `michal-buzek`/`MichalB` assumptions are withdrawn.
-- Cloud resources / OAuth / hosting: approved personal project `gym-assistant-m1-synthetic-dev` created with no organization and billing confirmed unlinked. Drive API enabled; OAuth Testing, sole selected personal test user and `drive.file` declaration. Localhost web and package/signature-bound Android debug clients created; no application Drive token grant/uploads or hosting. See the experiment ledger for the one-time secret exposure and server-side-use restriction.
+- Cloud resources / OAuth / hosting: approved personal project `gym-assistant-m1-synthetic-dev` created with no organization and billing confirmed unlinked. Drive API enabled; OAuth Testing, sole selected personal test user and `drive.file` declaration. Localhost web and package/signature-bound Android debug clients created; user completed exactly drive.file consent and the app-created synthetic file probe passed; no real data upload or hosting. See the experiment ledger for the one-time secret exposure and server-side-use restriction.
 - Engine choice: ADR-0002. Kotlin/JS compiles and a Node require reproduced the navigation trace, but the bundle is a multi-file CommonJS factory. The React app uses the TypeScript engine. Android compiles the Kotlin common source. The plan's rule was to share Kotlin/JS only when that import is clean, so the prototype does not share it.
 
 ## M1 recovery in progress — 2026-11-02
@@ -42,23 +42,26 @@
   plus actual force-stop/relaunch/explicit-resume/partial-finalization host tests.
   Run `41424079753`; standard contract/engine/web checks also passed. Earlier
   runner disk exhaustion, system-UI ANRs and host-test checkpoint/UI races were
-  fixed without weakening the production interruption policy. The harness now also rechecks after its third system-ANR dismissal instead of failing without a final observation; local Android 12 process test passed (562→573 ms). Later heads through `02854cb` passed six versions; API 37.0 passed all 10 SQLite
-  tests but its host test stopped on repeated system-UI ANRs. Earlier full pass
-  remains valid evidence; current CI is not fully green. Physical-phone recovery
+  fixed without weakening the production interruption policy. The harness now also rechecks after its third system-ANR dismissal instead of failing without a final observation; local Android 12 process test passed (562→573 ms). Later heads through `02854cb` passed six versions; API 37.0 passed SQLite but
+  stopped on repeated system-UI ANRs. After the final-dismissal check fix,
+  `796cff2` passed the complete seven-version matrix again (run `41450398107`). Physical-phone recovery
   remains pending. The user reconnected the Pixel 10a / Android 17 and the
   checksum-verified APK was installed with `adb install -r` successfully, preserving
   data. User asked to start/pause the synthetic workout and report counters before
   agent force-stop/relaunch. No phone instrumentation or data clearing.
 - Prepared local `tools/drive_scope_experiment.html` and a memory-token Drive
   transport with a persistent 500-request cap, fixed API origin and no redirects.
-  Three safety tests pass and are added to CI. Browser token consent is pending
-  user completion at Google's testing-app notice; no file writes verified.
+  Four safety tests pass and are added to CI, including the native-fetch receiver
+  regression found during the first browser request. User completed Google consent.
+  The app-created synthetic folder/JSON probe passed; counter 12/500 including the
+  failed first transport and three metadata requests. No ETag exposed to this
+  browser, so no conditional write attempted and concurrency feasibility stays open.
   The first probe covers app-created synthetic folder/JSON, stable-ID duplicate
   create rejection, exact read/list and rename; all other scope/sync cases remain open.
 - See `docs/milestones/m1-recovery.md` for storage format, tests and limits. Remaining
   gates: physical-phone result; canonical JSON projection/sync and real
   selected workout; Drive OAuth experiment (now approved, setup in progress). A concrete synthetic-only proposal is in
-  `docs/operations/m1-drive-scope-experiment.md`; user approved on 2026-11-02; personal account selected and signed in; dedicated billing-disabled project/Drive API and OAuth testing configured. No Drive token grant or file upload yet.
+  `docs/operations/m1-drive-scope-experiment.md`; user approved on 2026-11-02; personal account selected and signed in; dedicated billing-disabled project/Drive API and OAuth testing configured. Per-file consent and the app-created synthetic probe are verified; no real data uploaded.
 
 ## Initial M1 foundation — 2026-11-02
 

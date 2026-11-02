@@ -68,6 +68,9 @@ transaction boundary; it does not complete M1 or authorize Drive/OAuth.
   | 36 | 596 | 3652 |
   | 37.0 | 2 | 417 |
 
+- Full seven-version matrix passed again on `796cff2`, run `41450398107`, after
+  fixing the harness to observe the result of its last allowed system-ANR dismissal.
+  Production app/checkpoint policy unchanged.
 - Physical-phone results remain pending. Short emulator evidence is not a
   long-workout reliability claim. The stalled local Android 17 image download was
   stopped; the Android 17 evidence above comes from CI's official emulator.

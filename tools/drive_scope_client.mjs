@@ -1,7 +1,7 @@
 // Experiment-only transport. Tokens stay in memory; no server-side client secret.
 export const SCOPE = 'https://www.googleapis.com/auth/drive.file';
 export class DriveScopeClient {
-  constructor(token, budget, fetcher = fetch) {
+  constructor(token, budget, fetcher = (url, init) => globalThis.fetch(url, init)) {
     this.token = token;
     this.budget = budget;
     this.fetcher = fetcher;

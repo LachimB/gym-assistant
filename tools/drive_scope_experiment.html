@@ -13,6 +13,8 @@ The access token lives only in this page's memory. The request counter persists 
 <button id="authorize" disabled>Authorize drive.file for the selected account</button>
 <button id="run" disabled>Run the labelled synthetic create/read/retry test</button>
 <button id="forget">Forget this page's access token</button>
+<label>Previously created synthetic test folder ID <input id="folder" autocomplete="off"></label>
+<button id="conflict" disabled>Probe conditional rename on that synthetic file</button>
 <pre id="status" role="status">Loading Google's authorization library…</pre>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script type="module">
@@ -21,7 +23,7 @@ const byId = id => document.getElementById(id);
 const status = byId('status');
 let token = '', expiresAt = 0, busy = false;
 function report(message) { status.textContent += '\n' + message; }
-function forget() { token = ''; expiresAt = 0; byId('run').disabled = true; }
+function forget() { token = ''; expiresAt = 0; byId('run').disabled = true; byId('conflict').disabled = true; }
 byId('forget').onclick = () => {forget(); report('Token forgotten locally. Google account grant is unchanged.');};
 const ready = setInterval(() => {
   if (window.google?.accounts?.oauth2) {
@@ -42,15 +44,17 @@ byId('authorize').onclick = () => {
         forget(); report('Authorization failed or returned an unexpected scope. No API call made.'); return;
       }
       token = response.access_token; expiresAt = Date.now() + Number(response.expires_in) * 1000;
-      byId('run').disabled = false; report('Authorized only drive.file. Token held in memory. No Drive calls yet.');
+      byId('run').disabled = false; byId('conflict').disabled = false;
+      report('Authorized only drive.file. Token held in memory. No Drive calls yet.');
     },
     error_callback: () => report('Authorization popup did not complete. No API call made.'),
   });
-  auth.requestAccessToken({prompt: 'consent'});
+  auth.requestAccessToken({prompt: ''});
 };
 byId('run').onclick = async () => {
   if (busy || !token || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) {forget(); return;}
   busy = true; byId('run').disabled = true; byId('authorize').disabled = true;
+  byId('conflict').disabled = true;
   const client = new DriveScopeClient(token, localStorage);
   const marker = crypto.randomUUID();
   async function request(label, path, init, expected = [200]) {
@@ -87,6 +91,53 @@ byId('run').onclick = async () => {
     report('NOT TESTED: Picker grants/descendants, concurrent version preconditions, YAML validation, Android sync, revoke/offline recovery. Artifacts retained.');
   } catch (error) {
     report(error instanceof Error && !/fetch/i.test(error.message) ? error.message : 'Network request failed; stopped. No automatic retry.');
-  } finally {busy = false; byId('authorize').disabled = false;}
+  } finally {
+    report('Requests used: ' + localStorage.getItem('gym-m1-drive-requests') + '/500 (including failed attempts).');
+    busy = false; byId('authorize').disabled = false; byId('conflict').disabled = false;
+  }
+};
+byId('conflict').onclick = async () => {
+  if (busy || !token || Date.now() >= expiresAt) return;
+  const folder = byId('folder').value.trim();
+  if (!/^[-\w]+$/.test(folder)) {report('Enter the folder ID from this experiment’s successful probe.'); return;}
+  busy = true; byId('conflict').disabled = true; byId('run').disabled = true; byId('authorize').disabled = true;
+  const client = new DriveScopeClient(token, localStorage);
+  async function get(label, path, init) {
+    const response = await client.request(path, init);
+    report(label + ': HTTP ' + response.status);
+    if (!response.ok) throw new Error('Unexpected provider status; stopped.');
+    return response;
+  }
+  try {
+    const metadata = await (await get('Verify synthetic folder label', '/drive/v3/files/'+folder+'?fields=name,mimeType,appProperties')).json();
+    const marker = metadata.appProperties?.gymSyntheticM1;
+    if (metadata.mimeType !== 'application/vnd.google-apps.folder' || !marker || metadata.name !== 'Gym Assistant — SYNTHETIC M1 TEST — ' + marker) {
+      throw new Error('Folder is not this app’s labelled synthetic probe. No child read or mutation.');
+    }
+    const q = encodeURIComponent("'"+folder+"' in parents and trashed = false");
+    const listed = await (await get('Find only owned synthetic child', '/drive/v3/files?q='+q+'&fields=files(id,name,appProperties),nextPageToken')).json();
+    if (listed.nextPageToken || listed.files.length !== 1 || listed.files[0].appProperties?.gymSyntheticM1 !== marker || !listed.files[0].name.startsWith('SYNTHETIC-session-probe')) {
+      throw new Error('Expected exactly one matching synthetic probe. No mutation.');
+    }
+    const fileId = listed.files[0].id;
+    if (!/^[-\w]+$/.test(fileId)) throw new Error('Invalid synthetic file ID');
+    const current = await get('Read provider concurrency metadata', '/drive/v3/files/'+fileId+'?fields=id,name,version');
+    const etag = current.headers.get('etag');
+    if (!etag) {
+      report('OPEN FEASIBILITY GAP: no ETag exposed to this browser. No conditional write attempted; version is not treated as an ETag.');
+      return;
+    }
+    const patch = name => ({method:'PATCH',headers:{'Content-Type':'application/json','If-Match':etag},body:JSON.stringify({name})});
+    await get('First conditional synthetic rename', '/drive/v3/files/'+fileId+'?fields=id,name', patch('SYNTHETIC-session-probe-conditional-A.json'));
+    const stale = await client.request('/drive/v3/files/'+fileId+'?fields=id,name', patch('SYNTHETIC-session-probe-conditional-B.json'));
+    report('Reused stale ETag: HTTP ' + stale.status);
+    if (stale.status !== 412) throw new Error('OPEN FEASIBILITY GAP: expected HTTP 412; provider CAS is not proven. Only synthetic metadata touched.');
+    report('PASS: provider rejected the stale conditional rename. Production conflict preservation is still unimplemented.');
+  } catch (error) {
+    report(error instanceof TypeError ? 'Browser transport failed; stopped.' : error.message);
+  } finally {
+    report('Requests used: ' + localStorage.getItem('gym-m1-drive-requests') + '/500 (including failed attempts).');
+    busy = false; byId('authorize').disabled = false;
+  }
 };
 </script></html>

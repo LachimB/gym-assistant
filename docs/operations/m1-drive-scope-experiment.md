@@ -14,7 +14,9 @@ A localhost web client is registered for `http://127.0.0.1:5173` and
 `http://localhost:5173`; no redirect URI, deployment or production publishing.
 Android debug client registration is bound to `dev.gymassistant.m0.debug` and
 public APK certificate SHA-1 `CE:DE:EC:BE:F3:A8:92:F2:45:D2:83:EC:48:31:A0:07:57:79:12:BD`.
-No application Drive token grant or synthetic-file upload has been verified yet.
+The user completed the app's Google consent screen showing the selected account,
+app name and only the specific-files permission. The page verified the returned
+scope is exactly `drive.file`. The first synthetic file probe passed; evidence below.
 
 The Cloud console exposed its generated web-client secret in an accessibility
 response during setup. It was not copied into source, local configuration or
@@ -115,7 +117,38 @@ Picker grants/descendants, YAML invalid-edit quarantine, version preconditions,
 Android outbox sync, offline/revoke/restore, or real-session acceptance. Retain
 both synthetic artifacts for review. The UI renders no API error bodies, tokens
 or real file content. Requests target only the fixed Google Drive API origin,
-refuse redirects and carry no browser cookies. Transport safeguards have three
-Node tests and a CI gate.
+refuse redirects and carry no browser cookies. Transport safeguards have four
+Node tests and a CI gate, including the browser-native fetch receiver regression.
 
 Official implementation reference: [Google browser token model](https://developers.google.com/identity/oauth2/web/guides/use-token-model).
+
+## Observed browser evidence — 2026-11-02
+
+- Google consent displayed **Gym Assistant M1 Synthetic Dev** and only the specific
+  files permission; user completed consent. Token response scope matched exactly
+  `drive.file`. Billing remains unlinked; no new API, paid resource or wider grant
+  was enabled by consent.
+- An initial transport invocation failed before its first HTTP response. No create
+  was attempted. Counted conservatively against the budget; no hidden retry. Fixed
+  the native browser `fetch` receiver and added a regression test. Reload cleared
+  the in-memory token; the unchanged existing grant supplied a fresh token.
+- Eight-request probe then passed: generate IDs 200; create labelled folder 200;
+  multipart JSON create 200; replay same provider ID 409; exact read 200;
+  folder-constrained list 200 with exactly one child; rename 200; same-ID read 200.
+  The made-up JSON probe is not a canonical or real Workout Session export.
+- Retained synthetic folder for user review:
+  [Gym Assistant synthetic test](<private-drive-link>).
+  Nothing was shared, deleted or read outside the app-created synthetic artifacts.
+- Three further requests verified that folder's exact synthetic label/app marker,
+  located its sole matching child, and read child concurrency metadata (all 200).
+  **No ETag was exposed to this browser client.** No conditional write attempted;
+  numeric version is not substituted for an ETag. This leaves provider conditional
+  update feasibility open; it does not establish absence of HTTP conditional
+  support through other authorized clients. No overwrite/conflict policy adopted.
+- Persistent budget counter: **12/500** including the initial failed invocation;
+  11 HTTP responses observed. No automatic budget reset. Token still exists only
+  in page memory and is not evidence of a durable Android authorization design.
+- Remaining experiment cases: explicitly selected existing files/folders and
+  externally created descendants; invalid external YAML edits; proven version
+  preconditions/conflict preservation; offline/revoke/restore; Android outbox sync.
+  M1 real-workout and physical-phone acceptance remain separate and unfinished.
