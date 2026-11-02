@@ -28,6 +28,11 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
+import com.charleskorn.kaml.Yaml
+import com.charleskorn.kaml.YamlNode
+import com.charleskorn.kaml.yamlMap
+import com.charleskorn.kaml.yamlList
+import com.charleskorn.kaml.yamlScalar
 import dev.gymassistant.engine.SessionStatus
 import dev.gymassistant.engine.snapshot
 import dev.gymassistant.session.WorkoutModel
@@ -41,6 +46,7 @@ class MainActivity : ComponentActivity() {
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContent {
             val ui by workout.ui.collectAsState()
+            var showDetails by remember { mutableStateOf(false) }
             var confirmation by remember { mutableStateOf<String?>(null) }
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -63,17 +69,28 @@ class MainActivity : ComponentActivity() {
                                 val saved = checkNotNull(ui.saved)
                                 val state = saved.state
                                 val view = snapshot(saved.start.plan, state)
-                                Text("Session ${saved.start.sessionId.take(8)} · saved locally")
-                                Text("Template revision ${saved.start.plan.revisionId}")
+                                val labels = remember(saved.start.sessionId) { frozenExerciseLabels(saved.start.exerciseYamls) }
+                                if (ui.needsRecovery && saved.checkpoint.outcome == "inProgress") {
+                                    Text("Unfinished workout recovered", style = MaterialTheme.typography.headlineMedium)
+                                    Text("Saved progress is paused. Unobserved time was not counted as exercise.")
+                                    if (state.status == SessionStatus.Completed) {
+                                        WorkoutButton("Complete Workout") { workout.command("finish") }
+                                    } else {
+                                        WorkoutButton("Resume saved workout") { workout.command("resume") }
+                                        WorkoutButton("Save partial workout…") { confirmation = "end" }
+                                    }
+                                    WorkoutButton("Discard workout…") { confirmation = "discard" }
+                                }
                                 if (saved.checkpoint.outcome != "inProgress") {
                                     Text(if (saved.checkpoint.outcome == "discarded") "Workout discarded; partial record retained" else "Workout saved",
                                         style = MaterialTheme.typography.headlineMedium)
                                 } else {
                                     Text(view.phaseName ?: "Complete", style = MaterialTheme.typography.displaySmall)
                                     Text(formatMs(view.phaseRemainingMs), style = MaterialTheme.typography.displayMedium)
-                                    Text("${view.exerciseId ?: "Rest"} · ${view.variationId ?: ""}")
-                                    Text("Set ${view.setId ?: "—"} · rep ${view.repetitionIndex ?: "—"}")
-                                    Text(view.resistanceLabel.ifBlank { "No resistance" })
+                                    Text(view.exerciseId?.let { labels[it] ?: "Exercise" } ?: "Rest")
+                                    view.variationId?.let { id -> Text(labels[id] ?: "Exercise variation") }
+                                    view.repetitionIndex?.let { Text("Repetition $it") }
+                                    Text(view.resistanceLabel.replace('_', ' ').ifBlank { "No resistance" })
                                 }
                                 Text("Scheduled ${state.scheduledElapsedMs} ms · observed ${state.observedRunMs} ms")
                                 Text("Pause ${state.pauseMs} ms · unobserved ${state.unobservedGapMs} ms")
@@ -84,18 +101,10 @@ class MainActivity : ComponentActivity() {
                                 when {
                                     saved.checkpoint.outcome != "inProgress" ->
                                         WorkoutButton("New Workout") { workout.command("new") }
+                                    ui.needsRecovery -> Unit
                                     state.status == SessionStatus.Completed -> {
                                         Text("Review the saved workout, then finish. Skipped phases were not marked complete.")
                                         WorkoutButton("Complete Workout") { workout.command("finish") }
-                                        if (ui.needsRecovery) {
-                                            WorkoutButton("Discard workout…") { confirmation = "discard" }
-                                        }
-                                    }
-                                    ui.needsRecovery -> {
-                                        Text("Unfinished workout recovered from its saved plan. Resume from this checkpoint or discard it. Unobserved time was not counted as exercise.")
-                                        WorkoutButton("Resume saved workout") { workout.command("resume") }
-                                        WorkoutButton("Discard workout…") { confirmation = "discard" }
-                                        WorkoutButton("Save partial workout…") { confirmation = "end" }
                                     }
                                     else -> {
                                         Text("${state.completedPhaseIndexes.size} phases completed · ${state.status.name}")
@@ -112,6 +121,14 @@ class MainActivity : ComponentActivity() {
                                         }
                                         WorkoutButton("End Workout…") { confirmation = "end" }
                                     }
+                                }
+                                TextButton(onClick = { showDetails = !showDetails }) {
+                                    Text(if (showDetails) "Hide source details" else "Source details")
+                                }
+                                if (showDetails) {
+                                    Text("Session ${saved.start.sessionId}")
+                                    Text("Template revision ${saved.start.plan.revisionId}")
+                                    Text("Set ${view.setId ?: "—"}")
                                 }
                             }
                         }
@@ -144,3 +161,22 @@ private fun formatMs(ms: Long): String {
     val seconds = ceil(ms / 1000.0).toInt()
     return "%d:%02d".format(seconds / 60, seconds % 60)
 }
+
+private fun frozenExerciseLabels(sources: List<String>): Map<String, String> = runCatching {
+    buildMap<String, String> {
+        for (source in sources) {
+            val root = Yaml.default.parseToYamlNode(source).yamlMap
+            fun label(node: com.charleskorn.kaml.YamlMap): String? {
+                val names = node.get<YamlNode>("names")?.yamlMap ?: return null
+                return (names.get<YamlNode>("en") ?: names.entries.values.firstOrNull())?.yamlScalar?.content
+            }
+            val family = root.get<YamlNode>("familyId")?.yamlScalar?.content
+            if (family != null) label(root)?.let { put(family, it) }
+            for (variation in root.get<YamlNode>("variations")?.yamlList?.items.orEmpty()) {
+                val item = variation.yamlMap
+                val id = item.get<YamlNode>("variationId")?.yamlScalar?.content
+                if (id != null) label(item)?.let { put(id, it) }
+            }
+        }
+    }
+}.getOrDefault(emptyMap())

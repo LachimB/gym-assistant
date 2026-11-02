@@ -35,13 +35,15 @@ jobs:
             sdkmanager_bin="$ANDROID_HOME/cmdline-tools/gym-m1/bin/sdkmanager"
             avdmanager_bin="$ANDROID_HOME/cmdline-tools/gym-m1/bin/avdmanager"
           fi
-          "$sdkmanager_bin" --sdk_root="$ANDROID_HOME" 'emulator' "system-images;android-${API};default;x86_64"
+          "$sdkmanager_bin" --sdk_root="$ANDROID_HOME" 'platform-tools' 'emulator' "system-images;android-${API};default;x86_64"
           echo no | "$avdmanager_bin" create avd --name recovery --package "system-images;android-${API};default;x86_64" --device pixel
           sudo chmod a+rw /dev/kvm
+          echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
+          echo "$ANDROID_HOME/emulator" >> "$GITHUB_PATH"
       - name: Boot emulator
         run: |
           "$ANDROID_HOME/emulator/emulator" -avd recovery -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader > /tmp/recovery-emulator.log 2>&1 &
-          timeout 180 adb wait-for-device
+          timeout 180 adb wait-for-device || { cat /tmp/recovery-emulator.log; exit 1; }
           for attempt in $(seq 1 120); do
             if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = '1' ]; then
               adb shell input keyevent 82
