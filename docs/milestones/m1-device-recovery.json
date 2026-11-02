@@ -1,0 +1,71 @@
+{
+  "date": "2026-11-02",
+  "scope": "synthetic short physical-phone recovery smoke; not M1 completion",
+  "device": {
+    "model": "Pixel 10a",
+    "androidRelease": "17"
+  },
+  "apk": {
+    "versionName": "0.1.0-m1-recovery",
+    "sha256": "464ce24bbd3a9c9689eb7f386259d88069635d15e101a5af015f148438aa055f",
+    "installation": "adb install -r; data preserved"
+  },
+  "initialUserObservation": {
+    "scheduledMs": 4686,
+    "observedMs": 4686,
+    "phase": "hold",
+    "displayedRemaining": "0:08",
+    "completedPhases": 1,
+    "pauseMsAtScreenshot": 15679,
+    "unobservedMs": 0,
+    "reportedBehavior": "pause time increases; other counters stopped"
+  },
+  "firstAgentRecovery": {
+    "scheduledMs": 4686,
+    "observedMs": 4686,
+    "phase": "hold",
+    "displayedRemaining": "0:08",
+    "savedPauseMs": 85060,
+    "unobservedMs": 0,
+    "explicitResumeControl": true,
+    "twoDisplayObservationsStable": true,
+    "minimumObservationWaitSeconds": 3
+  },
+  "afterExplicitResumeThenPause": {
+    "scheduledMs": 8237,
+    "observedMs": 8237,
+    "completedPhases": 1
+  },
+  "pausedForward": {
+    "scheduledMs": 12000,
+    "observedMs": 8237,
+    "completedPhases": 1
+  },
+  "pausedBackward": {
+    "scheduledMs": 4000,
+    "observedMs": 8237,
+    "completedPhases": 1
+  },
+  "secondAgentRecovery": {
+    "scheduledMs": 4000,
+    "observedMs": 8237,
+    "automaticResume": false,
+    "twoDisplayObservationsStable": true,
+    "minimumObservationWaitSeconds": 3
+  },
+  "partialFinalization": {
+    "confirmedThroughAppUI": true,
+    "acknowledgement": "Workout saved",
+    "afterForceStopAndReopen": "Start Workout"
+  },
+  "appDataCleared": false,
+  "appUninstalled": false,
+  "instrumentationRunOnPhone": false,
+  "testCorrection": "Initial temporary navigation assertion incorrectly required scheduled position to stay fixed. Engine step() intentionally moves scheduled position; corrected check verifies unchanged observed exercise and completed-phase count. No production change.",
+  "limits": [
+    "No raw phone identifiers/screenshots or private history committed",
+    "No phone database contents exported or inspected",
+    "History/outbox retention at database level is covered by emulator tests; phone smoke verifies UI finalization and restart",
+    "No airplane-mode, long-duration, background/audio/battery, Android Drive sync or real-workout acceptance claim"
+  ]
+}

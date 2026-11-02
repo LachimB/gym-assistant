@@ -38,7 +38,7 @@ transaction boundary; it does not complete M1 or authorize Drive/OAuth.
 | Partial/discarded history survives | Reopen after finalization; logs/outbox retained; finalized writes rejected |
 | Date/time provenance stays explicit | UTC vs local day and repeated DST hour cases |
 | Android-version compatibility | Emulator matrix API 31–36 and 37.0; actual pass/fail recorded separately |
-| Real-phone recovery | Pending guided force-stop/relaunch using `adb install -r`; no clear/uninstall |
+| Real-phone recovery | Pixel 10a / Android 17 short smoke passed; `m1-device-recovery.json`; no clear/uninstall |
 
 ## Observed local evidence — 2026-11-02
 
@@ -71,9 +71,41 @@ transaction boundary; it does not complete M1 or authorize Drive/OAuth.
 - Full seven-version matrix passed again on `796cff2`, run `41450398107`, after
   fixing the harness to observe the result of its last allowed system-ANR dismissal.
   Production app/checkpoint policy unchanged.
-- Physical-phone results remain pending. Short emulator evidence is not a
+- Latest implementation head `f002438` passed all seven recovery jobs again, run
+  `41451951198`, and contract/engine/web CI.
+- Physical-phone short smoke passed as recorded below. Short emulator evidence is not a
   long-workout reliability claim. The stalled local Android 17 image download was
   stopped; the Android 17 evidence above comes from CI's official emulator.
+
+## Observed physical-phone evidence — 2026-11-02
+
+Pixel 10a / Android 17, the checksum-verified APK above, installed with
+`adb install -r`. No instrumentation installer, uninstall or data clear on phone.
+The user supplied the initial screenshot and confirmed pause time advanced while
+exercise stopped. Subsequent values were read only from this app's synthetic UI.
+No phone database contents were read or exported.
+
+| Observation | Scheduled ms | Observed ms | Other evidence |
+|---|---:|---:|---|
+| User-paused initial hold | 4686 | 4686 | 0:08 displayed; one completed phase |
+| First force-stop/reopen | 4686 | 4686 | Same hold/0:08; saved pause 85060 ms; explicit recovery choices |
+| Explicit resume, then Pause | 8237 | 8237 | One completed phase |
+| Forward while paused | 12000 | 8237 | One completed phase; skipped work not credited |
+| Back while paused | 4000 | 8237 | One completed phase |
+| Second force-stop/reopen | 4000 | 8237 | No automatic progress; explicit recovery choices |
+
+Both recovery screens stayed fixed over two UI captures with at least three
+seconds between captures. The agent confirmed Save partial workout in the app,
+observed Workout saved, force-stopped/reopened again and observed Start Workout.
+The source fixture/history was not cleared. Physical UI evidence does not directly
+inspect final DB/outbox rows; real SQLite retention is separately tested on emulators.
+
+A temporary phone verifier initially asserted that navigation preserves scheduled
+position. That assertion was wrong: the accepted engine's `step()` moves the
+scheduled cursor. The corrected check verifies observed exercise and completed
+phase count; no app behavior or requirement was changed to pass the smoke.
+Sanitized evidence: `m1-device-recovery.json`. This is not real-workout, long-duration,
+background/audio/battery, airplane-mode or Android Drive-sync acceptance.
 
 ## Dependency choice
 
