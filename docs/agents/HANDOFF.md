@@ -1,13 +1,41 @@
 # Cross-agent handoff (maintain on every significant change)
 
 ## Current status
-- Date: 2026-11-01
+- Date: 2026-11-02
 - Product specification: approved through Decision #97. Decisions #1–#78 remain binding unless a later decision refines one. Decisions #79–#97 add optional Training Season, Training Program, immutable Training Template revisions, and Workout Session provenance.
-- Current milestone: M0 prototype is in the tree on branch `m0-prototype`. It is a feasibility build, not a daily-use app.
+- M0 baseline: approved and complete. The user confirmed the final merge; PR #2 merged into `main` at `edbdec5ff6ec8fbcb993bff82c5a26b76efc9b95` on 2026-11-02. M1 started in this chat on 2026-11-02. This is a feasibility build, not a daily-use app.
 - Working code: Kotlin reducer in `packages/engine`, independent TypeScript reducer in `packages/engine-ts`, localhost React simulator in `apps/web`, Compose debug app in `apps/android`, in-memory `TrainingStore` in `packages/cloud-adapters`.
-- GitHub: private `LachimB/gym-assistant`. Repository-local author is `MichalB <<private-contact-redacted>>`. Do not change global Git config. GitHub writes must unset `GITHUB_TOKEN` so the keyring login stays `LachimB`. Withdrawn logins: `michal-buzek` and `MichalB`.
+- GitHub: private `LachimB/gym-assistant`. Repository-local author is `LachimB <<private-contact-redacted>>`. Do not change global Git config. GitHub writes must unset `GITHUB_TOKEN` so the keyring login stays `LachimB`. Earlier login assumptions are withdrawn; `LachimB` is the user-confirmed owner.
 - Cloud resources / OAuth / hosting: none provisioned. No Google API calls.
 - Engine choice: ADR-0002. Kotlin/JS compiles and a Node require reproduced the navigation trace, but the bundle is a multi-file CommonJS factory. The React app uses the TypeScript engine. Android compiles the Kotlin common source. The plan's rule was to share Kotlin/JS only when that import is clean, so the prototype does not share it.
+
+## Current M1 work — 2026-11-02
+
+- Working branch `codex/m1-foundation`, based on accepted M0 commit `936fcae`.
+  This chat initially used stale starter commit `2d0b575`; the resulting claims
+  that M0/ADR-0002/apps were missing were incorrect. The accepted M0 baseline and
+  device evidence below remain authoritative. No new engine spike is needed.
+- Local Python contract experiments: `tools/template_loader.py` (bounded safe YAML
+  and reference validation), `tools/template_review.py` (read-only expected-revision,
+  diff and identity review), `tools/storage_contracts.py` (volatile storage fake).
+  These do not replace the accepted Kotlin/TypeScript engines or Kotlin store.
+  No durable quarantine, publication, outbox, recovery or Drive integration yet.
+- Latest user correction: personal owner and repository-local author name `LachimB`,
+  existing personal email `<private-contact-redacted>`. Updated docs, env example and
+  safeguards; global Git config unchanged. Global collaboration instructions also
+  record the confirmed account and distinct completion/input-needed banners.
+- Stored GitHub login verified as `LachimB` and full read-only preflight passed for
+  existing private origin with the four token overrides omitted for that command.
+  The inherited token remains untouched. Never print it or use it implicitly.
+- Local M1 tests: 55 passing tests cover loader, review, mock storage and credential safeguards. Existing
+  Kotlin/web/Android checks must be rerun on this accepted baseline before PR.
+- All local work was preserved in a stash before baseline synchronization; recovery
+  stash retained. Initial work committed as `10196af`, pushed through verified
+  personal preflight and opened as PR #10: https://github.com/LachimB/gym-assistant/pull/10.
+  CI is being checked. No remote creation, public deployment, new service or billing
+  resource activation occurred in this chat.
+- Next M1 decision: `docs/adr/0003-m1-durable-session-store.md` proposes a Kotlin session-store port and device-private Room/SQLite transactions for events/checkpoint/outbox. Proposed only; project rule 4 requires architecture approval before adoption. Then integrate template validation and durable checkpoint/recovery. Real workout selection and Drive OAuth approval
+  remain open; use synthetic fixtures meanwhile. No schema migration authorized.
 
 ## Task identifiers
 
@@ -36,7 +64,7 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 | m0-04-android | done as a debug build | `minSdk` 31, application id `dev.gymassistant.m0.debug`, simulated cue. Complete Workout acknowledges the terminal state and does not save a Workout Session. |
 | m0-06-device | screen-lock pass; recovery not in M0 | Pixel 10a, Android 17, 2026-11-01. First launch was blocked by the lock screen. Later, execution continued with the screen locked. After process termination the app restarted cleanly and the unfinished position was lost. Full recovery is an M1 gate. |
 | m0-07-store | done | In-memory compare-and-swap. Scope proposal only. |
-| m0-08-close | matrix recorded, milestone open | Matrix below. M0 is not closed. Untested and unsupported lines stay marked that way. |
+| m0-08-close | approved and complete | User confirmed final PR #2 merge on 2026-11-02. Untested and unsupported capabilities remain later gates. |
 
 ## M0 acceptance matrix
 
@@ -57,11 +85,12 @@ Use [`docs/milestones/m0.md`](../milestones/m0.md). Do not reuse these IDs for o
 | Completion acknowledgment | Pass. After the final phase, Android shows Complete Workout and the web simulator shows Finish Simulation. Start, Pause, and Resume are not shown in the terminal state. Acknowledging shows the total scheduled duration and the observed execution duration. Restart returns to the loaded prototype. No Workout Session is stored. |
 
 ## Next actions
-1. Review the closeout evidence in `docs/milestones/m0.md` and `m0-device-notes.md`, including the sanitized numerical timing log. All eight M0 evidence boxes are checked; milestone approval is still pending. Keep PR #2 open until the user approves closure and chooses to merge it.
-2. PRs #3–#8 are merged into `m0-prototype`. Web production build, dependency audits, and all three CI jobs pass. The closeout branch `codex/m0-closeout` contains documentation/evidence only; review its PR before final PR #2 approval.
-3. Do not claim long-duration background reliability, precise numerical drift guarantees, or other-OS/audio behavior. No foreground service without separate approval. Unfinished-session persistence/recovery and emulator coverage are M1 work; do not start M1 automatically.
-4. Follow the approved automatic debug-APK installation workflow after local Android builds. Do not uninstall or clear data. No Android rebuild is needed for this docs-only slice.
-5. GitHub writes must use `LachimB` and personal preflight; no new service or billable resource without the required separate approvals.
+1. M0 is approved and complete: PR #9 closeout and PR #2 are merged. No further M0 approval is pending. Earlier dated sections below are historical.
+2. Agree on the first bounded M1 task before implementation. Recommended preparation: document the local durable checkpoint/session-start contract and recovery acceptance tests, considering the existing Season/Program decisions. Persistence architecture/schema decisions still require approval; no cloud setup is authorized by M0 closure.
+3. M1 must preserve completed/partial records and four separate time categories, recover without fabricated progress, and add the required Android emulator coverage. Long-duration/audio reliability and other documented limitations remain unproven.
+4. Continue the approved automatic debug-APK installation workflow after local builds; do not uninstall or clear data.
+5. Keep GitHub writes on personal `LachimB` credentials with preflight. No new service or billable resource without separate approval.
+6. The acceptance-status documentation is recorded on local branch `codex/m0-accepted`, based on merged `main`. Include this documentation commit in the next approved PR; do not create another standalone M0 closeout PR merely for the approval record.
 
 ## Clock categories
 
@@ -310,3 +339,16 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   (17 example files, 80 mapped requirements); whitespace check passed. CI reruns
   Kotlin/store, both npm suites, production build and audits on the closeout PR.
   No local Android rebuild/reinstall for this evidence/documentation-only change.
+
+## Final M0 approval — 2026-11-02
+
+- User merged PR #9, then explicitly confirmed completion of the requested final
+  M0 approval/PR #2 merge step. GitHub confirms PR #2 merged into `main` at
+  `edbdec5ff6ec8fbcb993bff82c5a26b76efc9b95` on 2026-11-02.
+- PR #2's accepted head `a514ec1` passed contracts, engine/store and web CI,
+  including the production build and dependency audits. Run: `41339132829`.
+- M0 is complete at the documented feasibility scope. Known limitations and later
+  milestone requirements remain binding. No M1 implementation or cloud setup
+  was started or authorized by this approval.
+- Carry this local acceptance-status update into the next approved PR rather than
+  creating another approval-only closeout loop.

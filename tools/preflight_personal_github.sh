@@ -9,11 +9,10 @@ if [[ ! "$EXPECTED_GITHUB_OWNER" =~ ^[a-zA-Z0-9-]+$ ]]; then echo 'Invalid expec
 if [[ ! "$EXPECTED_GIT_AUTHOR_EMAIL" =~ ^[^[:space:]@]+@[^[:space:]@]+$ ]]; then echo 'Invalid personal email format' >&2; exit 2; fi
 # Hard safety gate for the previously used company domain, not the sole proof of identity.
 if [[ "$(printf %s "$EXPECTED_GIT_AUTHOR_EMAIL" | tr "[:upper:]" "[:lower:]")" == *'@bolt.eu' ]]; then echo 'Company author email prohibited' >&2; exit 2; fi
-# Confirmed 2026-11-01. GitHub login LachimB. Author name MichalB is separate.
-# Withdrawn logins: michal-buzek (starter package) and MichalB (interim instruction).
+# Confirmed by user 2026-11-02: GitHub owner and local author name LachimB.
 : "${EXPECTED_GIT_AUTHOR_NAME:?Set EXPECTED_GIT_AUTHOR_NAME to the confirmed personal author name}"
 CONFIRMED_PERSONAL_OWNER='LachimB'
-CONFIRMED_PERSONAL_NAME='MichalB'
+CONFIRMED_PERSONAL_NAME='LachimB'
 CONFIRMED_PERSONAL_EMAIL='<private-contact-redacted>'
 if [[ "$EXPECTED_GITHUB_OWNER" != "$CONFIRMED_PERSONAL_OWNER" ]]; then
   echo "STOP: EXPECTED_GITHUB_OWNER must be the confirmed personal login ${CONFIRMED_PERSONAL_OWNER}." >&2
