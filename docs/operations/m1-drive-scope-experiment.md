@@ -1,9 +1,16 @@
-# M1 Drive/OAuth scope experiment — proposal only
+# M1 Drive/OAuth scope experiment
 
-Status: **Not approved / not provisioned.** ADR-0003 approval covers local Room
-storage only. No Google user/cloud API was called to prepare this proposal.
+Status: **Approved by the user on 2026-11-02 / not provisioned.** The user
+explicitly approved the synthetic-only, billing-disabled experiment described
+below, including a dedicated personal Google Cloud development project/OAuth
+clients, `drive.file`, labelled test files and a maximum of 500 requests.
+The personal Google account is not yet selected. No Google user/cloud API call,
+project creation, OAuth grant or test-file upload has occurred.
 
-## Specific approval needed before setup
+This approval excludes Sheets, real workouts/history/documents, billing activation,
+paid resources, storage upgrades, service accounts and broader Drive permissions.
+
+## Approved setup scope
 
 1. Google Drive API as the M1 storage service, using a user-selected **personal**
    Google account (not inferred from the GitHub account).
