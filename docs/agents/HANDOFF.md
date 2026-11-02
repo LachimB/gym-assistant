@@ -9,7 +9,32 @@
 - Cloud resources / OAuth / hosting: none provisioned. No Google API calls.
 - Engine choice: ADR-0002. Kotlin/JS compiles and a Node require reproduced the navigation trace, but the bundle is a multi-file CommonJS factory. The React app uses the TypeScript engine. Android compiles the Kotlin common source. The plan's rule was to share Kotlin/JS only when that import is clean, so the prototype does not share it.
 
-## Current M1 work — 2026-11-02
+## M1 recovery in progress — 2026-11-02
+
+- User approved ADR-0003 in chat; status updated to Approved. No Drive/OAuth or
+  billing/resource approval is implied. Work is on `codex/m1-recovery` from freshly
+  fetched merged `main` commit `c641676`; prior PR #10 is merged with all CI green.
+- Implemented device-private Room/SQLite version-1 session store behind Kotlin
+  `SessionStore`: immutable start snapshot/source/plan, revisioned append-only
+  actions/engine events, checkpoint, singleton unfinished slot and pending outbox
+  commit in one transaction. No canonical JSON schema change or migration.
+- Android UI now starts a saved synthetic ungrouped session, restores its frozen
+  plan, requires resume/partial-end/confirmed-discard after interruption and keeps
+  finalized logs. Save errors stop timing until explicit retry. No data clearing.
+- Internal unknown gap count is distinct from measured monotonic gaps and from
+  scheduled/observed/pause counters. A live-process sample gap above 2 s is
+  conservatively unobserved. Restart gaps are not assigned fabricated durations.
+- Room 2.8.5/KSP2 builds with the existing Kotlin toolchain. App and test APKs build;
+  existing Kotlin engine/store tests and 55 Python tests pass. Actual Android
+  instrumentation/force-stop tests are pending; do not claim device recovery yet.
+- New instrumentation tests use disposable databases only. New CI workflow covers
+  API 31–36 and 37.0 plus an emulator-only host force-stop/relaunch test. Official
+  local emulator/images are installing; no physical device currently connected.
+- See `docs/milestones/m1-recovery.md` for storage format, tests and limits. Remaining
+  gates: actual emulator/phone results; canonical JSON projection/sync and real
+  selected workout; independently approved Drive OAuth. No network upload added.
+
+## Initial M1 foundation — 2026-11-02
 
 - Working branch `codex/m1-foundation`, based on accepted M0 commit `936fcae`.
   This chat initially used stale starter commit `2d0b575`; the resulting claims
@@ -32,9 +57,9 @@
 - All local work was preserved in a stash before baseline synchronization; recovery
   stash retained. Initial work committed as `10196af`, pushed through verified
   personal preflight and opened as PR #10: https://github.com/LachimB/gym-assistant/pull/10.
-  CI is being checked. No remote creation, public deployment, new service or billing
+  CI passed on commit `3aa8301`; PR #10 merged as `c641676`. No remote creation, public deployment, new service or billing
   resource activation occurred in this chat.
-- Next M1 decision: `docs/adr/0003-m1-durable-session-store.md` proposes a Kotlin session-store port and device-private Room/SQLite transactions for events/checkpoint/outbox. Proposed only; project rule 4 requires architecture approval before adoption. Then integrate template validation and durable checkpoint/recovery. Real workout selection and Drive OAuth approval
+- Next M1 decision: `docs/adr/0003-m1-durable-session-store.md` proposes a Kotlin session-store port and device-private Room/SQLite transactions for events/checkpoint/outbox. Approved by the user on 2026-11-02; implementation is tracked above. Then integrate template validation and durable checkpoint/recovery. Real workout selection and Drive OAuth approval
   remain open; use synthetic fixtures meanwhile. No schema migration authorized.
 
 ## Task identifiers

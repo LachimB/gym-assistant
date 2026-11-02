@@ -1,0 +1,52 @@
+name: Android durable recovery
+on:
+  pull_request:
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  recovery:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 25
+    strategy:
+      fail-fast: false
+      matrix:
+        api: ['31', '32', '33', '34', '35', '36', '37.0']
+    steps:
+      - uses: actions/checkout@v7.0.1
+      - uses: actions/setup-java@v6.1.0
+        with:
+          distribution: temurin
+          java-version: '21'
+      - name: Build debug app and database instrumentation tests
+        run: ./gradlew :android:assembleDebug :android:assembleDebugAndroidTest
+      - name: Install isolated emulator image
+        env:
+          API: ${{ matrix.api }}
+        run: |
+          sdkmanager 'emulator' "system-images;android-${API};default;x86_64"
+          echo no | avdmanager create avd --name recovery --package "system-images;android-${API};default;x86_64" --device pixel
+          sudo chmod a+rw /dev/kvm
+      - name: Boot emulator
+        run: |
+          "$ANDROID_HOME/emulator/emulator" -avd recovery -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader > /tmp/recovery-emulator.log 2>&1 &
+          timeout 180 adb wait-for-device
+          for attempt in $(seq 1 120); do
+            if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = '1' ]; then
+              adb shell input keyevent 82
+              exit 0
+            fi
+            sleep 2
+          done
+          cat /tmp/recovery-emulator.log
+          exit 1
+      - name: SQLite transaction and recovery tests
+        run: ./gradlew :android:connectedDebugAndroidTest
+      - name: Real process termination and explicit resume
+        run: |
+          adb -s emulator-5554 install -r apps/android/build/outputs/apk/debug/android-debug.apk
+          python3 tools/test_android_process_recovery.py --serial emulator-5554
+      - name: Stop disposable emulator
+        if: always()
+        run: adb -s emulator-5554 emu kill || true

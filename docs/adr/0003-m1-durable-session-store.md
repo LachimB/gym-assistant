@@ -1,6 +1,6 @@
 # ADR-0003 — M1 durable Android session recording and recovery
 
-- Status: **Proposed — user approval required before adopting the persistence design**
+- Status: **Approved by user in chat on 2026-11-02**
 - Date: 2026-11-02
 - Owner: project owner
 - Requirements: GA-EXE-008/012/013, GA-DATA-004/005/010, GA-ORG-009/015/021
@@ -18,12 +18,12 @@ This is a new durable storage boundary, not an extension of the volatile Python
 contract experiments. Project rule 4 requires approval for major architecture
 changes; this proposal makes the decision reviewable before implementation.
 
-## Proposed decision
+## Approved decision
 
 Use a device-private SQLite database accessed through Android Room, behind a Kotlin
 session-store port. Keep database entities separate from canonical portable JSON
 session contracts and the provider-neutral cloud interface. Room is an on-device
-library, not an external service; this approval would authorize no cloud resources,
+library, not an external service; this approval authorizes no cloud resources,
 OAuth setup, billable activation, schema migration of existing user data or upload.
 Exact compatible dependency versions will be verified before installation.
 
@@ -100,8 +100,9 @@ Sources: [Room overview](https://developer.android.com/training/data-storage/roo
 - Completed immutable history and outbox survive app restart; Drive retry and
   conflict behavior remain unproven until the separately approved Drive experiment.
 
-## Approval requested
+## Approval record
 
-Approve the Kotlin session-store port and Room/SQLite transactional implementation
-for M1's new local recording/recovery boundary, under the constraints above.
+The user replied "approved" on 2026-11-02 to the Kotlin session-store port and
+Room/SQLite transactional implementation for M1's new local recording/recovery
+boundary, under the constraints above.
 No external service, real data import, migration or billable resource is included.
