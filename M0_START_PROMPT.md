@@ -6,7 +6,7 @@ You are implementing **Milestone 0 only** in a new, private, personal GitHub rep
 
 ## Hard gates
 
-- Verify effective GitHub identity and repository-local personal author identity with `tools/preflight_personal_github.sh` before any GitHub write. The confirmed personal GitHub login is `LachimB`, author `LachimB <<private-contact-redacted>>`, private repo `LachimB/gym-assistant`. `gh api user` must return exactly `LachimB`. Never use company GitHub identity, credentials, email or resources. Do not use the withdrawn `michal-buzek` or `LachimB` login assumptions. Do not blindly copy auth setup from `mobile-data-switch`.
+- Verify effective GitHub identity and repository-local personal author identity with `tools/preflight_personal_github.sh` before any GitHub write. The confirmed personal GitHub login is `LachimB`, author `LachimB <<private-contact-redacted>>`, private repo `LachimB/gym-assistant`. `gh api user` must return exactly `LachimB`. Never use company GitHub identity, credentials, email or resources. Earlier `michal-buzek` and `MichalB` login assumptions are withdrawn; use the user-confirmed `LachimB`. Do not blindly copy auth setup from `mobile-data-switch`.
 - No external services without individual approval; no billable resource without separate explicit confirmation. Use mock/in-memory storage first, then propose Google Drive access and permission scopes for approval.
 - No personal sessions, original PDFs or secrets in Git; use synthetic fixtures.
 - Do not build M1–M5 features beyond what is needed to validate M0.
