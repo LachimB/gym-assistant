@@ -12,6 +12,8 @@ jobs:
   recovery:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
+    env:
+      ANDROID_AVD_HOME: ${{ runner.temp }}/gym-recovery-avds
     strategy:
       fail-fast: false
       matrix:
@@ -36,17 +38,25 @@ jobs:
             avdmanager_bin="$ANDROID_HOME/cmdline-tools/gym-m1/bin/avdmanager"
           fi
           "$sdkmanager_bin" --sdk_root="$ANDROID_HOME" 'platform-tools' 'emulator' "system-images;android-${API};default;x86_64"
-          echo no | "$avdmanager_bin" create avd --name recovery --package "system-images;android-${API};default;x86_64" --device pixel
+          mkdir -p "$ANDROID_AVD_HOME"
+          echo no | "$avdmanager_bin" create avd --name recovery --package "system-images;android-${API};default;x86_64" --path "$ANDROID_AVD_HOME/recovery" --device pixel
+          test -f "$ANDROID_AVD_HOME/recovery/config.ini"
+          printf 'avd.ini.encoding=UTF-8\npath=%s/recovery\ntarget=android-%s\n' "$ANDROID_AVD_HOME" "$API" > "$ANDROID_AVD_HOME/recovery.ini"
           sudo chmod a+rw /dev/kvm
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
           echo "$ANDROID_HOME/emulator" >> "$GITHUB_PATH"
       - name: Boot emulator
         run: |
-          "$ANDROID_HOME/emulator/emulator" -avd recovery -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader > /tmp/recovery-emulator.log 2>&1 &
-          timeout 180 adb wait-for-device || { cat /tmp/recovery-emulator.log; exit 1; }
-          for attempt in $(seq 1 120); do
-            if [ "$(adb shell getprop sys.boot_completed | tr -d '\r')" = '1' ]; then
-              adb shell input keyevent 82
+          "$ANDROID_HOME/emulator/emulator" -avd recovery -port 5554 -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader > /tmp/recovery-emulator.log 2>&1 &
+          emulator_pid=$!
+          adb start-server
+          for attempt in $(seq 1 240); do
+            if ! kill -0 "$emulator_pid" 2>/dev/null; then
+              cat /tmp/recovery-emulator.log
+              exit 1
+            fi
+            if [ "$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = '1' ]; then
+              adb -s emulator-5554 shell input keyevent 82
               exit 0
             fi
             sleep 2

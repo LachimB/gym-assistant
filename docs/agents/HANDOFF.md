@@ -25,14 +25,26 @@
   scheduled/observed/pause counters. A live-process sample gap above 2 s is
   conservatively unobserved. Restart gaps are not assigned fabricated durations.
 - Room 2.8.5/KSP2 builds with the existing Kotlin toolchain. App and test APKs build;
-  existing Kotlin engine/store tests and 55 Python tests pass. Actual Android
-  instrumentation/force-stop tests are pending; do not claim device recovery yet.
+  existing Kotlin engine/store tests and 55 Python tests pass. Android 12 ARM64
+  instrumentation passed all 10 real-database tests in 0.944 s. The final UI host
+  force-stop/relaunch test passed (observed 1061 ms restored, then 2177 ms after
+  explicit resume; frozen source unchanged, no automatic resume or data clearing).
+  Other API/physical-phone results are pending; do not claim full recovery acceptance.
 - New instrumentation tests use disposable databases only. New CI workflow covers
   API 31–36 and 37.0 plus an emulator-only host force-stop/relaunch test. Official
-  local emulator/images are installing; no physical device currently connected.
+  Android 12 emulator runs locally; Android 17 image is installing. User connected
+  a Pixel 10a / Android 17 for physical smoke; no phone change yet, pending Android
+  17 emulator evidence. New recovery actions were moved above the fold and source
+  IDs behind Source details after visual inspection.
+- Draft PR #11: https://github.com/LachimB/gym-assistant/pull/11. Initial CI failures
+  were SDK/adb PATH and AVD-registry setup, before any instrumentation ran;
+  SDK/adb fixes are validated past installation, and explicit AVD-home registration
+  is being pushed for the next run. No failing Android test is counted as a pass. Standard contract/engine/web checks pass on `bfea650`.
 - See `docs/milestones/m1-recovery.md` for storage format, tests and limits. Remaining
   gates: actual emulator/phone results; canonical JSON projection/sync and real
-  selected workout; independently approved Drive OAuth. No network upload added.
+  selected workout; independently approved Drive OAuth. A concrete synthetic-only proposal is in
+  `docs/operations/m1-drive-scope-experiment.md`; user approval requested separately,
+  not assumed. No Google cloud/user API or OAuth setup has been performed. No network upload added.
 
 ## Initial M1 foundation — 2026-11-02
 
