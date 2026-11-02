@@ -5,6 +5,12 @@ function budget(initial = '0') {
   let value = initial;
   return {getItem: () => value, setItem: (_, next) => {value = next;}};
 }
+test('browser transport invokes native fetch on its global receiver', async () => {
+  const original = globalThis.fetch;
+  globalThis.fetch = function () { assert.equal(this, globalThis); return Promise.resolve({status: 200}); };
+  try { assert.equal((await new DriveScopeClient('fixture', budget()).request('/drive/v3/files')).status, 200); }
+  finally { globalThis.fetch = original; }
+});
 test('budget persists failed requests and prevents request 501', async () => {
   const storage = budget('499'); let calls = 0;
   const client = new DriveScopeClient('fixture', storage, async () => {calls++; throw new Error('offline');});
