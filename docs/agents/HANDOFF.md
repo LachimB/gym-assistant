@@ -34,9 +34,9 @@
 - New instrumentation tests use disposable databases only. New CI workflow covers
   API 31–36 and 37.0 plus an emulator-only host force-stop/relaunch test. Official
   Android 12 emulator runs locally; the stalled Android 17 download was stopped.
-  CI provides the Android 17 image. The previously connected Pixel 10a is now
-  disconnected; no phone change yet, pending Android 17 emulator evidence. New recovery actions were moved above the fold and source
-  IDs behind Source details after visual inspection.
+  CI provides the Android 17 image. Pixel 10a installation and pending physical
+  evidence are recorded below. Recovery actions were moved above the fold and
+  source IDs behind Source details after visual inspection.
 - Draft PR #11: https://github.com/LachimB/gym-assistant/pull/11. Full emulator
   matrix passed on `1181a77`: API 31–36 and 37.0, 10 real SQLite tests per version
   plus actual force-stop/relaunch/explicit-resume/partial-finalization host tests.
