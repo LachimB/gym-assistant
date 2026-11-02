@@ -3,6 +3,10 @@
 ADR-0003 was approved by the user on 2026-11-02. This slice implements the local
 transaction boundary; it does not complete M1 or authorize Drive/OAuth.
 
+PR #11 merged on 2026-11-02 as `b32b74e` after all checks passed on final head
+`599720f` (recovery run `41454629667`) and the physical-phone smoke below.
+This accepts the local recovery slice; full M1 remains open.
+
 ## Internal format and compatibility
 
 - New Room database `workouts-v1.db`, schema version 1. No M0 saved sessions exist
