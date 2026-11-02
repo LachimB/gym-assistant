@@ -1,12 +1,13 @@
 <!doctype html>
-<html lang="en"><meta charset="utf-8"><meta name="referrer" content="no-referrer">
+<html lang="en"><meta charset="utf-8"><meta name="referrer" content="strict-origin-when-cross-origin">
 <title>Gym Assistant — synthetic Drive experiment</title>
 <style>body{max-width:850px;margin:40px auto;padding:0 20px;font:18px system-ui;line-height:1.5}button,input{font:inherit;padding:10px;margin:6px 0}input{width:95%}pre{white-space:pre-wrap;background:#eee;padding:18px}button{display:block}</style>
 <h1>Synthetic Drive experiment</h1>
 <p>Development test only. Billing must remain disabled. This page requests only <code>drive.file</code>.
 It creates a labelled folder and one made-up JSON file, reads that file, retries the same create ID,
 lists only that folder, and renames its test file. It retains both artifacts for review.</p>
-<p>No file picker, personal-file upload, client secret, refresh token or token storage.
+<p>Optional Picker selection is limited to the named synthetic fixture. No personal-file upload,
+client secret, refresh token or token storage.
 The access token lives only in this page's memory. The request counter persists across reloads.</p>
 <label>Development web client ID <input id="client" autocomplete="off" placeholder="…apps.googleusercontent.com"></label>
 <label>Selected personal Google account <input id="account" type="email" autocomplete="off"></label>
@@ -21,6 +22,7 @@ The access token lives only in this page's memory. The request counter persists 
 <p>Picker setup must be approved and enabled first. Select only the separately created
 <strong>SYNTHETIC-external-child.json</strong> in the labelled test folder.</p>
 <button id="pick-child" disabled>Select only the external synthetic child with Google Picker</button>
+<button id="move-child" disabled>Move the verified synthetic child to a test folder and back</button>
 <pre id="status" role="status">Loading Google's authorization library…</pre>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script type="module">
@@ -31,7 +33,7 @@ let token = '', expiresAt = 0, busy = false;
 function report(message) { status.textContent += '\n' + message; }
 function forget() {
   token = ''; expiresAt = 0;
-  for (const id of ['run','conflict','external-probe','pick-child']) byId(id).disabled = true;
+  for (const id of ['run','conflict','external-probe','pick-child','move-child']) byId(id).disabled = true;
 }
 byId('forget').onclick = () => {
   forget(); byId('picker-key').value = '';
@@ -59,6 +61,7 @@ byId('authorize').onclick = () => {
       byId('run').disabled = false; byId('conflict').disabled = false;
       byId('external-probe').disabled = false;
       byId('pick-child').disabled = false;
+      byId('move-child').disabled = false;
       report('Authorized only drive.file. Token held in memory. No Drive calls yet.');
     },
     error_callback: () => report('Authorization popup did not complete. No API call made.'),
@@ -197,6 +200,54 @@ byId('external-probe').onclick = async () => {
     report(error instanceof TypeError ? 'Browser transport failed; stopped.' : error.message);
   } finally {
     report('Budget used: ' + localStorage.getItem('gym-m1-drive-requests') + '/500, including separate fixture setup.');
+    busy = false; byId('authorize').disabled = false;
+  }
+};
+byId('move-child').onclick = async () => {
+  if (busy || !token || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) return;
+  const folder = byId('folder').value.trim(), external = byId('external').value.trim();
+  if (![folder,external].every(id => /^[-\w]+$/.test(id))) return;
+  busy = true;
+  for (const id of ['run','conflict','external-probe','pick-child','move-child','authorize']) byId(id).disabled = true;
+  const client = new DriveScopeClient(token, localStorage);
+  const json = async (label, path, init) => {
+    const response = await client.request(path, init);
+    report(label + ': HTTP ' + response.status);
+    if (!response.ok) throw new Error(label + ' failed; no retry or further move.');
+    return response.json();
+  };
+  try {
+    const parent = await json('Verify synthetic parent', '/drive/v3/files/'+folder+'?fields=name,mimeType,appProperties');
+    if (parent.mimeType !== 'application/vnd.google-apps.folder' || !parent.appProperties?.gymSyntheticM1 ||
+        parent.name !== 'Gym Assistant — SYNTHETIC M1 TEST — ' + parent.appProperties.gymSyntheticM1) {
+      throw new Error('Not the labelled synthetic parent; stopped.');
+    }
+    const child = await json('Verify selected synthetic child', '/drive/v3/files/'+external+'?fields=id,name,mimeType,parents');
+    if (!isExternalSyntheticFixture(child, folder)) throw new Error('Not the exact synthetic child; stopped.');
+    // Leave every created artifact available for review, including after a failure.
+    const destination = await json('Create synthetic move destination', '/drive/v3/files?fields=id', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({
+        name:'SYNTHETIC-M1-MOVE-TEST-'+crypto.randomUUID(), mimeType:'application/vnd.google-apps.folder',
+        parents:[folder], appProperties:{gymSyntheticM1:parent.appProperties.gymSyntheticM1},
+      }),
+    });
+    if (!/^[-\w]+$/.test(destination.id)) throw new Error('Destination ID invalid; no move attempted.');
+    report('Retained synthetic destination ID: '+destination.id);
+    const move = async (from, to, label) => {
+      const result = await json(label, '/drive/v3/files/'+external+'?addParents='+to+'&removeParents='+from+'&fields=id,name,mimeType,parents', {method:'PATCH'});
+      if (result.id !== external || !isExternalSyntheticFixture(result, to)) throw new Error('Move result differs; stopped for review.');
+    };
+    await move(folder, destination.id, 'Move synthetic child');
+    const moved = await json('Read same ID after move', '/drive/v3/files/'+external+'?fields=id,name,mimeType,parents');
+    if (moved.id !== external || !isExternalSyntheticFixture(moved, destination.id)) throw new Error('Same-ID read failed validation; stopped.');
+    await move(destination.id, folder, 'Return synthetic child to original parent');
+    const restored = await json('Read same ID after return', '/drive/v3/files/'+external+'?fields=id,name,mimeType,parents');
+    if (restored.id !== external || !isExternalSyntheticFixture(restored, folder)) throw new Error('Return read failed validation; stopped.');
+    report('PASS: selected synthetic file kept its ID and access after move and return. No folder-wide grant claim.');
+  } catch (error) {
+    report(error instanceof TypeError ? 'Move transport failed; inspect retained artifacts before retry.' : error.message);
+  } finally {
+    report('Budget used: '+localStorage.getItem('gym-m1-drive-requests')+'/500.');
     busy = false; byId('authorize').disabled = false;
   }
 };

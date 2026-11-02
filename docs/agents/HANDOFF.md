@@ -425,18 +425,33 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
 - App's own drive.file grant: parent HTTP 200, externally created child HTTP 404.
   No inherited child grant and no content read. Counter now 18/500. Six Node
   safety tests pass; direct request cap cannot be reset by bookkeeping operations.
-- Picker selection code prepared but not run. User explicitly approved the
-  separate Google APIs Terms of Service and enablement; console verified Picker
-  API Enabled in the dedicated project. No Picker key created; action-time
-  browser-policy confirmation requested for persistent key creation. Future key
-  must be API/referrer restricted, memory-only,
-  no service account/billing. No broad Drive scope or real-data experiment allowed.
+- User approved Picker terms/enablement and then restricted browser-key creation.
+  API Enabled verified. Created key restricted to Picker API only and two
+  localhost origins plus docs.google.com; verified persisted restrictions. First
+  Picker attempt failed invalid-key; iframe AX output exposed transient token/key.
+  User informed, page reloaded, later AX output filters credential-bearing URLs.
+  Reload is not revocation. Never copy values into Git. After changing document
+  referrer policy to strict-origin-when-cross-origin (direct Drive still
+  no-referrer), explicit exact synthetic selection passed; key propagation may
+  also have mattered. App grant read parent/child/content 200/200/200 vs child404
+  before selection. A further seven requests moved the child into a labelled test
+  subfolder and back, preserving file ID/grant; every response200. No deletion or
+  sharing. Counter now30/500 plus two Picker UI attempts (internal count not
+  measured). Key remains restricted; no service account/billing or broader scope.
+- PR #12: https://github.com/LachimB/gym-assistant/pull/12. Earlier head 0c18133
+  passed standard checks and all seven Android recovery jobs. Subsequent tool/docs
+  changes need current-head CI before merge. No Android app/schema/DB change.
 - The denied real-workout folder was superseded by an accessible individual PDF.
   The user explicitly selected OpenAI in this chat for that PDF's structure
   extraction. Downloaded privately outside Git; full single-page text and rendered
   table inspected. No real content/identifiers committed or used in the synthetic
-  experiment. Owner clarification pending for ambiguous notation, ranges,
-  side order, paired-pyramid order and unspecified rests. Do not invent choices.
+  experiment. Owner clarified variant structure, side completion before switching,
+  full-set alternation, paired-stage mapping and a missing rest. Private extraction
+  notes updated outside Git. Between-repetition reset and exact fixed initial
+  values replacing ranges remain pending; do not invent choices. Owner wants
+  fixed Template targets plus one-click repetition addition and skip during a
+  Workout Session, preserving these as session deviations rather than changing
+  the immutable source Template.
 - Existing compiler only accepts fixed timed phases; it does not yet provide
   runtime ranges/manual completion, explicit side cues or weighted-resistance
   display. Canonical projection must retain scheduled/observed/pause/known and
