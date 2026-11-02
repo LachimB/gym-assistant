@@ -1,5 +1,14 @@
 # Specification changelog
 
+## 2026-11-02 — Correct personal GitHub identity
+
+- User confirmed `LachimB` as the personal GitHub account and repository owner;
+  supersedes earlier owner assumptions throughout project instructions and setup.
+- Corrected owner/author examples, environment template, bootstrap owner pin and
+  preflight owner/author checks; retained token override and private-repo safeguards.
+- Existing origin already targets `LachimB/gym-assistant`; read-only stored-login
+  verification succeeded. No repo recreation, push or global Git config changes.
+
 ## 2026-11-01 — Starter v0.1
 
 - Recorded 78 approved product/development decisions.
