@@ -178,10 +178,12 @@ private and retained for review:
 
 Prepared the next Google Picker selection in the local tool, restricted to JSON
 and the known test folder/query, with exact picked-ID checking. No Picker request
-has run. The Cloud Picker enablement page presents the separate Google APIs Terms
-of Service; user confirmation requested under the browser legal-agreement rule.
-Picker API is **not enabled**, no Picker key is created, and explicit selection
-remains **unproven**. A future browser key must be restricted to Picker API and the
+has run. The user explicitly approved the separate Google APIs Terms of Service
+and enablement on 2026-11-02. The Cloud console now reports **API Enabled** for
+`picker.googleapis.com` in the dedicated synthetic project. No Picker key is
+created and explicit selection remains **unproven**. A browser-policy action-time
+confirmation is pending for creation of the persistent browser API key. It must
+be restricted to Picker API and the
 necessary localhost/Google Picker iframe referrers; never create a service account,
 link billing or commit the key. Key/token fields remain memory-only. No broader
 Drive scope is requested. Internal Picker UI calls are separate from direct Drive
@@ -192,7 +194,12 @@ Official setup/restriction reference:
 
 The user separately proposed a real-workout specification folder. Connector
 metadata returned 404 and the signed-in browser showed You need access for the
-selected personal account. No folder contents were opened, no access-request
-message sent and no real files used in this experiment. The user has been asked
-for Viewer access or a corrected link. Before any document content enters AI,
-obtain the required per-operation consent and provider selection.
+selected personal account. No folder contents were opened or access-request
+message sent. The user then supplied an accessible individual PDF and explicitly
+selected OpenAI in this Codex chat for this one extraction operation on 2026-11-02.
+The PDF was downloaded outside the repository and its complete single page was
+text-extracted and visually inspected. Source, extracted personal content and
+source identifiers are excluded from Git and this synthetic experiment. Execution
+ambiguities were sent to the owner for review; no executable real template or
+real-workout acceptance is claimed. This operation does not approve another AI
+provider, paid AI API, broader document access or real-data Drive synchronization.

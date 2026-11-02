@@ -425,12 +425,21 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
 - App's own drive.file grant: parent HTTP 200, externally created child HTTP 404.
   No inherited child grant and no content read. Counter now 18/500. Six Node
   safety tests pass; direct request cap cannot be reset by bookkeeping operations.
-- Picker selection code prepared but not run. Picker API not enabled and no
-  Picker key created. User confirmation requested for its separate Google APIs
-  Terms of Service shown at enablement; never infer that from the earlier User
-  Data Policy agreement. Future key must be API/referrer restricted, memory-only,
+- Picker selection code prepared but not run. User explicitly approved the
+  separate Google APIs Terms of Service and enablement; console verified Picker
+  API Enabled in the dedicated project. No Picker key created; action-time
+  browser-policy confirmation requested for persistent key creation. Future key
+  must be API/referrer restricted, memory-only,
   no service account/billing. No broad Drive scope or real-data experiment allowed.
-- Real-workout folder access is independently blocked as recorded above. The
-  user has been asked to grant Viewer access or send a corrected link; do not send
-  access-request messages, switch accounts, or read document content without the
-  required authorization. M1 projection/Android sync/web history remain open.
+- The denied real-workout folder was superseded by an accessible individual PDF.
+  The user explicitly selected OpenAI in this chat for that PDF's structure
+  extraction. Downloaded privately outside Git; full single-page text and rendered
+  table inspected. No real content/identifiers committed or used in the synthetic
+  experiment. Owner clarification pending for ambiguous notation, ranges,
+  side order, paired-pyramid order and unspecified rests. Do not invent choices.
+- Existing compiler only accepts fixed timed phases; it does not yet provide
+  runtime ranges/manual completion, explicit side cues or weighted-resistance
+  display. Canonical projection must retain scheduled/observed/pause/known and
+  unknown gaps separately; current draft session timing fields alone cannot do
+  this. Review a concrete versioned contract before changing schema or local DB.
+  M1 projection/Android sync/web history and real-workout acceptance remain open.
