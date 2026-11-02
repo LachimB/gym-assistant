@@ -48,8 +48,29 @@ transaction boundary; it does not complete M1 or authorize Drive/OAuth.
   1061 ms of observed work, stayed frozen until explicit resume, then retained
   2177 ms across the next restart. Source snapshot identical; no app data cleared.
 - Final APK SHA-256: `464ce24bbd3a9c9689eb7f386259d88069635d15e101a5af015f148438aa055f`.
-- Source/workflow commit: `bfea650`. Other API matrix and physical-phone results are
-  not yet recorded. Short emulator evidence is not a long-workout reliability claim.
+- Full GitHub emulator matrix passed on `1181a771e29bc801dfd57a2c7d70aa6924a6f801`:
+  API 31, 32, 33, 34, 35, 36 and 37.0, each with 10 real SQLite tests and the
+  actual force-stop/relaunch/explicit-resume test. Contract, engine and web checks
+  passed on the same commit. [Recovery run](https://github.com/LachimB/gym-assistant/actions/runs/41424079753).
+- Host-test counters below are observed milliseconds restored after the first
+  termination and after explicit resume plus a second termination. All seven
+  verified unchanged frozen source, no automatic resume, no app-data clearing,
+  and durable partial finalization. Very short first samples are checkpoints,
+  not workout-duration or timing-precision acceptance.
+
+  | API | First restored | Second restored |
+  |---|---:|---:|
+  | 31 | 263 | 2744 |
+  | 32 | 412 | 800 |
+  | 33 | 3 | 2534 |
+  | 34 | 2 | 2910 |
+  | 35 | 1 | 2924 |
+  | 36 | 596 | 3652 |
+  | 37.0 | 2 | 417 |
+
+- Physical-phone results remain pending. Short emulator evidence is not a
+  long-workout reliability claim. The stalled local Android 17 image download was
+  stopped; the Android 17 evidence above comes from CI's official emulator.
 
 ## Dependency choice
 
