@@ -7,7 +7,7 @@
 - Working code: Kotlin reducer in `packages/engine`, independent TypeScript reducer in `packages/engine-ts`, localhost React simulator in `apps/web`, Compose debug app in `apps/android`, in-memory `TrainingStore` in `packages/cloud-adapters`.
 - GitHub: private `LachimB/gym-assistant`. Repository-local author is `LachimB <michal.buzek@gmail.com>`. Do not change global Git config. GitHub writes must unset `GITHUB_TOKEN` so the keyring login stays `LachimB`. Earlier login assumptions are withdrawn; `LachimB` is the user-confirmed owner.
 - Corrected two legacy identity notes that accidentally described `LachimB` as withdrawn; only the earlier `michal-buzek`/`MichalB` assumptions are withdrawn.
-- Cloud resources / OAuth / hosting: none provisioned. No Google API calls.
+- Cloud resources / OAuth / hosting: none provisioned. User approved the synthetic-only, billing-disabled Drive/project/OAuth experiment on 2026-11-02; personal account selection/login pending. No Google user/cloud API calls.
 - Engine choice: ADR-0002. Kotlin/JS compiles and a Node require reproduced the navigation trace, but the bundle is a multi-file CommonJS factory. The React app uses the TypeScript engine. Android compiles the Kotlin common source. The plan's rule was to share Kotlin/JS only when that import is clean, so the prototype does not share it.
 
 ## M1 recovery in progress — 2026-11-02
@@ -42,13 +42,17 @@
   plus actual force-stop/relaunch/explicit-resume/partial-finalization host tests.
   Run `41424079753`; standard contract/engine/web checks also passed. Earlier
   runner disk exhaustion, system-UI ANRs and host-test checkpoint/UI races were
-  fixed without weakening the production interruption policy. Physical-phone
-  recovery remains pending; ADB sees no physical phone. Reconnection requested.
+  fixed without weakening the production interruption policy. Latest head `3101247` rerun passed six versions; API 37.0 passed all 10 SQLite
+  tests but its host test stopped on repeated system-UI ANRs. Earlier full pass
+  remains valid evidence; current CI is not fully green. Physical-phone recovery
+  remains pending. The user reconnected the Pixel 10a / Android 17 and the
+  checksum-verified APK was installed with `adb install -r` successfully, preserving
+  data. User asked to start/pause the synthetic workout and report counters before
+  agent force-stop/relaunch. No phone instrumentation or data clearing.
 - See `docs/milestones/m1-recovery.md` for storage format, tests and limits. Remaining
   gates: physical-phone result; canonical JSON projection/sync and real
-  selected workout; independently approved Drive OAuth. A concrete synthetic-only proposal is in
-  `docs/operations/m1-drive-scope-experiment.md`; user approval requested separately,
-  not assumed. No Google cloud/user API or OAuth setup has been performed. No network upload added.
+  selected workout; Drive OAuth experiment (now approved, account setup pending). A concrete synthetic-only proposal is in
+  `docs/operations/m1-drive-scope-experiment.md`; user approved on 2026-11-02; account selection/login pending. No Google cloud/user API or OAuth setup has been performed. No network upload added.
 
 ## Initial M1 foundation — 2026-11-02
 
