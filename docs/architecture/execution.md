@@ -58,7 +58,68 @@ Keep these as separate fields. Do not add them together into one "the" workout c
 - **Pause duration.** User pause and configured interruption pause. Record the interval. It is not exercise time, and it does not advance scheduled phase deadlines.
 - **Unobserved gap.** Process death, reboot, or a monotonic-clock discontinuity. Do not assign that gap to exercise, rest, or completed repetitions. Recovery loads the last durable checkpoint, marks the gap as uncertain, and waits for an explicit resume, phase restart, or discard. Never silently fabricate the missing history.
 
+## M0 event counter snapshots
+
+For the M0 reducer, each event records the four elapsed counters at its logical
+transition, in milliseconds; these are not UTC timestamps or audio-delivery times.
+This makes Decisions #47/#52 and GA-EXE-003/GA-WEB-003 testable independently of
+the UI tick frequency:
+
+- `scheduledElapsedMs` is the plan position at the transition. A boundary event
+  uses the exact compiled boundary, even if one advance crosses several phases.
+- `observedRunMs` is cumulative running time consumed by the reducer, including
+  timed rests. At a crossed boundary it equals the counter before the advance
+  plus the distance from that advance's starting plan position to the boundary.
+  It is not reconstructed from absolute scheduled time: skip/rewind can make the
+  two counters differ. Time beyond the terminal plan boundary is not consumed.
+- `pauseMs` increases only when an advance is supplied while user-paused.
+  It never advances the plan or observed running time.
+- `unobservedGapMs` increases only through an explicit `NoteUnobserved` input.
+  That event captures the newly increased gap counter, leaves other counters and
+  completed phases unchanged, and enters recovered-paused. Advances in that state
+  are ignored until explicit resume; the gap is neither running nor pause time.
+
+At a natural boundary, `phaseCompleted` precedes the next `phaseStarted`; both
+capture identical counters. The final boundary emits no next-phase start.
+Pause/resume events capture the current counters. Navigation events capture the
+destination plan position with unchanged running/pause/gap counters; the paired
+phase-start event has the same counters. Skipping never emits completion for the
+skipped phase, and rewind preserves prior events while revising derived completion.
+
+Partitioning a nonnegative advance into smaller advances, without an intervening
+action, must leave the entire event sequence and final counters unchanged.
+`examples/expected/composite-pyramid.events.json` supplies independent full-event
+expectations and shared partition patterns for both engines: uninterrupted
+overshoot, pause/resume, a running gap that waits for resume, recovery from a
+paused gap, skip/rewind followed by recovery, a skip without rewind, and replay of
+an already completed hold with intermediate completion-state checkpoints. It
+supplements the existing planned timeline fixture. These tests exercise injected time, not platform gap
+detection, durable recovery, or UI clock-adapter accounting.
+
 ## Clock model and Android restrictions
+
+The M0 Android `ClockedExecution` adapter samples injected monotonic milliseconds
+at timer callbacks and immediately before each user command. It advances the
+reducer in the **old** status before applying pause/resume/navigation/end, so an
+interval between callbacks cannot leak into the next status. Paused intervals
+advance only `pauseMs`. Loaded, recovered-paused, and completed states consume no
+running or pause time; restart resets the sampling anchor.
+
+The web `SimulatorClock` follows the same ordering using injected `performance.now()`.
+Animation frames continue while user-paused if wall-clock preview is enabled.
+Fractional milliseconds accumulate separately for running and paused time; only
+whole milliseconds enter the reducer, so each counter can defer less than 1 ms
+without rounding every frame or transferring running fractions to pause time.
+Disabling wall-clock preview settles the prior interval; disabled intervals are
+excluded. Re-enabling anchors at the toggle. Explicit virtual advances remain
+additive and work with preview disabled. Restart disables preview and clears both
+fractional accumulators. Commands/clock samples are processed outside React state
+updaters, avoiding duplicate clock mutation when StrictMode replays an updater.
+
+An explicitly supplied unobserved-gap command reanchors without first consuming
+the uncertain interval. It does not implement automatic gap detection. Both
+adapters remain process-local: these tests do not establish Android screen-off
+reliability, browser-suspension policy, or persisted process-death recovery.
 
 Use a monotonic elapsed clock while execution is alive; keep an anchor, pause offsets, scheduled phase deadlines and separately measured actual event timestamps. Avoid per-second timer accumulation; derive UI countdown from monotonic differences. After app process termination, boot, or device power loss the original monotonic anchor may no longer be comparable. **Never invent that elapsed exercise happened while unobserved**; recover from durable checkpoint, show time uncertainty and obtain explicit user confirmation before resuming. Evaluate foreground-service type/permissions and notification handling on Android 12+ according to platform policies. WorkManager is suitable for *deferred sync*, not a guaranteed subsecond live exercise loop. No blanket exact-alarm permission requirement unless justified and approved.
 

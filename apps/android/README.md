@@ -1,3 +1,21 @@
-# Android app placeholder (M0 implementation target)
+# Android prototype
 
-The Android project is **not yet implemented**. The coding agent must create a Kotlin/Jetpack Compose Android 12+ app here as part of M0, with install instructions and an APK for frequent phone testing. Respect foreground service and notification restrictions; do not assume background timers always run after process termination. Reference `docs/architecture/execution.md`.
+Debug application id `dev.gymassistant.m0.debug`. This is not the production id. Minimum Android version is 12 (API 31).
+
+The countdown uses `SystemClock.elapsedRealtime()` deltas. Pause time, observed running time, and unobserved gaps are separate. Cue text is simulated. The screen stays on while the activity is open. There is no foreground service in this build, so timing after the process is killed is not claimed.
+
+Timer callbacks and button presses use the injected-clock `ClockedExecution`
+adapter. Pause freezes scheduled/observed running time while pause duration grows;
+Resume first settles the paused interval. JVM adapter tests do not replace the
+remaining phone pause/resume/navigation and screen-off smoke checks.
+
+```bash
+cd <private-path>
+./gradlew :android:assembleDebug
+adb devices
+adb install -r apps/android/build/outputs/apk/debug/android-debug.apk
+```
+
+`local.properties` must point at the Android SDK and is not committed. Android Studio Run is equivalent.
+
+Physical smoke, from `docs/milestones/m0.md`: start the fixture, let the first prepare and hold finish, confirm the next phase is the plank, pause and confirm the remaining time stops, resume, step forward and back, turn the screen off and on, and write down what the clock did. A result after Android kills the process is an observation, not a timing pass.
