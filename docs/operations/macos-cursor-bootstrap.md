@@ -1,6 +1,14 @@
 # macOS + Cursor bootstrap (personal accounts only)
 
-Target repo: `/Users/michal/repos/private/gym-assistant`; name `gym-assistant`; confirmed personal GitHub owner: `LachimB`. The starter package originally assumed `michal-buzek`, and a later instruction said `MichalB`. Both are withdrawn as the GitHub login. `gh api user --jq .login` must return exactly `LachimB` before any GitHub write. Git author name stays `MichalB`; author email stays `michal.buzek@gmail.com`.
+Target repo: `/Users/michal/repos/private/gym-assistant`; name `gym-assistant`; confirmed personal GitHub owner and current repository-local author name: `LachimB`. Author email: `michal.buzek@gmail.com`. Earlier owner assumptions are withdrawn. `gh api user --jq .login` must return exactly `LachimB` before any GitHub write.
+
+## Existing repository / managed worktrees
+
+The repository and M0 already exist. Do not recreate or reinitialize them. The
+current M1 branch is based on accepted M0 commit `936fcae`. For preflight in a
+managed worktree, pass its actual root as `EXPECTED_LOCAL_REPO_PATH`. Omit all four
+token override variables for personal-keyring commands; do not alter global Git
+config or expose token values. The following bootstrap steps are for new setup.
 
 ## Step 0 — Inspect, do not copy existing project credentials
 
@@ -29,7 +37,7 @@ The confirmed personal author email for this repository is `michal.buzek@gmail.c
 # Clear overrides first. A set GITHUB_TOKEN makes gh ignore the keyring account.
 unset GH_TOKEN GITHUB_TOKEN GH_ENTERPRISE_TOKEN GITHUB_ENTERPRISE_TOKEN
 export EXPECTED_GITHUB_OWNER='LachimB'
-export EXPECTED_GIT_AUTHOR_NAME='MichalB'
+export EXPECTED_GIT_AUTHOR_NAME='LachimB'
 export EXPECTED_GIT_AUTHOR_EMAIL='michal.buzek@gmail.com'
 # Before initializing a new repo use --bootstrap (validates account and author intent).
 bash tools/preflight_personal_github.sh --bootstrap
@@ -47,7 +55,7 @@ The starter package is already in the target directory. After preflight `--boots
 cd /Users/michal/repos/private/gym-assistant
 # Stop if `gh repo view LachimB/gym-assistant` shows an existing repository.
 git init -b main
-git config --local user.name 'MichalB'
+git config --local user.name 'LachimB'
 git config --local user.email 'michal.buzek@gmail.com'
 git add .
 git commit -m 'Add Gym Assistant starter specification'

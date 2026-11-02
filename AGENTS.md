@@ -2,12 +2,12 @@
 
 **NEW DOMAIN RULES (#79–#97):** Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001 before changing any schemas, Template resolution, session persistence, Program membership, lifecycle, analytics, or Google Sheets. Canonical names are Training Season / Training Program / Training Template / Workout Session. Grouping optional; no future-default changes without approval.
 
-**Canonical requirements:** `docs/product/requirements.md`, `docs/product/decision-register.md`, `docs/product/release-acceptance.md`. **Architecture:** `docs/architecture/`. **Current work:** `docs/milestones/m0.md` and `docs/agents/HANDOFF.md`.
+**Canonical requirements:** `docs/product/requirements.md`, `docs/product/decision-register.md`, `docs/product/release-acceptance.md`. **Architecture:** `docs/architecture/`. **Current work:** `docs/milestones/m1.md` and `docs/agents/HANDOFF.md`.
 
 ## Mandatory rules
 
 1. Preserve all binding requirements; propose a documented change and request approval rather than silently weakening one.
-2. Never use company credentials/resources or leak personal history, original PDFs or secrets. Run credential preflight before GitHub write actions. The confirmed personal GitHub owner is `LachimB` and must match `gh api user` exactly. An earlier `MichalB` login instruction was corrected. The starter package's `michal-buzek` assumption is also withdrawn. Repository-local author remains `MichalB <michal.buzek@gmail.com>`. Do not change global Git config.
+2. Never use company credentials/resources or leak personal history, original PDFs or secrets. Run credential preflight before GitHub write actions. The confirmed personal GitHub owner is `LachimB` and must match `gh api user` exactly. The starter package's `michal-buzek` assumption is also withdrawn. Repository-local author remains `LachimB <michal.buzek@gmail.com>`. Do not change global Git config.
 3. Require prior user approval for **each** new external service. **Every billable resource requires a separate explicit confirmation** before creation, activation or billing enablement.
 4. Require approval for major architecture changes, destructive operations, schema/data migrations and security-sensitive changes. Routine changes within an approved milestone may proceed with CI and PR discipline.
 5. Create small PRs, run tests, maintain acceptance traceability and concise ADRs, and update shared handoff documentation on every substantive change.
@@ -19,32 +19,25 @@
 
 ## Communication with the project owner
 
-- Explicitly state whether user input/action is needed now. When none is needed,
-  say so and continue authorized work without requesting redundant confirmation.
-  Do not stop unfinished authorized work after saying no input is needed or
-  require the user to prompt you to resume. If blocked, state what is needed.
-- Requests requiring the user's response must stand out under this exact bold
-  three-line banner (keep the lines separate; do not rely on HTML text colors):
+Continue authorized work until the task is complete or user input/action is truly
+required. Answer status questions and resume work; do not stop merely after a slice.
+Show concise progress, and never imply work continues after the final response.
+End completion responses with:
 
-  **🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴**
+**🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴**
+**🔴 🔴 🔴 🔴 TURN COMPLETED🔴🔴 🔴 🔴 🔴**
+**🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴**
 
-  **🔴 🔴 🔴 🔴 YOUR INPUT NEEDED🔴 🔴 🔴 🔴**
+For a real input gate, first state the specific decision/action, why it is needed,
+where to respond and the recommendation. End with:
 
-  **🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴**
+**🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴**
+**🔴 🔴 🔴 🔴 YOUR INPUT NEEDED🔴 🔴 🔴 🔴**
+**🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴 🔴**
 
-  Immediately give the exact action and location.
-  Reserve this signal for real requests, not routine status. Keep other output
-  concise and avoid repeated no-input-needed messages during routine progress.
-- When input is needed, specify the exact decision/action, where to do it (this
-  chat, GitHub, or the phone), and the expected response. Distinguish required
-  input that blocks work from optional feedback, and say whether work is waiting.
-- End task-completion updates with the banner above followed by the concrete
-  request, or a brief **No input needed** when there is no request. Do not leave the user
-  to infer a review, approval, merge, or test request from a progress report.
-- Test requests must give steps, expected observations, and what results to send
-  back. Approval requests must identify the exact scope/action being approved.
-  Explain whether approval is a chat reply, GitHub review/merge, or an environment
-  permission prompt; do not imply that a separate approval screen exists.
+Test requests give steps, expected observations and results to send back. If an
+execution/platform limit forces a stop, explain it honestly; the completion banner
+marks the turn ending without claiming that the overall task is complete.
 
 ## Agent loop
 

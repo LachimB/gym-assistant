@@ -4,7 +4,7 @@ GA-DOM-002,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 int
 GA-DOM-003,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
 GA-DOM-004,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
 GA-DOM-005,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
-GA-DOM-006,M2-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-DOM-006,M1-M3,partial-local-loader-and-review,tests/test_template_loader.py; tests/test_template_review.py; publication and app integration pending
 GA-DOM-007,M2-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DOM-007 pending
 GA-DOM-008,M2-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DOM-008 pending
 GA-DOM-009,M2-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DOM-009 pending
@@ -28,8 +28,8 @@ GA-WEB-002,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evi
 GA-WEB-003,M0-M3,partial-engine-and-clock-adapter-conformance; broader-fixtures-and-lifecycle-evidence-pending,tests/test_contracts.py; packages/engine/src/jvmTest/kotlin/dev/gymassistant/engine/EventConformanceTest.kt; packages/engine-ts/src/event-conformance.test.ts; examples/expected/composite-pyramid.events.json; packages/engine/src/jvmTest/kotlin/dev/gymassistant/engine/ClockedExecutionTest.kt; apps/web/src/SimulatorClock.test.ts
 GA-WEB-004,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-004 pending
 GA-WEB-005,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-005 pending
-GA-DATA-001,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-001 pending
-GA-DATA-002,M1-M4,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-DATA-001,M0-M1,partial-volatile-storage-contract,tests/test_storage_contracts.py; actual Drive and app integration pending
+GA-DATA-002,M1-M4,partial-local-edit-preview,tests/test_template_loader.py; tests/test_template_review.py; durable quarantine and publication pending
 GA-DATA-003,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-003 pending
 GA-DATA-004,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-004 pending
 GA-DATA-005,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-005 pending
@@ -52,7 +52,7 @@ GA-OPS-002,M0-M5,partial-M0-debug-build-and-CI; release-pipeline-pending,.github
 GA-OPS-003,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-003 pending
 GA-OPS-004,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-004 pending
 GA-OPS-005,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-005 pending
-GA-OPS-006,M0-M5,M0-evidence-recorded; closure-pending,docs/milestones/m0.md; docs/milestones/m0-device-notes.md; docs/agents/HANDOFF.md
+GA-OPS-006,M0-M5,M0-approved-complete; later-milestone-evidence-pending,docs/milestones/m0.md; docs/milestones/m0-device-notes.md; docs/agents/HANDOFF.md
 GA-OPS-007,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-007 pending
 GA-OPS-008,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-008 pending
 GA-OPS-009,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-009 pending

@@ -1,6 +1,6 @@
 # Gym Assistant — AI-assisted development starter package
 
-**Status:** approved product direction; implementation NOT started. This ZIP is a repository-ready **specification and bootstrap**, not an installable Android application or a deployed web app.
+**Status (2026-11-02):** M0 approved and complete; M1 started. Kotlin/Compose Android prototype, TypeScript/React simulator and independent conformant engines are available. Local M1 contract experiments add YAML loading and edit review. Durable recovery and Drive sync remain M1 work. See [handoff](docs/agents/HANDOFF.md) and [M1 tasks](docs/milestones/m1.md).
 
 Gym Assistant is a private-first, offline-capable Android Workout Session execution application with a React/TypeScript web editor, simulator, import and history interface. Users own their workout data, initially stored in Google Drive. A shareable Google Sheets journal is a derived view of canonical JSON session records.
 
@@ -9,7 +9,7 @@ Gym Assistant is a private-first, offline-capable Android Workout Session execut
 1. Review [architecture and milestones](docs/architecture/overview.md) and the [open design / feasibility gap register](docs/architecture/open-questions.md). The gaps are **not silently decided**.
 2. Read [all 97 recorded decisions](docs/product/decision-register.md), [the requirement catalog](docs/product/requirements.md), and [release acceptance gates](docs/product/release-acceptance.md).
 3. Follow the [macOS + Cursor personal-account bootstrap](docs/operations/macos-cursor-bootstrap.md). New private repo name: `gym-assistant`; target location: `/Users/michal/repos/private/gym-assistant`. **Personal GitHub credentials ONLY.** Existing project `/Users/michal/repos/private/mobile-data-switch` is an example to inspect safely, not copy wholesale.
-4. Open [the Milestone 0 starter prompt](M0_START_PROMPT.md) in Cursor, and begin only M0. Do not try to generate the entire app at once.
+4. Follow [M1 tasks](docs/milestones/m1.md) and the current handoff. The [M0 starter prompt](M0_START_PROMPT.md) is historical bootstrap guidance.
 5. Validate this skeleton with `python3 -m pip install -r tools/requirements.txt` followed by `python3 -m unittest discover -s tests -v`.
 
 ## Optional Training Season / Training Program hierarchy (updated package)
@@ -39,7 +39,7 @@ See [v2 release notes](V2_RELEASE_NOTES.md) for what changed from the earlier 78
 
 ## Non-negotiable safety / privacy gates
 
-- Never use company accounts, company credentials, company email or company resources. Validate both Git author and effective GitHub authentication **before** repository creation, push or deployment. Confirmed personal GitHub owner is `LachimB`; repository-local author is `MichalB <michal.buzek@gmail.com>`. The starter package originally assumed `michal-buzek`, and a later note said `MichalB`. Both are withdrawn as the GitHub login.
+- Never use company accounts, company credentials, company email or company resources. Validate both Git author and effective GitHub authentication **before** repository creation, push or deployment. Confirmed personal GitHub owner is `LachimB`; repository-local author is `LachimB <michal.buzek@gmail.com>`. The starter package originally assumed `michal-buzek`, and a later note said `LachimB`. Both are withdrawn as the GitHub login.
 - Require approval for **every new external service** and separate explicit confirmation before **any billable resource** is created/enabled. An approved development plan is not blanket approval to provision infrastructure.
 - No personal workout history, original physiotherapy PDFs, cloud tokens, private notes or secrets in Git. Sanitized or synthetic test fixtures only.
 - Bind no application logic to Google Drive, VITALISTA, one person, or a specific AI provider. Auth identity, data, storage, sharing and cloud APIs are separate concerns.
