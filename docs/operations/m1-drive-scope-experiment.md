@@ -152,3 +152,47 @@ Official implementation reference: [Google browser token model](https://develope
   externally created descendants; invalid external YAML edits; proven version
   preconditions/conflict preservation; offline/revoke/restore; Android outbox sync.
   M1 real-workout and physical-phone acceptance remain separate and unfinished.
+
+## Externally created child probe — 2026-11-02
+
+The connected Drive skill/connector was used only to prepare an external fixture,
+not as proof of the application's grant. Its profile matched the user-selected
+personal account. Four connector setup calls: profile, exact synthetic-parent
+metadata, upload and exact child metadata readback. Created
+`SYNTHETIC-external-child.json` in the existing labelled test folder. Readback
+confirmed JSON MIME type, the exact parent and `shared=false`. Content is a fixed
+made-up probe with `containsRealTrainingData=false`; no real materials were used.
+
+The application's own token then returned **200** for the synthetic parent and
+**404** for that exact externally created child. No child content was read by the
+application. This demonstrates that access to this app-created parent did not
+expose this externally created descendant; no blanket inherited-grant assumption
+is valid. The connector's separate grant is not reused as application auth.
+
+Counter: **18/500**, including the four conservatively charged fixture-setup calls
+and two direct app requests. The bookkeeping helper can only consume budget, not
+reset it. Six Node tests cover budget safety, exact synthetic metadata, native
+fetch receiver and fixed-origin/redirect behavior. The external fixture remains
+private and retained for review:
+[synthetic external child](https://drive.google.com/file/d/1XMMi-8UlkMPy4z3X4dUk5Zg1hNAVVtbo/view?usp=drivesdk).
+
+Prepared the next Google Picker selection in the local tool, restricted to JSON
+and the known test folder/query, with exact picked-ID checking. No Picker request
+has run. The Cloud Picker enablement page presents the separate Google APIs Terms
+of Service; user confirmation requested under the browser legal-agreement rule.
+Picker API is **not enabled**, no Picker key is created, and explicit selection
+remains **unproven**. A future browser key must be restricted to Picker API and the
+necessary localhost/Google Picker iframe referrers; never create a service account,
+link billing or commit the key. Key/token fields remain memory-only. No broader
+Drive scope is requested. Internal Picker UI calls are separate from direct Drive
+transport accounting and must be recorded if that stage runs.
+
+Official setup/restriction reference:
+[Google Picker web integration](https://developers.google.com/workspace/drive/picker/guides/web-picker).
+
+The user separately proposed a real-workout specification folder. Connector
+metadata returned 404 and the signed-in browser showed You need access for the
+selected personal account. No folder contents were opened, no access-request
+message sent and no real files used in this experiment. The user has been asked
+for Viewer access or a corrected link. Before any document content enters AI,
+obtain the required per-operation consent and provider selection.

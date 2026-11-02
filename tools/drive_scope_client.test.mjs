@@ -1,10 +1,22 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {DriveScopeClient} from './drive_scope_client.mjs';
+import {DriveScopeClient, reserveBudget, isExternalSyntheticFixture} from './drive_scope_client.mjs';
 function budget(initial = '0') {
   let value = initial;
   return {getItem: () => value, setItem: (_, next) => {value = next;}};
 }
+test('separate fixture setup can only consume budget, never reset it', () => {
+  const storage = budget('12'); reserveBudget(storage, 4); assert.equal(storage.getItem(), '16');
+  for (const count of [0, -4, 1.5, 485, NaN]) assert.throws(() => reserveBudget(storage, count), /budget/);
+  assert.equal(storage.getItem(), '16');
+});
+test('external-file content is read only after exact synthetic metadata matches', () => {
+  const expected = {name:'SYNTHETIC-external-child.json',mimeType:'application/json',parents:['folder']};
+  assert.equal(isExternalSyntheticFixture(expected, 'folder'), true);
+  for (const changed of [{name:'private.json'}, {mimeType:'application/pdf'}, {parents:['other']}, {parents:['folder','other']}]) {
+    assert.equal(isExternalSyntheticFixture({...expected,...changed}, 'folder'), false);
+  }
+});
 test('browser transport invokes native fetch on its global receiver', async () => {
   const original = globalThis.fetch;
   globalThis.fetch = function () { assert.equal(this, globalThis); return Promise.resolve({status: 200}); };

@@ -15,16 +15,28 @@ The access token lives only in this page's memory. The request counter persists 
 <button id="forget">Forget this page's access token</button>
 <label>Previously created synthetic test folder ID <input id="folder" autocomplete="off"></label>
 <button id="conflict" disabled>Probe conditional rename on that synthetic file</button>
+<label>Separately created synthetic child ID <input id="external" autocomplete="off"></label>
+<button id="external-probe" disabled>Check app access to that external synthetic child</button>
+<label>Restricted Picker API key (memory only) <input id="picker-key" type="password" autocomplete="off"></label>
+<p>Picker setup must be approved and enabled first. Select only the separately created
+<strong>SYNTHETIC-external-child.json</strong> in the labelled test folder.</p>
+<button id="pick-child" disabled>Select only the external synthetic child with Google Picker</button>
 <pre id="status" role="status">Loading Google's authorization library…</pre>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script type="module">
-import {DriveScopeClient, SCOPE} from './drive_scope_client.mjs';
+import {DriveScopeClient, SCOPE, reserveBudget, isExternalSyntheticFixture} from './drive_scope_client.mjs';
 const byId = id => document.getElementById(id);
 const status = byId('status');
 let token = '', expiresAt = 0, busy = false;
 function report(message) { status.textContent += '\n' + message; }
-function forget() { token = ''; expiresAt = 0; byId('run').disabled = true; byId('conflict').disabled = true; }
-byId('forget').onclick = () => {forget(); report('Token forgotten locally. Google account grant is unchanged.');};
+function forget() {
+  token = ''; expiresAt = 0;
+  for (const id of ['run','conflict','external-probe','pick-child']) byId(id).disabled = true;
+}
+byId('forget').onclick = () => {
+  forget(); byId('picker-key').value = '';
+  report('Token and Picker key forgotten locally. Google account grant is unchanged.');
+};
 const ready = setInterval(() => {
   if (window.google?.accounts?.oauth2) {
     clearInterval(ready); byId('authorize').disabled = false;
@@ -45,6 +57,8 @@ byId('authorize').onclick = () => {
       }
       token = response.access_token; expiresAt = Date.now() + Number(response.expires_in) * 1000;
       byId('run').disabled = false; byId('conflict').disabled = false;
+      byId('external-probe').disabled = false;
+      byId('pick-child').disabled = false;
       report('Authorized only drive.file. Token held in memory. No Drive calls yet.');
     },
     error_callback: () => report('Authorization popup did not complete. No API call made.'),
@@ -139,5 +153,103 @@ byId('conflict').onclick = async () => {
     report('Requests used: ' + localStorage.getItem('gym-m1-drive-requests') + '/500 (including failed attempts).');
     busy = false; byId('authorize').disabled = false;
   }
+};
+byId('external-probe').onclick = async () => {
+  if (busy || !token || Date.now() >= expiresAt) return;
+  const folder = byId('folder').value.trim(), external = byId('external').value.trim();
+  if (![folder,external].every(id => /^[-\w]+$/.test(id))) {report('Enter the verified synthetic parent and external child IDs.'); return;}
+  busy = true;
+  for (const id of ['run','conflict','external-probe','authorize']) byId(id).disabled = true;
+  const client = new DriveScopeClient(token, localStorage);
+  try {
+    const setupKey = 'gym-m1-external-fixture-budget-' + external;
+    if (!localStorage.getItem(setupKey)) {
+      reserveBudget(localStorage, 4);
+      localStorage.setItem(setupKey, 'reserved');
+      report('Charged four separate connector fixture-setup calls to the experiment budget.');
+    }
+    const parentResponse = await client.request('/drive/v3/files/'+folder+'?fields=name,mimeType,appProperties');
+    report('App grant reads synthetic parent: HTTP ' + parentResponse.status);
+    if (!parentResponse.ok) throw new Error('Parent grant unavailable; stopped.');
+    const parent = await parentResponse.json();
+    if (parent.mimeType !== 'application/vnd.google-apps.folder' || !parent.appProperties?.gymSyntheticM1 ||
+        parent.name !== 'Gym Assistant — SYNTHETIC M1 TEST — ' + parent.appProperties.gymSyntheticM1) {
+      throw new Error('Parent is not this app’s labelled test folder; stopped.');
+    }
+    const childResponse = await client.request('/drive/v3/files/'+external+'?fields=id,name,mimeType,parents');
+    report('App grant reads external synthetic child metadata: HTTP ' + childResponse.status);
+    if ([403,404].includes(childResponse.status)) {
+      report('OBSERVED: app-created parent access did not expose this externally created child. Explicit child selection must be tested; no wider scope requested.');
+      return;
+    }
+    if (!childResponse.ok || !isExternalSyntheticFixture(await childResponse.json(), folder)) {
+      throw new Error('Expected synthetic child metadata not verified; no content read.');
+    }
+    const content = await client.request('/drive/v3/files/'+external+'?alt=media');
+    report('Read verified external synthetic content: HTTP ' + content.status);
+    if (!content.ok) throw new Error('Synthetic content inaccessible; stopped.');
+    const value = JSON.parse(await content.text());
+    if (value.experiment !== 'gym-assistant-m1-synthetic' || value.createdOutsideApplicationGrant !== true || value.containsRealTrainingData !== false) {
+      throw new Error('Synthetic fixture contents differ; contents not displayed.');
+    }
+    report('OBSERVED: app grant could read this external child; no general inherited-grant claim follows from one sample.');
+  } catch (error) {
+    report(error instanceof TypeError ? 'Browser transport failed; stopped.' : error.message);
+  } finally {
+    report('Budget used: ' + localStorage.getItem('gym-m1-drive-requests') + '/500, including separate fixture setup.');
+    busy = false; byId('authorize').disabled = false;
+  }
+};
+let pickerLibrary;
+function loadPicker() {
+  if (!pickerLibrary) pickerLibrary = new Promise((resolve, reject) => {
+    const timeout = setTimeout(() => reject(new Error('Picker library timed out; no retry.')), 20000);
+    const loaded = () => { clearTimeout(timeout); resolve(); };
+    const script = document.createElement('script');
+    script.src = 'https://apis.google.com/js/api.js';
+    script.onload = () => gapi.load('picker', loaded);
+    script.onerror = () => {clearTimeout(timeout); reject(new Error('Picker library unavailable; no retry.'));};
+    document.head.appendChild(script);
+  });
+  return pickerLibrary;
+}
+byId('pick-child').onclick = async () => {
+  if (busy || !token || Date.now() >= expiresAt) return;
+  const folder = byId('folder').value.trim(), external = byId('external').value.trim();
+  const key = byId('picker-key').value.trim();
+  if (![folder,external].every(id => /^[-\w]+$/.test(id)) || !/^AIza[-_A-Za-z0-9]+$/.test(key)) {
+    report('Enter the verified synthetic IDs and the approved restricted Picker key.'); return;
+  }
+  busy = true;
+  for (const id of ['run','conflict','external-probe','pick-child','authorize']) byId(id).disabled = true;
+  const done = () => {busy = false; byId('authorize').disabled = false; byId('external-probe').disabled = false;};
+  try {
+    const client = new DriveScopeClient(token, localStorage);
+    const parentResponse = await client.request('/drive/v3/files/'+folder+'?fields=name,mimeType,appProperties');
+    if (!parentResponse.ok) throw new Error('Synthetic parent grant unavailable; no Picker opened.');
+    const parent = await parentResponse.json();
+    if (parent.mimeType !== 'application/vnd.google-apps.folder' || !parent.appProperties?.gymSyntheticM1 ||
+        parent.name !== 'Gym Assistant — SYNTHETIC M1 TEST — ' + parent.appProperties.gymSyntheticM1) {
+      throw new Error('Not the labelled synthetic parent; no Picker opened.');
+    }
+    await loadPicker();
+    const view = new google.picker.DocsView(google.picker.ViewId.DOCS)
+      .setParent(folder).setMimeTypes('application/json').setIncludeFolders(false)
+      .setQuery('SYNTHETIC-external-child.json');
+    const picker = new google.picker.PickerBuilder().addView(view)
+      .setOAuthToken(token).setDeveloperKey(key).setAppId(byId('client').value.trim().split('-')[0])
+      .setOrigin(location.origin).setTitle('Select only SYNTHETIC-external-child.json')
+      .setCallback(data => {
+        if (data.action === google.picker.Action.PICKED) {
+          const docs = data.docs ?? [];
+          report(docs.length === 1 && docs[0].id === external
+            ? 'Picker selected the expected synthetic child. Run the app-access probe again to verify the grant.'
+            : 'Unexpected selection. No file content read. Stop and review the account grant.');
+          done();
+        } else if (data.action === google.picker.Action.CANCEL) {report('Picker cancelled. No file content read.'); done();}
+      }).build();
+    report('Opening one bounded synthetic Picker selection. Its internal UI calls are not direct Drive transport calls.');
+    picker.setVisible(true);
+  } catch (error) {report(error instanceof TypeError ? 'Picker setup failed; no retry.' : error.message); done();}
 };
 </script></html>
