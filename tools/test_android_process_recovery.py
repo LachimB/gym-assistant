@@ -42,6 +42,8 @@ def main():
             if any(text in node.get('text', '') for node in result for text in markers):
                 return result
             time.sleep(0.5)
+        print('Emulator visible texts:', [node.get('text') for node in result if node.get('text')][:20])
+        print(adb('logcat', '-d', '-s', 'AndroidRuntime:E')[-6000:])
         raise AssertionError('Expected recovery UI marker was not found')
 
     def wait_for(text):
@@ -88,7 +90,12 @@ def main():
                 return json.loads(row[0]), row[1]
 
     def launch():
-        adb('shell', 'am', 'start', '-W', '-n', COMPONENT)
+        # Safe here because this entire test rejects physical devices above.
+        adb('shell', 'input', 'keyevent', 'KEYCODE_WAKEUP')
+        adb('shell', 'wm', 'dismiss-keyguard')
+        result = adb('shell', 'am', 'start', '-W', '-n', COMPONENT)
+        if 'Error:' in result or 'Exception' in result:
+            raise AssertionError('Unable to launch the installed debug activity')
 
     def kill():
         adb('shell', 'am', 'force-stop', PACKAGE)
