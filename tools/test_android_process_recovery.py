@@ -109,7 +109,7 @@ def main():
     kill()
     before_restore = saved_checkpoint()
     launch()
-    wait_for('Session ')
+    wait_for('Unfinished workout recovered')
     first_saved = saved_checkpoint()
     first = counters(first_saved)
     if counters(before_restore) != first or before_restore[1] != first_saved[1]:
@@ -123,7 +123,7 @@ def main():
     time.sleep(1.2)
     kill()
     launch()
-    wait_for('Session ')
+    wait_for('Unfinished workout recovered')
     second_saved = saved_checkpoint()
     second = counters(second_saved)
     if first_saved[1] != second_saved[1]:
