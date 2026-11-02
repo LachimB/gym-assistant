@@ -31,7 +31,7 @@ def main():
         raise RuntimeError('This automated force-stop test is permitted only on an emulator')
 
     def nodes():
-        for _ in range(3):
+        for attempt in range(4):
             adb('shell', 'uiautomator', 'dump', '/data/local/tmp/gym-recovery-ui.xml')
             raw = adb('exec-out', 'cat', '/data/local/tmp/gym-recovery-ui.xml')
             result = list(ET.fromstring(raw).iter('node'))
@@ -42,12 +42,16 @@ def main():
                                for node in result)
             if not launcher_anr:
                 return result
+            if attempt == 3:
+                raise AssertionError('System UI/launcher remains unstable after three dismissals; application test cannot proceed')
             close = next(node for node in result if node.get('text') == 'Close app')
             x1, y1, x2, y2 = map(int, re.findall(r'\d+', close.get('bounds', '')))
             adb('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
+            # Let the OS replace its stopped UI process before inspecting again.
+            time.sleep(2)
             adb('shell', 'am', 'start', '-W', '-n', COMPONENT)
-            print('Dismissed a system-UI/launcher ANR on the disposable emulator')
-        raise AssertionError('System launcher remains unstable; application test cannot proceed')
+            print('Dismissed a system-UI/launcher ANR on the disposable emulator', flush=True)
+        raise AssertionError('Unreachable system-dialog retry state')
 
     def wait_for_any(markers):
         deadline = time.monotonic() + 40

@@ -1,11 +1,25 @@
 # M1 Drive/OAuth scope experiment
 
-Status: **Approved by the user on 2026-11-02 / not provisioned.** The user
+Status: **Approved by the user on 2026-11-02 / setup in progress.** The user
 explicitly approved the synthetic-only, billing-disabled experiment described
 below, including a dedicated personal Google Cloud development project/OAuth
 clients, `drive.file`, labelled test files and a maximum of 500 requests.
-The personal Google account is not yet selected. No Google user/cloud API call,
-project creation, OAuth grant or test-file upload has occurred.
+The user selected their personal Google account and completed browser sign-in.
+The dedicated project `gym-assistant-m1-synthetic-dev` was created with no
+organization; the billing page explicitly reports no linked billing account.
+Drive API is enabled. The user separately approved the Google API Services User
+Data Policy at the final agreement step. OAuth remains in Testing mode with only
+the selected account as test user and only `drive.file` declared.
+A localhost web client is registered for `http://127.0.0.1:5173` and
+`http://localhost:5173`; no redirect URI, deployment or production publishing.
+Android debug client registration is bound to `dev.gymassistant.m0.debug` and
+public APK certificate SHA-1 `CE:DE:EC:BE:F3:A8:92:F2:45:D2:83:EC:48:31:A0:07:57:79:12:BD`.
+No application Drive token grant or synthetic-file upload has been verified yet.
+
+The Cloud console exposed its generated web-client secret in an accessibility
+response during setup. It was not copied into source, local configuration or
+artifacts. The browser-only token experiment does not use a client secret; replace
+that secret before any future server-side use. No refresh token is stored.
 
 This approval excludes Sheets, real workouts/history/documents, billing activation,
 paid resources, storage upgrades, service accounts and broader Drive permissions.
@@ -72,3 +86,36 @@ Neither alternative changes M1's approved Drive acceptance gate automatically.
 Official sources checked 2026-11-02:
 [Drive scopes](https://developers.google.com/workspace/drive/api/guides/api-specific-auth),
 [Drive quotas and pricing](https://developers.google.com/workspace/drive/api/guides/limits).
+
+## Local browser experiment runner
+
+Serve only the tool directory on the registered loopback origin:
+
+```sh
+python3 -m http.server 5173 --bind 127.0.0.1 --directory tools
+```
+
+Open `http://127.0.0.1:5173/drive_scope_experiment.html`. Enter the approved web
+client ID and selected personal account; neither is a client secret. Google's
+browser token model requests only `drive.file`, explicitly excludes previously
+granted scopes, and keeps the short-lived token only in page memory. Reload or
+Forget clears that local token; it does not revoke Google's account grant.
+No API request starts until the separate synthetic-test button is pressed.
+
+The first probe reserves stable provider IDs, creates a labelled folder and a
+made-up JSON probe (not canonical Workout Session history), replays the same
+create ID expecting HTTP 409, reads exact content, checks there is only one child,
+renames it and rereads the same ID. It makes eight Drive requests on its successful
+path. No automatic network retries, scope widening or artifact deletion. The
+persistent non-secret counter refuses request 501, counts failed requests, and
+fails closed if counter persistence fails. Never clear it to evade the approved cap.
+
+This runner proves only its explicitly reported cases. It does not yet prove
+Picker grants/descendants, YAML invalid-edit quarantine, version preconditions,
+Android outbox sync, offline/revoke/restore, or real-session acceptance. Retain
+both synthetic artifacts for review. The UI renders no API error bodies, tokens
+or real file content. Requests target only the fixed Google Drive API origin,
+refuse redirects and carry no browser cookies. Transport safeguards have three
+Node tests and a CI gate.
+
+Official implementation reference: [Google browser token model](https://developers.google.com/identity/oauth2/web/guides/use-token-model).
