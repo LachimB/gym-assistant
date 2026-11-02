@@ -3,11 +3,37 @@
 ## Current status
 - Date: 2026-11-02
 - Product specification: approved through Decision #97. Decisions #1–#78 remain binding unless a later decision refines one. Decisions #79–#97 add optional Training Season, Training Program, immutable Training Template revisions, and Workout Session provenance.
-- Current milestone: M0 approved and complete. The user confirmed the final merge; PR #2 merged into `main` at `edbdec5ff6ec8fbcb993bff82c5a26b76efc9b95` on 2026-11-02. M1 has not started. This is a feasibility build, not a daily-use app.
+- M0 baseline: approved and complete. The user confirmed the final merge; PR #2 merged into `main` at `edbdec5ff6ec8fbcb993bff82c5a26b76efc9b95` on 2026-11-02. M1 started in this chat on 2026-11-02. This is a feasibility build, not a daily-use app.
 - Working code: Kotlin reducer in `packages/engine`, independent TypeScript reducer in `packages/engine-ts`, localhost React simulator in `apps/web`, Compose debug app in `apps/android`, in-memory `TrainingStore` in `packages/cloud-adapters`.
-- GitHub: private `LachimB/gym-assistant`. Repository-local author is `MichalB <<private-contact-redacted>>`. Do not change global Git config. GitHub writes must unset `GITHUB_TOKEN` so the keyring login stays `LachimB`. Withdrawn logins: `michal-buzek` and `MichalB`.
+- GitHub: private `LachimB/gym-assistant`. Repository-local author is `LachimB <<private-contact-redacted>>`. Do not change global Git config. GitHub writes must unset `GITHUB_TOKEN` so the keyring login stays `LachimB`. Earlier login assumptions are withdrawn; `LachimB` is the user-confirmed owner.
 - Cloud resources / OAuth / hosting: none provisioned. No Google API calls.
 - Engine choice: ADR-0002. Kotlin/JS compiles and a Node require reproduced the navigation trace, but the bundle is a multi-file CommonJS factory. The React app uses the TypeScript engine. Android compiles the Kotlin common source. The plan's rule was to share Kotlin/JS only when that import is clean, so the prototype does not share it.
+
+## Current M1 work — 2026-11-02
+
+- Working branch `codex/m1-foundation`, based on accepted M0 commit `936fcae`.
+  This chat initially used stale starter commit `2d0b575`; the resulting claims
+  that M0/ADR-0002/apps were missing were incorrect. The accepted M0 baseline and
+  device evidence below remain authoritative. No new engine spike is needed.
+- Local Python contract experiments: `tools/template_loader.py` (bounded safe YAML
+  and reference validation), `tools/template_review.py` (read-only expected-revision,
+  diff and identity review), `tools/storage_contracts.py` (volatile storage fake).
+  These do not replace the accepted Kotlin/TypeScript engines or Kotlin store.
+  No durable quarantine, publication, outbox, recovery or Drive integration yet.
+- Latest user correction: personal owner and repository-local author name `LachimB`,
+  existing personal email `<private-contact-redacted>`. Updated docs, env example and
+  safeguards; global Git config unchanged. Global collaboration instructions also
+  record the confirmed account and distinct completion/input-needed banners.
+- Stored GitHub login verified as `LachimB` and full read-only preflight passed for
+  existing private origin with the four token overrides omitted for that command.
+  The inherited token remains untouched. Never print it or use it implicitly.
+- Local M1 tests: 55 passing tests cover loader, review, mock storage and credential safeguards. Existing
+  Kotlin/web/Android checks must be rerun on this accepted baseline before PR.
+- All local work was preserved in a stash before baseline synchronization; recovery
+  stash retained. No push, remote creation, public deployment, service or billing
+  resource activation occurred in this chat.
+- Next M1 decision: `docs/adr/0003-m1-durable-session-store.md` proposes a Kotlin session-store port and device-private Room/SQLite transactions for events/checkpoint/outbox. Proposed only; project rule 4 requires architecture approval before adoption. Then integrate template validation and durable checkpoint/recovery. Real workout selection and Drive OAuth approval
+  remain open; use synthetic fixtures meanwhile. No schema migration authorized.
 
 ## Task identifiers
 
