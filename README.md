@@ -39,7 +39,7 @@ See [v2 release notes](V2_RELEASE_NOTES.md) for what changed from the earlier 78
 
 ## Non-negotiable safety / privacy gates
 
-- Never use company accounts, company credentials, company email or company resources. Validate both Git author and effective GitHub authentication **before** repository creation, push or deployment. Confirmed personal GitHub owner is `LachimB`; repository-local author is `LachimB <<private-contact-redacted>>`. The starter package originally assumed `michal-buzek`, and a later note said `LachimB`. Both are withdrawn as the GitHub login.
+- Never use company accounts, company credentials, company email or company resources. Validate both Git author and effective GitHub authentication **before** repository creation, push or deployment. Confirmed personal GitHub owner is `LachimB`; repository-local author is `LachimB <<private-contact-redacted>>`. Earlier `michal-buzek` and `MichalB` login assumptions are withdrawn; the confirmed GitHub login is `LachimB`.
 - Require approval for **every new external service** and separate explicit confirmation before **any billable resource** is created/enabled. An approved development plan is not blanket approval to provision infrastructure.
 - No personal workout history, original physiotherapy PDFs, cloud tokens, private notes or secrets in Git. Sanitized or synthetic test fixtures only.
 - Bind no application logic to Google Drive, VITALISTA, one person, or a specific AI provider. Auth identity, data, storage, sharing and cloud APIs are separate concerns.

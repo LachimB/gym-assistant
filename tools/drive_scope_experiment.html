@@ -1,0 +1,143 @@
+<!doctype html>
+<html lang="en"><meta charset="utf-8"><meta name="referrer" content="no-referrer">
+<title>Gym Assistant — synthetic Drive experiment</title>
+<style>body{max-width:850px;margin:40px auto;padding:0 20px;font:18px system-ui;line-height:1.5}button,input{font:inherit;padding:10px;margin:6px 0}input{width:95%}pre{white-space:pre-wrap;background:#eee;padding:18px}button{display:block}</style>
+<h1>Synthetic Drive experiment</h1>
+<p>Development test only. Billing must remain disabled. This page requests only <code>drive.file</code>.
+It creates a labelled folder and one made-up JSON file, reads that file, retries the same create ID,
+lists only that folder, and renames its test file. It retains both artifacts for review.</p>
+<p>No file picker, personal-file upload, client secret, refresh token or token storage.
+The access token lives only in this page's memory. The request counter persists across reloads.</p>
+<label>Development web client ID <input id="client" autocomplete="off" placeholder="…apps.googleusercontent.com"></label>
+<label>Selected personal Google account <input id="account" type="email" autocomplete="off"></label>
+<button id="authorize" disabled>Authorize drive.file for the selected account</button>
+<button id="run" disabled>Run the labelled synthetic create/read/retry test</button>
+<button id="forget">Forget this page's access token</button>
+<label>Previously created synthetic test folder ID <input id="folder" autocomplete="off"></label>
+<button id="conflict" disabled>Probe conditional rename on that synthetic file</button>
+<pre id="status" role="status">Loading Google's authorization library…</pre>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script type="module">
+import {DriveScopeClient, SCOPE} from './drive_scope_client.mjs';
+const byId = id => document.getElementById(id);
+const status = byId('status');
+let token = '', expiresAt = 0, busy = false;
+function report(message) { status.textContent += '\n' + message; }
+function forget() { token = ''; expiresAt = 0; byId('run').disabled = true; byId('conflict').disabled = true; }
+byId('forget').onclick = () => {forget(); report('Token forgotten locally. Google account grant is unchanged.');};
+const ready = setInterval(() => {
+  if (window.google?.accounts?.oauth2) {
+    clearInterval(ready); byId('authorize').disabled = false;
+    status.textContent = 'Ready. Requests used: ' + (localStorage.getItem('gym-m1-drive-requests') ?? '0') + '/500.';
+  }
+}, 100);
+byId('authorize').onclick = () => {
+  forget();
+  const clientId = byId('client').value.trim(), account = byId('account').value.trim();
+  if (!/^\d+-[a-z0-9]+\.apps\.googleusercontent\.com$/.test(clientId) || !account.includes('@')) {
+    report('Enter the approved development client ID and selected personal account.'); return;
+  }
+  const auth = google.accounts.oauth2.initTokenClient({
+    client_id: clientId, scope: SCOPE, include_granted_scopes: false, login_hint: account,
+    callback: response => {
+      if (response.error || response.scope?.trim() !== SCOPE || !response.access_token) {
+        forget(); report('Authorization failed or returned an unexpected scope. No API call made.'); return;
+      }
+      token = response.access_token; expiresAt = Date.now() + Number(response.expires_in) * 1000;
+      byId('run').disabled = false; byId('conflict').disabled = false;
+      report('Authorized only drive.file. Token held in memory. No Drive calls yet.');
+    },
+    error_callback: () => report('Authorization popup did not complete. No API call made.'),
+  });
+  auth.requestAccessToken({prompt: ''});
+};
+byId('run').onclick = async () => {
+  if (busy || !token || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) {forget(); return;}
+  busy = true; byId('run').disabled = true; byId('authorize').disabled = true;
+  byId('conflict').disabled = true;
+  const client = new DriveScopeClient(token, localStorage);
+  const marker = crypto.randomUUID();
+  async function request(label, path, init, expected = [200]) {
+    const response = await client.request(path, init);
+    report(label + ': HTTP ' + response.status + '; requests ' + localStorage.getItem('gym-m1-drive-requests') + '/500');
+    if (!expected.includes(response.status)) throw new Error('Unexpected status; stopped without retry or scope change');
+    return response;
+  }
+  const json = body => ({method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(body)});
+  try {
+    const idsResponse = await request('Reserve stable provider IDs', '/drive/v3/files/generateIds?count=2&space=drive');
+    const {ids} = await idsResponse.json();
+    if (!Array.isArray(ids) || ids.length !== 2 || ids.some(id => !/^[-\w]+$/.test(id))) throw new Error('Invalid generated IDs');
+    const [folderId, fileId] = ids;
+    const folderName = 'Gym Assistant — SYNTHETIC M1 TEST — ' + marker;
+    await request('Create labelled test folder', '/drive/v3/files?fields=id', json({id:folderId,name:folderName,mimeType:'application/vnd.google-apps.folder',appProperties:{gymSyntheticM1:marker}}));
+    report('Review folder: https://drive.google.com/drive/folders/' + folderId);
+    const fixture = JSON.stringify({experiment:'gym-assistant-m1-synthetic',operationId:marker,fictionalObservedMs:1250,containsRealTrainingData:false});
+    const metadata = {id:fileId,name:'SYNTHETIC-session-probe.json',mimeType:'application/json',parents:[folderId],appProperties:{gymSyntheticM1:marker}};
+    const boundary = 'gym_' + marker;
+    const body = '--'+boundary+'\r\nContent-Type: application/json; charset=UTF-8\r\n\r\n'+JSON.stringify(metadata)+'\r\n--'+boundary+'\r\nContent-Type: application/json\r\n\r\n'+fixture+'\r\n--'+boundary+'--\r\n';
+    const upload = {method:'POST',headers:{'Content-Type':'multipart/related; boundary='+boundary},body};
+    await request('Create synthetic JSON', '/upload/drive/v3/files?uploadType=multipart&fields=id', upload);
+    await request('Replay same create ID (lost-ack probe)', '/upload/drive/v3/files?uploadType=multipart&fields=id', upload, [409]);
+    const read = await request('Read exact synthetic JSON', '/drive/v3/files/'+fileId+'?alt=media');
+    if (await read.text() !== fixture) throw new Error('Synthetic content mismatch');
+    const q = encodeURIComponent("'"+folderId+"' in parents and trashed = false");
+    const listed = await (await request('List only labelled folder', '/drive/v3/files?q='+q+'&fields=files(id),nextPageToken')).json();
+    if (listed.nextPageToken || listed.files.length !== 1 || listed.files[0].id !== fileId) throw new Error('Duplicate or unexpected synthetic listing');
+    await request('Rename own synthetic file', '/drive/v3/files/'+fileId+'?fields=id,name', {...json({name:'SYNTHETIC-session-probe-renamed.json'}),method:'PATCH'});
+    const reread = await request('Read same ID after rename', '/drive/v3/files/'+fileId+'?alt=media');
+    if (await reread.text() !== fixture) throw new Error('Content changed after rename');
+    report('PASS: app-created folder/file, exact read, duplicate-create rejection, one listed file, stable identity after rename.');
+    report('NOT TESTED: Picker grants/descendants, concurrent version preconditions, YAML validation, Android sync, revoke/offline recovery. Artifacts retained.');
+  } catch (error) {
+    report(error instanceof Error && !/fetch/i.test(error.message) ? error.message : 'Network request failed; stopped. No automatic retry.');
+  } finally {
+    report('Requests used: ' + localStorage.getItem('gym-m1-drive-requests') + '/500 (including failed attempts).');
+    busy = false; byId('authorize').disabled = false; byId('conflict').disabled = false;
+  }
+};
+byId('conflict').onclick = async () => {
+  if (busy || !token || Date.now() >= expiresAt) return;
+  const folder = byId('folder').value.trim();
+  if (!/^[-\w]+$/.test(folder)) {report('Enter the folder ID from this experiment’s successful probe.'); return;}
+  busy = true; byId('conflict').disabled = true; byId('run').disabled = true; byId('authorize').disabled = true;
+  const client = new DriveScopeClient(token, localStorage);
+  async function get(label, path, init) {
+    const response = await client.request(path, init);
+    report(label + ': HTTP ' + response.status);
+    if (!response.ok) throw new Error('Unexpected provider status; stopped.');
+    return response;
+  }
+  try {
+    const metadata = await (await get('Verify synthetic folder label', '/drive/v3/files/'+folder+'?fields=name,mimeType,appProperties')).json();
+    const marker = metadata.appProperties?.gymSyntheticM1;
+    if (metadata.mimeType !== 'application/vnd.google-apps.folder' || !marker || metadata.name !== 'Gym Assistant — SYNTHETIC M1 TEST — ' + marker) {
+      throw new Error('Folder is not this app’s labelled synthetic probe. No child read or mutation.');
+    }
+    const q = encodeURIComponent("'"+folder+"' in parents and trashed = false");
+    const listed = await (await get('Find only owned synthetic child', '/drive/v3/files?q='+q+'&fields=files(id,name,appProperties),nextPageToken')).json();
+    if (listed.nextPageToken || listed.files.length !== 1 || listed.files[0].appProperties?.gymSyntheticM1 !== marker || !listed.files[0].name.startsWith('SYNTHETIC-session-probe')) {
+      throw new Error('Expected exactly one matching synthetic probe. No mutation.');
+    }
+    const fileId = listed.files[0].id;
+    if (!/^[-\w]+$/.test(fileId)) throw new Error('Invalid synthetic file ID');
+    const current = await get('Read provider concurrency metadata', '/drive/v3/files/'+fileId+'?fields=id,name,version');
+    const etag = current.headers.get('etag');
+    if (!etag) {
+      report('OPEN FEASIBILITY GAP: no ETag exposed to this browser. No conditional write attempted; version is not treated as an ETag.');
+      return;
+    }
+    const patch = name => ({method:'PATCH',headers:{'Content-Type':'application/json','If-Match':etag},body:JSON.stringify({name})});
+    await get('First conditional synthetic rename', '/drive/v3/files/'+fileId+'?fields=id,name', patch('SYNTHETIC-session-probe-conditional-A.json'));
+    const stale = await client.request('/drive/v3/files/'+fileId+'?fields=id,name', patch('SYNTHETIC-session-probe-conditional-B.json'));
+    report('Reused stale ETag: HTTP ' + stale.status);
+    if (stale.status !== 412) throw new Error('OPEN FEASIBILITY GAP: expected HTTP 412; provider CAS is not proven. Only synthetic metadata touched.');
+    report('PASS: provider rejected the stale conditional rename. Production conflict preservation is still unimplemented.');
+  } catch (error) {
+    report(error instanceof TypeError ? 'Browser transport failed; stopped.' : error.message);
+  } finally {
+    report('Requests used: ' + localStorage.getItem('gym-m1-drive-requests') + '/500 (including failed attempts).');
+    busy = false; byId('authorize').disabled = false;
+  }
+};
+</script></html>

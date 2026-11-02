@@ -6,10 +6,71 @@
 - M0 baseline: approved and complete. The user confirmed the final merge; PR #2 merged into `main` at `edbdec5ff6ec8fbcb993bff82c5a26b76efc9b95` on 2026-11-02. M1 started in this chat on 2026-11-02. This is a feasibility build, not a daily-use app.
 - Working code: Kotlin reducer in `packages/engine`, independent TypeScript reducer in `packages/engine-ts`, localhost React simulator in `apps/web`, Compose debug app in `apps/android`, in-memory `TrainingStore` in `packages/cloud-adapters`.
 - GitHub: private `LachimB/gym-assistant`. Repository-local author is `LachimB <<private-contact-redacted>>`. Do not change global Git config. GitHub writes must unset `GITHUB_TOKEN` so the keyring login stays `LachimB`. Earlier login assumptions are withdrawn; `LachimB` is the user-confirmed owner.
-- Cloud resources / OAuth / hosting: none provisioned. No Google API calls.
+- Corrected two legacy identity notes that accidentally described `LachimB` as withdrawn; only the earlier `michal-buzek`/`MichalB` assumptions are withdrawn.
+- Cloud resources / OAuth / hosting: approved personal project `gym-assistant-m1-synthetic-dev` created with no organization and billing confirmed unlinked. Drive API enabled; OAuth Testing, sole selected personal test user and `drive.file` declaration. Localhost web and package/signature-bound Android debug clients created; user completed exactly drive.file consent and the app-created synthetic file probe passed; no real data upload or hosting. See the experiment ledger for the one-time secret exposure and server-side-use restriction.
 - Engine choice: ADR-0002. Kotlin/JS compiles and a Node require reproduced the navigation trace, but the bundle is a multi-file CommonJS factory. The React app uses the TypeScript engine. Android compiles the Kotlin common source. The plan's rule was to share Kotlin/JS only when that import is clean, so the prototype does not share it.
 
-## Current M1 work — 2026-11-02
+## M1 recovery in progress — 2026-11-02
+
+- User approved ADR-0003 in chat; status updated to Approved. No Drive/OAuth or
+  billing/resource approval is implied. Work is on `codex/m1-recovery` from freshly
+  fetched merged `main` commit `c641676`; prior PR #10 is merged with all CI green.
+- Implemented device-private Room/SQLite version-1 session store behind Kotlin
+  `SessionStore`: immutable start snapshot/source/plan, revisioned append-only
+  actions/engine events, checkpoint, singleton unfinished slot and pending outbox
+  commit in one transaction. No canonical JSON schema change or migration.
+- Android UI now starts a saved synthetic ungrouped session, restores its frozen
+  plan, requires resume/partial-end/confirmed-discard after interruption and keeps
+  finalized logs. Save errors stop timing until explicit retry. No data clearing.
+- Internal unknown gap count is distinct from measured monotonic gaps and from
+  scheduled/observed/pause counters. A live-process sample gap above 2 s is
+  conservatively unobserved. Restart gaps are not assigned fabricated durations.
+- Room 2.8.5/KSP2 builds with the existing Kotlin toolchain. App and test APKs build;
+  existing Kotlin engine/store tests and 55 Python tests pass. Android 12 ARM64
+  instrumentation passed all 10 real-database tests in 0.944 s. The final UI host
+  force-stop/relaunch test passed (observed 1061 ms restored, then 2177 ms after
+  explicit resume; frozen source unchanged, no automatic resume or data clearing).
+  Physical-phone short smoke passed (details below); do not claim full M1 acceptance.
+- New instrumentation tests use disposable databases only. New CI workflow covers
+  API 31–36 and 37.0 plus an emulator-only host force-stop/relaunch test. Official
+  Android 12 emulator runs locally; the stalled Android 17 download was stopped.
+  CI provides the Android 17 image. Pixel 10a installation and pending physical
+  evidence are recorded below. Recovery actions were moved above the fold and
+  source IDs behind Source details after visual inspection.
+- Draft PR #11: https://github.com/LachimB/gym-assistant/pull/11. Full emulator
+  matrix passed on `1181a77`: API 31–36 and 37.0, 10 real SQLite tests per version
+  plus actual force-stop/relaunch/explicit-resume/partial-finalization host tests.
+  Run `41424079753`; standard contract/engine/web checks also passed. Earlier
+  runner disk exhaustion, system-UI ANRs and host-test checkpoint/UI races were
+  fixed without weakening the production interruption policy. The harness now also rechecks after its third system-ANR dismissal instead of failing without a final observation; local Android 12 process test passed (562→573 ms). Later heads through `02854cb` passed six versions; API 37.0 passed SQLite but
+  stopped on repeated system-UI ANRs. After the final-dismissal check fix,
+  `796cff2` passed the complete seven-version matrix again (run `41450398107`).
+- Latest implementation head `f002438` passed all seven recovery jobs again
+  (`41451951198`), plus contract/engine/web checks. Physical Pixel 10a / Android 17
+  smoke also passed on the same checksum-verified APK: first recovery 4686/4686 ms
+  scheduled/observed and hold 0:08; explicit resume to 8237/8237; paused Forward to
+  12000/8237 and Back to 4000/8237, completed count stays one. Second recovery
+  preserved 4000/8237 and stayed frozen. Confirmed partial finalization showed
+  Workout saved; force-stop/reopen showed Start Workout. No data clear/uninstall,
+  phone instrumentation or phone database export. See `m1-device-recovery.json`.
+  The temporary phone verifier's scheduled-position navigation assertion was
+  corrected against the accepted engine; no production change or weakened rule.
+- Prepared local `tools/drive_scope_experiment.html` and a memory-token Drive
+  transport with a persistent 500-request cap, fixed API origin and no redirects.
+  Four safety tests pass and are added to CI, including the native-fetch receiver
+  regression found during the first browser request. User completed Google consent.
+  The app-created synthetic folder/JSON probe passed; counter 12/500 including the
+  failed first transport and three metadata requests. No ETag exposed to this
+  browser, so no conditional write attempted and concurrency feasibility stays open.
+  The first probe covers app-created synthetic folder/JSON, stable-ID duplicate
+  create rejection, exact read/list and rename; all other scope/sync cases remain open. The user has been asked which real workout
+  should supply M1 acceptance; no answer yet and no real-data upload authorized.
+- See `docs/milestones/m1-recovery.md` for storage format, tests and limits. Remaining
+  gates: canonical JSON projection/sync and real
+  selected workout; Drive OAuth experiment (now approved, setup in progress). A concrete synthetic-only proposal is in
+  `docs/operations/m1-drive-scope-experiment.md`; user approved on 2026-11-02; personal account selected and signed in; dedicated billing-disabled project/Drive API and OAuth testing configured. Per-file consent and the app-created synthetic probe are verified; no real data uploaded.
+
+## Initial M1 foundation — 2026-11-02
 
 - Working branch `codex/m1-foundation`, based on accepted M0 commit `936fcae`.
   This chat initially used stale starter commit `2d0b575`; the resulting claims
@@ -32,9 +93,9 @@
 - All local work was preserved in a stash before baseline synchronization; recovery
   stash retained. Initial work committed as `10196af`, pushed through verified
   personal preflight and opened as PR #10: https://github.com/LachimB/gym-assistant/pull/10.
-  CI is being checked. No remote creation, public deployment, new service or billing
+  CI passed on commit `3aa8301`; PR #10 merged as `c641676`. No remote creation, public deployment, new service or billing
   resource activation occurred in this chat.
-- Next M1 decision: `docs/adr/0003-m1-durable-session-store.md` proposes a Kotlin session-store port and device-private Room/SQLite transactions for events/checkpoint/outbox. Proposed only; project rule 4 requires architecture approval before adoption. Then integrate template validation and durable checkpoint/recovery. Real workout selection and Drive OAuth approval
+- Next M1 decision: `docs/adr/0003-m1-durable-session-store.md` proposes a Kotlin session-store port and device-private Room/SQLite transactions for events/checkpoint/outbox. Approved by the user on 2026-11-02; implementation is tracked above. Then integrate template validation and durable checkpoint/recovery. Real workout selection and Drive OAuth approval
   remain open; use synthetic fixtures meanwhile. No schema migration authorized.
 
 ## Task identifiers
