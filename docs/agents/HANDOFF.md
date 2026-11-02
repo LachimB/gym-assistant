@@ -10,7 +10,7 @@
 - Cloud resources / OAuth / hosting: approved personal project `gym-assistant-m1-synthetic-dev` created with no organization and billing confirmed unlinked. Drive API enabled; OAuth Testing, sole selected personal test user and `drive.file` declaration. Localhost web and package/signature-bound Android debug clients created; user completed exactly drive.file consent and the app-created synthetic file probe passed; no real data upload or hosting. See the experiment ledger for the one-time secret exposure and server-side-use restriction.
 - Engine choice: ADR-0002. Kotlin/JS compiles and a Node require reproduced the navigation trace, but the bundle is a multi-file CommonJS factory. The React app uses the TypeScript engine. Android compiles the Kotlin common source. The plan's rule was to share Kotlin/JS only when that import is clean, so the prototype does not share it.
 
-## M1 recovery in progress — 2026-11-02
+## M1 recovery accepted slice and sync continuation — 2026-11-02
 
 - User approved ADR-0003 in chat; status updated to Approved. No Drive/OAuth or
   billing/resource approval is implied. Work is on `codex/m1-recovery` from freshly
@@ -37,7 +37,7 @@
   CI provides the Android 17 image. Pixel 10a installation and pending physical
   evidence are recorded below. Recovery actions were moved above the fold and
   source IDs behind Source details after visual inspection.
-- Draft PR #11: https://github.com/LachimB/gym-assistant/pull/11. Full emulator
+- PR #11 merged on 2026-11-02 as `b32b74e` after all seven emulator jobs, contract/engine/web CI and the Pixel 10a smoke passed. Continuing M1 on `codex/m1-sync` from freshly fetched `origin/main`; prior branch/worktrees retained. https://github.com/LachimB/gym-assistant/pull/11. Full emulator
   matrix passed on `1181a77`: API 31–36 and 37.0, 10 real SQLite tests per version
   plus actual force-stop/relaunch/explicit-resume/partial-finalization host tests.
   Run `41424079753`; standard contract/engine/web checks also passed. Earlier
@@ -45,8 +45,7 @@
   fixed without weakening the production interruption policy. The harness now also rechecks after its third system-ANR dismissal instead of failing without a final observation; local Android 12 process test passed (562→573 ms). Later heads through `02854cb` passed six versions; API 37.0 passed SQLite but
   stopped on repeated system-UI ANRs. After the final-dismissal check fix,
   `796cff2` passed the complete seven-version matrix again (run `41450398107`).
-- Latest implementation head `f002438` passed all seven recovery jobs again
-  (`41451951198`), plus contract/engine/web checks. Physical Pixel 10a / Android 17
+- Implementation head `f002438` passed all seven recovery jobs (`41451951198`); final evidence head `599720f` passed them again (`41454629667`), plus contract/engine/web checks. Physical Pixel 10a / Android 17
   smoke also passed on the same checksum-verified APK: first recovery 4686/4686 ms
   scheduled/observed and hold 0:08; explicit resume to 8237/8237; paused Forward to
   12000/8237 and Back to 4000/8237, completed count stays one. Second recovery
@@ -63,8 +62,10 @@
   failed first transport and three metadata requests. No ETag exposed to this
   browser, so no conditional write attempted and concurrency feasibility stays open.
   The first probe covers app-created synthetic folder/JSON, stable-ID duplicate
-  create rejection, exact read/list and rename; all other scope/sync cases remain open. The user has been asked which real workout
-  should supply M1 acceptance; no answer yet and no real-data upload authorized.
+  create rejection, exact read/list and rename; all other scope/sync cases remain open. The user proposed a real-workout folder; connector metadata returned 404 and
+  the browser showed You need access for the selected personal account. Viewer
+  access/corrected link requested; no contents read or access-request message sent.
+  Per-operation AI document consent/provider selection is still required.
 - See `docs/milestones/m1-recovery.md` for storage format, tests and limits. Remaining
   gates: canonical JSON projection/sync and real
   selected workout; Drive OAuth experiment (now approved, setup in progress). A concrete synthetic-only proposal is in
@@ -413,3 +414,47 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   was started or authorized by this approval.
 - Carry this local acceptance-status update into the next approved PR rather than
   creating another approval-only closeout loop.
+
+
+## M1 sync feasibility continuation — 2026-11-02
+
+- On `codex/m1-sync` from merged `b32b74e`; main/recovery worktrees retained.
+- Connector profile matched the user-selected personal Google account; created
+  and metadata-verified only a private external synthetic JSON child inside the
+  already labelled test folder. Four setup calls conservatively charged to budget.
+- App's own drive.file grant: parent HTTP 200, externally created child HTTP 404.
+  No inherited child grant and no content read. Counter now 18/500. Six Node
+  safety tests pass; direct request cap cannot be reset by bookkeeping operations.
+- User approved Picker terms/enablement and then restricted browser-key creation.
+  API Enabled verified. Created key restricted to Picker API only and two
+  localhost origins plus docs.google.com; verified persisted restrictions. First
+  Picker attempt failed invalid-key; iframe AX output exposed transient token/key.
+  User informed, page reloaded, later AX output filters credential-bearing URLs.
+  Reload is not revocation. Never copy values into Git. After changing document
+  referrer policy to strict-origin-when-cross-origin (direct Drive still
+  no-referrer), explicit exact synthetic selection passed; key propagation may
+  also have mattered. App grant read parent/child/content 200/200/200 vs child404
+  before selection. A further seven requests moved the child into a labelled test
+  subfolder and back, preserving file ID/grant; every response200. No deletion or
+  sharing. Counter now30/500 plus two Picker UI attempts (internal count not
+  measured). Key remains restricted; no service account/billing or broader scope.
+- PR #12: https://github.com/LachimB/gym-assistant/pull/12. Earlier head 0c18133
+  passed standard checks and all seven Android recovery jobs. Subsequent tool/docs
+  changes need current-head CI before merge. No Android app/schema/DB change.
+- The denied real-workout folder was superseded by an accessible individual PDF.
+  The user explicitly selected OpenAI in this chat for that PDF's structure
+  extraction. Downloaded privately outside Git; full single-page text and rendered
+  table inspected. No real content/identifiers committed or used in the synthetic
+  experiment. Owner clarified variant structure, side completion before switching,
+  full-set alternation, paired-stage mapping and a missing rest. Private extraction
+  notes updated outside Git. Between-repetition reset and exact fixed initial
+  values replacing ranges remain pending; do not invent choices. Owner wants
+  fixed Template targets plus one-click repetition addition and skip during a
+  Workout Session, preserving these as session deviations rather than changing
+  the immutable source Template.
+- Existing compiler only accepts fixed timed phases; it does not yet provide
+  runtime ranges/manual completion, explicit side cues or weighted-resistance
+  display. Canonical projection must retain scheduled/observed/pause/known and
+  unknown gaps separately; current draft session timing fields alone cannot do
+  this. Review a concrete versioned contract before changing schema or local DB.
+  M1 projection/Android sync/web history and real-workout acceptance remain open.
