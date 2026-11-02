@@ -48,5 +48,6 @@ test('credentials cannot go to another service or be forwarded by redirect', asy
   assert.equal(sent[0], 'https://www.googleapis.com/drive/v3/files?fields=id');
   assert.equal(sent[1].redirect, 'error');
   assert.equal(sent[1].credentials, 'omit');
+  assert.equal(sent[1].referrerPolicy, 'no-referrer');
   assert.equal(sent[1].headers.Authorization, 'Bearer fixture');
 });

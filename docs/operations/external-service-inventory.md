@@ -16,7 +16,9 @@ read-only operation is approved and was performed with the original and extracte
 content outside Git. It does not approve a general AI integration, another
 provider, paid API resources or further documents. Google Picker's separate API
 terms and enablement were also explicitly approved; the dedicated project now
-reports Picker API enabled. Restricted browser-key creation confirmation is
-pending; no key or broader OAuth grant has been created.
+reports Picker API enabled. The user subsequently approved restricted browser-key
+creation: Picker-only API and localhost/Picker-iframe referrers verified. Exact
+synthetic file selection/read and move/return passed; no broader OAuth scope.
+See the experiment ledger for the transient credential exposure in tool output.
 
 Before adding an entry, supply: alternatives, need, security/data handling, permission scope, terms, recurring cost and recovery/deletion plan. Preserve decision and timestamp in repository ADR/handoff. NEVER print or store token values in this inventory.
