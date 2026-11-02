@@ -13,7 +13,7 @@ jobs:
     runs-on: ubuntu-24.04
     timeout-minutes: 25
     env:
-      ANDROID_AVD_HOME: ${{ runner.temp }}/gym-recovery-avds
+      ANDROID_AVD_HOME: /tmp/gym-recovery-avds
     strategy:
       fail-fast: false
       matrix:
