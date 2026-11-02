@@ -36,9 +36,9 @@ def main():
             raw = adb('exec-out', 'cat', '/data/local/tmp/gym-recovery-ui.xml')
             result = list(ET.fromstring(raw).iter('node'))
             # Some cold CI images overlay a launcher ANR after database tests.
-            # Dismiss only that known system launcher; never hide our app's ANR.
+            # Dismiss only that known system UI/launcher; never hide our app's ANR.
             launcher_anr = any(node.get('text') in
-                               ("Quickstep isn't responding", "Launcher3 isn't responding")
+                               ("Quickstep isn't responding", "Launcher3 isn't responding", "System UI isn't responding")
                                for node in result)
             if not launcher_anr:
                 return result
@@ -46,7 +46,7 @@ def main():
             x1, y1, x2, y2 = map(int, re.findall(r'\d+', close.get('bounds', '')))
             adb('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
             adb('shell', 'am', 'start', '-W', '-n', COMPONENT)
-            print('Dismissed a system-launcher ANR on the disposable emulator')
+            print('Dismissed a system-UI/launcher ANR on the disposable emulator')
         raise AssertionError('System launcher remains unstable; application test cannot proceed')
 
     def wait_for_any(markers):
@@ -67,7 +67,7 @@ def main():
     width, height = dimensions
 
     def click(text):
-        for _ in range(12):
+        for attempt in range(12):
             matches = [node for node in nodes() if node.get('text') == text]
             for node in matches:
                 values = list(map(int, re.findall(r'\d+', node.get('bounds', ''))))
@@ -76,8 +76,10 @@ def main():
                     if x2 > x1 and y2 > y1 and 0 <= (y1+y2)//2 < height:
                         adb('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
                         return
-            adb('shell', 'input', 'swipe', str(width//2), str(height*4//5),
-                str(width//2), str(height//3), '250')
+            # Search the top first (recovery choices), then the lower controls.
+            start_y, end_y = (height//3, height*4//5) if attempt < 4 else (height*4//5, height//3)
+            adb('shell', 'input', 'swipe', str(width//2), str(start_y),
+                str(width//2), str(end_y), '250')
             time.sleep(0.3)
         raise AssertionError(f'Expected visible control: {text}')
 
@@ -118,10 +120,14 @@ def main():
                 if checkpoint['observedRunMs'] > previous_observed:
                     return saved
                 if checkpoint['status'] == 'RecoveredPaused':
-                    if resumes >= 3:
-                        raise AssertionError('Emulator never produced an observed interval without another stall')
-                    click('Resume saved workout')
-                    resumes += 1
+                    # A queued resume may already have changed the UI while this
+                    # checkpoint copy still contains the previous state.
+                    visible = [node for node in nodes() if node.get('text') == 'Resume saved workout']
+                    if visible:
+                        if resumes >= 3:
+                            raise AssertionError('Emulator never produced an observed interval without another stall')
+                        click('Resume saved workout')
+                        resumes += 1
             time.sleep(0.2)
         raise AssertionError('No committed observed progress before the process test deadline')
 

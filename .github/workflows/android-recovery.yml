@@ -26,6 +26,16 @@ jobs:
           java-version: '21'
       - name: Build debug app and database instrumentation tests
         run: ./gradlew :android:assembleDebug :android:assembleDebugAndroidTest
+      - name: Free unused native SDK space on this disposable runner
+        run: |
+          test "${RUNNER_ENVIRONMENT:-}" = 'github-hosted'
+          test -n "$ANDROID_HOME"
+          # This Kotlin/Compose slice builds no NDK code. Never run on a personal/self-hosted machine.
+          if [ -d "$ANDROID_HOME/ndk" ]; then
+            du -sh "$ANDROID_HOME/ndk"
+            rm -rf -- "$ANDROID_HOME/ndk"
+          fi
+          df -h "$ANDROID_HOME"
       - name: Install isolated emulator image
         env:
           API: ${{ matrix.api }}
@@ -42,14 +52,14 @@ jobs:
           echo no | "$avdmanager_bin" create avd --name recovery --package "system-images;android-${API};default;x86_64" --path "$ANDROID_AVD_HOME/recovery" --device pixel
           test -f "$ANDROID_AVD_HOME/recovery/config.ini"
           sed -i '/^disk.dataPartition.size[[:space:]]*=/d' "$ANDROID_AVD_HOME/recovery/config.ini"
-          printf '\ndisk.dataPartition.size=2048M\n' >> "$ANDROID_AVD_HOME/recovery/config.ini"
+          printf '\ndisk.dataPartition.size=6144M\n' >> "$ANDROID_AVD_HOME/recovery/config.ini"
           printf 'avd.ini.encoding=UTF-8\npath=%s/recovery\ntarget=android-%s\n' "$ANDROID_AVD_HOME" "$API" > "$ANDROID_AVD_HOME/recovery.ini"
           sudo chmod a+rw /dev/kvm
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
           echo "$ANDROID_HOME/emulator" >> "$GITHUB_PATH"
       - name: Boot emulator
         run: |
-          "$ANDROID_HOME/emulator/emulator" -avd recovery -port 5554 -no-window -no-audio -no-boot-anim -no-snapshot -partition-size 2048 -gpu swiftshader > /tmp/recovery-emulator.log 2>&1 &
+          "$ANDROID_HOME/emulator/emulator" -avd recovery -port 5554 -no-window -no-audio -no-boot-anim -no-snapshot -partition-size 6144 -gpu swiftshader > /tmp/recovery-emulator.log 2>&1 &
           emulator_pid=$!
           adb start-server
           for attempt in $(seq 1 240); do
@@ -58,6 +68,9 @@ jobs:
               exit 1
             fi
             if [ "$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = '1' ]; then
+              adb -s emulator-5554 shell settings put global window_animation_scale 0
+              adb -s emulator-5554 shell settings put global transition_animation_scale 0
+              adb -s emulator-5554 shell settings put global animator_duration_scale 0
               adb -s emulator-5554 shell settings put system screen_off_timeout 2147483647
               adb -s emulator-5554 shell settings put global stay_on_while_plugged_in 7
               adb -s emulator-5554 shell input keyevent KEYCODE_WAKEUP
