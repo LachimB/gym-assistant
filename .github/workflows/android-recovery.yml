@@ -41,6 +41,8 @@ jobs:
           mkdir -p "$ANDROID_AVD_HOME"
           echo no | "$avdmanager_bin" create avd --name recovery --package "system-images;android-${API};default;x86_64" --path "$ANDROID_AVD_HOME/recovery" --device pixel
           test -f "$ANDROID_AVD_HOME/recovery/config.ini"
+          sed -i '/^disk.dataPartition.size[[:space:]]*=/d' "$ANDROID_AVD_HOME/recovery/config.ini"
+          printf '\ndisk.dataPartition.size=2048M\n' >> "$ANDROID_AVD_HOME/recovery/config.ini"
           printf 'avd.ini.encoding=UTF-8\npath=%s/recovery\ntarget=android-%s\n' "$ANDROID_AVD_HOME" "$API" > "$ANDROID_AVD_HOME/recovery.ini"
           sudo chmod a+rw /dev/kvm
           echo "$ANDROID_HOME/platform-tools" >> "$GITHUB_PATH"
