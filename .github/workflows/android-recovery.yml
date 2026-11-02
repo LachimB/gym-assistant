@@ -25,8 +25,15 @@ jobs:
         env:
           API: ${{ matrix.api }}
         run: |
-          sdkmanager 'emulator' "system-images;android-${API};default;x86_64"
-          echo no | avdmanager create avd --name recovery --package "system-images;android-${API};default;x86_64" --device pixel
+          sdkmanager_bin="$ANDROID_HOME/cmdline-tools/latest/bin/sdkmanager"
+          avdmanager_bin="$ANDROID_HOME/cmdline-tools/latest/bin/avdmanager"
+          if [ ! -x "$sdkmanager_bin" ] || [ ! -x "$avdmanager_bin" ]; then
+            python3 tools/provision_android_cli.py --output "$RUNNER_TEMP/gym-android-tools"
+            sdkmanager_bin="$RUNNER_TEMP/gym-android-tools/cmdline-tools/bin/sdkmanager"
+            avdmanager_bin="$RUNNER_TEMP/gym-android-tools/cmdline-tools/bin/avdmanager"
+          fi
+          "$sdkmanager_bin" --sdk_root="$ANDROID_HOME" 'emulator' "system-images;android-${API};default;x86_64"
+          echo no | "$avdmanager_bin" create avd --name recovery --package "system-images;android-${API};default;x86_64" --device pixel
           sudo chmod a+rw /dev/kvm
       - name: Boot emulator
         run: |
