@@ -47,7 +47,7 @@ jobs:
           echo "$ANDROID_HOME/emulator" >> "$GITHUB_PATH"
       - name: Boot emulator
         run: |
-          "$ANDROID_HOME/emulator/emulator" -avd recovery -port 5554 -no-window -no-audio -no-boot-anim -no-snapshot -gpu swiftshader > /tmp/recovery-emulator.log 2>&1 &
+          "$ANDROID_HOME/emulator/emulator" -avd recovery -port 5554 -no-window -no-audio -no-boot-anim -no-snapshot -partition-size 2048 -gpu swiftshader > /tmp/recovery-emulator.log 2>&1 &
           emulator_pid=$!
           adb start-server
           for attempt in $(seq 1 240); do
@@ -56,7 +56,10 @@ jobs:
               exit 1
             fi
             if [ "$(adb -s emulator-5554 shell getprop sys.boot_completed 2>/dev/null | tr -d '\r')" = '1' ]; then
-              adb -s emulator-5554 shell input keyevent 82
+              adb -s emulator-5554 shell settings put system screen_off_timeout 2147483647
+              adb -s emulator-5554 shell settings put global stay_on_while_plugged_in 7
+              adb -s emulator-5554 shell input keyevent KEYCODE_WAKEUP
+              adb -s emulator-5554 shell wm dismiss-keyguard
               exit 0
             fi
             sleep 2
