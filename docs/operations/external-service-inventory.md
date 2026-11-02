@@ -10,4 +10,13 @@
 | Web hosting | Private beta and previews | Web assets and minimal technical metadata | Prefer EU | ≤€10 combined target | **Not selected/approved** | Required | Personal user |
 | AI provider | Optional BYOK import/authoring | User-approved individual prompts/documents | Provider choice | API usage separate | **Not selected/approved** | Required for any charge | Personal user |
 
+One-time document consent (2026-11-02): the user selected **OpenAI in this Codex
+chat** to extract the structure of one specifically supplied workout PDF. That
+read-only operation is approved and was performed with the original and extracted
+content outside Git. It does not approve a general AI integration, another
+provider, paid API resources or further documents. Google Picker's separate API
+terms and enablement were also explicitly approved; the dedicated project now
+reports Picker API enabled. Restricted browser-key creation confirmation is
+pending; no key or broader OAuth grant has been created.
+
 Before adding an entry, supply: alternatives, need, security/data handling, permission scope, terms, recurring cost and recovery/deletion plan. Preserve decision and timestamp in repository ADR/handoff. NEVER print or store token values in this inventory.
