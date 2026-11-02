@@ -30,23 +30,22 @@
   instrumentation passed all 10 real-database tests in 0.944 s. The final UI host
   force-stop/relaunch test passed (observed 1061 ms restored, then 2177 ms after
   explicit resume; frozen source unchanged, no automatic resume or data clearing).
-  Other API/physical-phone results are pending; do not claim full recovery acceptance.
+  Physical-phone results are pending; do not claim full recovery acceptance.
 - New instrumentation tests use disposable databases only. New CI workflow covers
   API 31–36 and 37.0 plus an emulator-only host force-stop/relaunch test. Official
   Android 12 emulator runs locally; the stalled Android 17 download was stopped.
   CI provides the Android 17 image. The previously connected Pixel 10a is now
   disconnected; no phone change yet, pending Android 17 emulator evidence. New recovery actions were moved above the fold and source
   IDs behind Source details after visual inspection.
-- Draft PR #11: https://github.com/LachimB/gym-assistant/pull/11. Android 14/15
-  previously passed database and process recovery together. Newer runs exposed
-  disposable-runner disk exhaustion on API 31–33, system launcher/UI ANRs, and a
-  host-test race between a saved checkpoint and the resumed UI. Runner-only NDK
-  cleanup restores disk headroom; the harness handles only known system ANRs and
-  checks visible resume controls. Latest local Android 12 host test passes
-  (6 ms restored, 104 ms after explicit resume). Full matrix rerun remains pending;
-  no failed run is counted as a pass. Workflow semantic validation passes.
+- Draft PR #11: https://github.com/LachimB/gym-assistant/pull/11. Full emulator
+  matrix passed on `1181a77`: API 31–36 and 37.0, 10 real SQLite tests per version
+  plus actual force-stop/relaunch/explicit-resume/partial-finalization host tests.
+  Run `41424079753`; standard contract/engine/web checks also passed. Earlier
+  runner disk exhaustion, system-UI ANRs and host-test checkpoint/UI races were
+  fixed without weakening the production interruption policy. Physical-phone
+  recovery remains pending; ADB sees no physical phone. Reconnection requested.
 - See `docs/milestones/m1-recovery.md` for storage format, tests and limits. Remaining
-  gates: actual emulator/phone results; canonical JSON projection/sync and real
+  gates: physical-phone result; canonical JSON projection/sync and real
   selected workout; independently approved Drive OAuth. A concrete synthetic-only proposal is in
   `docs/operations/m1-drive-scope-experiment.md`; user approval requested separately,
   not assumed. No Google cloud/user API or OAuth setup has been performed. No network upload added.
