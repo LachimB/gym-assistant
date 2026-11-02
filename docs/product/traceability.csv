@@ -10,7 +10,7 @@ GA-DOM-008,M2-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evi
 GA-DOM-009,M2-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DOM-009 pending
 GA-EXE-001,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-001 pending
 GA-EXE-002,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-002 pending
-GA-EXE-003,M1-M2,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-EXE-003,M1-M2,partial-engine-clock-and-device-baseline; broader-platform-evidence-pending,tests/test_contracts.py; packages/engine/src/jvmTest/kotlin/dev/gymassistant/engine/EventConformanceTest.kt; packages/engine-ts/src/event-conformance.test.ts; examples/expected/composite-pyramid.events.json; packages/engine/src/jvmTest/kotlin/dev/gymassistant/engine/ClockedExecutionTest.kt; apps/web/src/SimulatorClock.test.ts; docs/milestones/m0-device-notes.md
 GA-EXE-004,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-004 pending
 GA-EXE-005,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-005 pending
 GA-EXE-006,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-006 pending
@@ -25,7 +25,7 @@ GA-EXE-014,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evi
 GA-EXE-015,M1-M2,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-EXE-015 pending
 GA-WEB-001,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-001 pending
 GA-WEB-002,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-002 pending
-GA-WEB-003,M0-M3,partial-fixture-validation-only,tests/test_contracts.py; M0 integration required
+GA-WEB-003,M0-M3,partial-engine-and-clock-adapter-conformance; broader-fixtures-and-lifecycle-evidence-pending,tests/test_contracts.py; packages/engine/src/jvmTest/kotlin/dev/gymassistant/engine/EventConformanceTest.kt; packages/engine-ts/src/event-conformance.test.ts; examples/expected/composite-pyramid.events.json; packages/engine/src/jvmTest/kotlin/dev/gymassistant/engine/ClockedExecutionTest.kt; apps/web/src/SimulatorClock.test.ts
 GA-WEB-004,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-004 pending
 GA-WEB-005,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-005 pending
 GA-DATA-001,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-001 pending
@@ -48,11 +48,11 @@ GA-SEC-005,M1-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evi
 GA-SHARE-001,Post-MVP,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SHARE-001 pending
 GA-SHARE-002,Post-MVP,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SHARE-002 pending
 GA-OPS-001,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-001 pending
-GA-OPS-002,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-002 pending
+GA-OPS-002,M0-M5,partial-M0-debug-build-and-CI; release-pipeline-pending,.github/workflows/ci.yml; apps/android/README.md; docs/milestones/m0-device-notes.md
 GA-OPS-003,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-003 pending
 GA-OPS-004,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-004 pending
 GA-OPS-005,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-005 pending
-GA-OPS-006,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-006 pending
+GA-OPS-006,M0-M5,M0-evidence-recorded; closure-pending,docs/milestones/m0.md; docs/milestones/m0-device-notes.md; docs/agents/HANDOFF.md
 GA-OPS-007,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-007 pending
 GA-OPS-008,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-008 pending
 GA-OPS-009,M0-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-OPS-009 pending

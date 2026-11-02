@@ -1,0 +1,141 @@
+{
+  "schemaVersion": "1.0.0",
+  "date": "2026-11-01",
+  "reference": "Relative Android /proc/uptime milliseconds (10 ms resolution), sampled before/after each ADB screenshot; not UTC",
+  "samples": [
+    {
+      "label": "running_a",
+      "referenceBeforeMs": 4720,
+      "referenceAfterMs": 5380,
+      "phase": "prepare",
+      "scheduledElapsedMs": 2329,
+      "observedRunMs": 2329,
+      "pauseMs": 0,
+      "unobservedGapMs": 0
+    },
+    {
+      "label": "running_b",
+      "referenceBeforeMs": 13460,
+      "referenceAfterMs": 14030,
+      "phase": "hold",
+      "scheduledElapsedMs": 11056,
+      "observedRunMs": 11056,
+      "pauseMs": 0,
+      "unobservedGapMs": 0
+    },
+    {
+      "label": "paused_a",
+      "referenceBeforeMs": 16700,
+      "referenceAfterMs": 17310,
+      "phase": "prepare",
+      "scheduledElapsedMs": 13992,
+      "observedRunMs": 13992,
+      "pauseMs": 332,
+      "unobservedGapMs": 0
+    },
+    {
+      "label": "paused_b",
+      "referenceBeforeMs": 22390,
+      "referenceAfterMs": 22930,
+      "phase": "prepare",
+      "scheduledElapsedMs": 13992,
+      "observedRunMs": 13992,
+      "pauseMs": 5979,
+      "unobservedGapMs": 0
+    },
+    {
+      "label": "resumed_a",
+      "referenceBeforeMs": 25510,
+      "referenceAfterMs": 26110,
+      "phase": "hold",
+      "scheduledElapsedMs": 14265,
+      "observedRunMs": 14265,
+      "pauseMs": 8805,
+      "unobservedGapMs": 0
+    },
+    {
+      "label": "resumed_b",
+      "referenceBeforeMs": 31240,
+      "referenceAfterMs": 31870,
+      "phase": "prepare",
+      "scheduledElapsedMs": 20030,
+      "observedRunMs": 20030,
+      "pauseMs": 8805,
+      "unobservedGapMs": 0
+    }
+  ],
+  "actions": [
+    {
+      "action": "Start",
+      "referenceBeforeMs": 2400,
+      "referenceAfterMs": 2630
+    },
+    {
+      "action": "Pause",
+      "referenceBeforeMs": 16460,
+      "referenceAfterMs": 16620
+    },
+    {
+      "action": "Resume",
+      "referenceBeforeMs": 25260,
+      "referenceAfterMs": 25440
+    },
+    {
+      "action": "End Workout",
+      "referenceBeforeMs": 34270,
+      "referenceAfterMs": 34520
+    }
+  ],
+  "device": {
+    "model": "Pixel 10a",
+    "android": "17",
+    "api": 37
+  },
+  "apkSha256": "7ff9c889489561e1c6ff7c0592070cf562cca88ead1fd38d6d385ea8fb301138",
+  "provenance": "Counters manually transcribed by Codex from six screenshots of the synthetic workout; screenshots remain local and are not repository artifacts.",
+  "comparisons": [
+    {
+      "fromSample": "running_a",
+      "toSample": "running_b",
+      "counter": "observedRunMs",
+      "counterDeltaMs": 8727,
+      "referenceIntervalMs": [
+        8060,
+        9330
+      ],
+      "counterMinusReferenceIntervalMs": [
+        -603,
+        667
+      ]
+    },
+    {
+      "fromSample": "paused_a",
+      "toSample": "paused_b",
+      "counter": "pauseMs",
+      "counterDeltaMs": 5647,
+      "referenceIntervalMs": [
+        5060,
+        6250
+      ],
+      "counterMinusReferenceIntervalMs": [
+        -603,
+        587
+      ]
+    },
+    {
+      "fromSample": "resumed_a",
+      "toSample": "resumed_b",
+      "counter": "observedRunMs",
+      "counterDeltaMs": 5765,
+      "referenceIntervalMs": [
+        5110,
+        6380
+      ],
+      "counterMinusReferenceIntervalMs": [
+        -615,
+        655
+      ]
+    }
+  ],
+  "limits": "Short foreground sampling only. Intervals include conservative 20 ms uptime quantization allowance, but not a guaranteed bound on rendering latency. No numerical performance threshold is approved; no long-duration drift, screen-off callback/audio, process-recovery, or other-OS guarantee follows."
+}
