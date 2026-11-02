@@ -54,6 +54,8 @@ class WorkoutModel(application: Application) : AndroidViewModel(application) {
 
     fun retry() = viewModelScope.launch(Dispatchers.IO) {
         gate.withLock {
+            if (!mutableUi.value.loading && mutableUi.value.error == null) return@withLock
+            mutableUi.value = mutableUi.value.copy(loading = true, error = null)
             guarded {
                 val saved = driver.restore()
                 if (saved == null) readLibrary()
