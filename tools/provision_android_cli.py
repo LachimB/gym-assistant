@@ -2,6 +2,8 @@
 """Install official Linux Android CLI tools into an explicit temporary CI directory."""
 import argparse
 import hashlib
+import shutil
+import tempfile
 from pathlib import Path
 import urllib.request
 import xml.etree.ElementTree as ET
@@ -42,8 +44,10 @@ def main():
             path = (output / entry.filename).resolve()
             if output not in path.parents:
                 raise RuntimeError('Unexpected SDK archive path')
-        source.extractall(output)
-    for binary in (output / 'cmdline-tools/bin').iterdir():
+        with tempfile.TemporaryDirectory() as directory:
+            source.extractall(directory)
+            shutil.copytree(Path(directory) / 'cmdline-tools', output, dirs_exist_ok=True)
+    for binary in (output / 'bin').iterdir():
         if binary.is_file():
             binary.chmod(0o755)
     print('Official SDK command-line tools installed and checksum verified')
