@@ -30,7 +30,7 @@
   instrumentation passed all 10 real-database tests in 0.944 s. The final UI host
   force-stop/relaunch test passed (observed 1061 ms restored, then 2177 ms after
   explicit resume; frozen source unchanged, no automatic resume or data clearing).
-  Physical-phone results are pending; do not claim full recovery acceptance.
+  Physical-phone short smoke passed (details below); do not claim full M1 acceptance.
 - New instrumentation tests use disposable databases only. New CI workflow covers
   API 31–36 and 37.0 plus an emulator-only host force-stop/relaunch test. Official
   Android 12 emulator runs locally; the stalled Android 17 download was stopped.
@@ -44,11 +44,17 @@
   runner disk exhaustion, system-UI ANRs and host-test checkpoint/UI races were
   fixed without weakening the production interruption policy. The harness now also rechecks after its third system-ANR dismissal instead of failing without a final observation; local Android 12 process test passed (562→573 ms). Later heads through `02854cb` passed six versions; API 37.0 passed SQLite but
   stopped on repeated system-UI ANRs. After the final-dismissal check fix,
-  `796cff2` passed the complete seven-version matrix again (run `41450398107`). Physical-phone recovery
-  remains pending. The user reconnected the Pixel 10a / Android 17 and the
-  checksum-verified APK was installed with `adb install -r` successfully, preserving
-  data. User asked to start/pause the synthetic workout and report counters before
-  agent force-stop/relaunch. No phone instrumentation or data clearing.
+  `796cff2` passed the complete seven-version matrix again (run `41450398107`).
+- Latest implementation head `f002438` passed all seven recovery jobs again
+  (`41451951198`), plus contract/engine/web checks. Physical Pixel 10a / Android 17
+  smoke also passed on the same checksum-verified APK: first recovery 4686/4686 ms
+  scheduled/observed and hold 0:08; explicit resume to 8237/8237; paused Forward to
+  12000/8237 and Back to 4000/8237, completed count stays one. Second recovery
+  preserved 4000/8237 and stayed frozen. Confirmed partial finalization showed
+  Workout saved; force-stop/reopen showed Start Workout. No data clear/uninstall,
+  phone instrumentation or phone database export. See `m1-device-recovery.json`.
+  The temporary phone verifier's scheduled-position navigation assertion was
+  corrected against the accepted engine; no production change or weakened rule.
 - Prepared local `tools/drive_scope_experiment.html` and a memory-token Drive
   transport with a persistent 500-request cap, fixed API origin and no redirects.
   Four safety tests pass and are added to CI, including the native-fetch receiver
@@ -57,9 +63,10 @@
   failed first transport and three metadata requests. No ETag exposed to this
   browser, so no conditional write attempted and concurrency feasibility stays open.
   The first probe covers app-created synthetic folder/JSON, stable-ID duplicate
-  create rejection, exact read/list and rename; all other scope/sync cases remain open.
+  create rejection, exact read/list and rename; all other scope/sync cases remain open. The user has been asked which real workout
+  should supply M1 acceptance; no answer yet and no real-data upload authorized.
 - See `docs/milestones/m1-recovery.md` for storage format, tests and limits. Remaining
-  gates: physical-phone result; canonical JSON projection/sync and real
+  gates: canonical JSON projection/sync and real
   selected workout; Drive OAuth experiment (now approved, setup in progress). A concrete synthetic-only proposal is in
   `docs/operations/m1-drive-scope-experiment.md`; user approved on 2026-11-02; personal account selected and signed in; dedicated billing-disabled project/Drive API and OAuth testing configured. Per-file consent and the app-created synthetic probe are verified; no real data uploaded.
 

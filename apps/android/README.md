@@ -71,4 +71,9 @@ workout stays frozen until explicit resume, resumes and verifies newly saved
 progress, ends partially and verifies the unfinished slot is released after a
 second restart. It refuses physical devices and never clears app data.
 Record actual run results in the handoff; the existence of a test is not proof it
-passed. A separate physical-phone force-stop/relaunch test remains mandatory.
+passed. API 31–36/37.0 passed on `f002438` (run `41451951198`). The separate
+Pixel 10a / Android 17 short physical smoke also passed: recovery, explicit resume,
+paused navigation without crediting skipped work, second recovery and partial
+finalization. See `docs/milestones/m1-recovery.md` and its sanitized
+`m1-device-recovery.json` for exact counters and limits. Long-duration/background,
+real-workout and actual Android Drive synchronization remain unproven.
