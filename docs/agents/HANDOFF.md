@@ -30,7 +30,9 @@
 - Local M1 tests: 55 passing tests cover loader, review, mock storage and credential safeguards. Existing
   Kotlin/web/Android checks must be rerun on this accepted baseline before PR.
 - All local work was preserved in a stash before baseline synchronization; recovery
-  stash retained. No push, remote creation, public deployment, service or billing
+  stash retained. Initial work committed as `10196af`, pushed through verified
+  personal preflight and opened as PR #10: https://github.com/LachimB/gym-assistant/pull/10.
+  CI is being checked. No remote creation, public deployment, new service or billing
   resource activation occurred in this chat.
 - Next M1 decision: `docs/adr/0003-m1-durable-session-store.md` proposes a Kotlin session-store port and device-private Room/SQLite transactions for events/checkpoint/outbox. Proposed only; project rule 4 requires architecture approval before adoption. Then integrate template validation and durable checkpoint/recovery. Real workout selection and Drive OAuth approval
   remain open; use synthetic fixtures meanwhile. No schema migration authorized.
