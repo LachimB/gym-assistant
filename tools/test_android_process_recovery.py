@@ -31,9 +31,23 @@ def main():
         raise RuntimeError('This automated force-stop test is permitted only on an emulator')
 
     def nodes():
-        adb('shell', 'uiautomator', 'dump', '/data/local/tmp/gym-recovery-ui.xml')
-        raw = adb('exec-out', 'cat', '/data/local/tmp/gym-recovery-ui.xml')
-        return list(ET.fromstring(raw).iter('node'))
+        for _ in range(3):
+            adb('shell', 'uiautomator', 'dump', '/data/local/tmp/gym-recovery-ui.xml')
+            raw = adb('exec-out', 'cat', '/data/local/tmp/gym-recovery-ui.xml')
+            result = list(ET.fromstring(raw).iter('node'))
+            # Some cold CI images overlay a launcher ANR after database tests.
+            # Dismiss only that known system launcher; never hide our app's ANR.
+            launcher_anr = any(node.get('text') in
+                               ("Quickstep isn't responding", "Launcher3 isn't responding")
+                               for node in result)
+            if not launcher_anr:
+                return result
+            close = next(node for node in result if node.get('text') == 'Close app')
+            x1, y1, x2, y2 = map(int, re.findall(r'\d+', close.get('bounds', '')))
+            adb('shell', 'input', 'tap', str((x1+x2)//2), str((y1+y2)//2))
+            adb('shell', 'am', 'start', '-W', '-n', COMPONENT)
+            print('Dismissed a system-launcher ANR on the disposable emulator')
+        raise AssertionError('System launcher remains unstable; application test cannot proceed')
 
     def wait_for_any(markers):
         deadline = time.monotonic() + 40
@@ -68,11 +82,11 @@ def main():
         raise AssertionError(f'Expected visible control: {text}')
 
     def saved_checkpoint():
-        # Emulator-only synthetic data. Read a paused/stopped database and its WAL
+        # Emulator-only synthetic data. Read a paused/stopped database and its journal files
         # into an ephemeral directory; never use the source DB as a writable file.
         with tempfile.TemporaryDirectory() as directory:
             database = Path(directory) / 'workouts.db'
-            for suffix in ('', '-wal'):
+            for suffix in ('', '-wal', '-journal'):
                 result = subprocess.run([args.adb, '-s', args.serial, 'exec-out', 'run-as', PACKAGE,
                                          'cat', 'databases/workouts-v1.db' + suffix],
                                         capture_output=True, timeout=30)
@@ -88,6 +102,28 @@ def main():
                 if row is None:
                     return None
                 return json.loads(row[0]), row[1]
+
+    def wait_for_progress(previous_observed=0):
+        deadline = time.monotonic() + 60
+        resumes = 0
+        while time.monotonic() < deadline:
+            try:
+                saved = saved_checkpoint()
+            except sqlite3.DatabaseError:
+                # A writer may append a WAL frame while its synthetic test copy is read.
+                time.sleep(0.2)
+                continue
+            if saved is not None:
+                checkpoint, _ = saved
+                if checkpoint['observedRunMs'] > previous_observed:
+                    return saved
+                if checkpoint['status'] == 'RecoveredPaused':
+                    if resumes >= 3:
+                        raise AssertionError('Emulator never produced an observed interval without another stall')
+                    click('Resume saved workout')
+                    resumes += 1
+            time.sleep(0.2)
+        raise AssertionError('No committed observed progress before the process test deadline')
 
     def launch():
         # Safe here because this entire test rejects physical devices above.
@@ -112,7 +148,7 @@ def main():
         click('Discard')
         click('New Workout')
     click('Start Workout')
-    time.sleep(1.2)
+    wait_for_progress()
     kill()
     before_restore = saved_checkpoint()
     launch()
@@ -127,7 +163,7 @@ def main():
     if counters(saved_checkpoint()) != first:
         raise AssertionError('Recovered workout advanced without explicit resume')
     click('Resume saved workout')
-    time.sleep(1.2)
+    wait_for_progress(first[1])
     kill()
     launch()
     wait_for('Unfinished workout recovered')
