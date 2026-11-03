@@ -114,3 +114,23 @@ Updated versionCode4 local APK SHA256:
 `9f222946f0d0d7392e7fea864e78e098285ecfc5b86fc3c9b82a888c2e7cbd13`.
 Installed with install-r on the same confirmed phone and opened. No workout end,
 discard, clear or uninstall. Final Google consent/probe result still pending.
+
+
+## Observed phone result — 2026-11-03
+
+Owner reported the final success message: personal account verified; synthetic
+folder and selected file accessible; **no ETag received**; no workout uploaded.
+This is real phone/Google authorization feasibility evidence, not a synthetic
+network mock. It does not prove provider conditional writes or absence of ETags
+on every endpoint/client. Native code made no write or file-content request.
+
+Read only the probe's two non-secret preference counters, independently of
+workout records: four authorization attempts, twelve counted direct requests.
+The prior30 plus native12 gives42 counted direct/setup attempts; eight unused
+native requests stay reserved in the global50/500 allocation. No reset/refund.
+Google SDK internal calls remain separately unmeasured. No further test repeats
+are needed for this connection case. Sanitized evidence: m1-native-drive-probe.json.
+
+The initial UI status was unclear to the owner; returning from Google to the
+same app dialog was followed by the successful result text. No extra account
+scope or login service was added to resolve that observation.

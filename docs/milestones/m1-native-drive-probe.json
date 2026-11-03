@@ -1,0 +1,33 @@
+{
+  "evidenceVersion": 1,
+  "date": "2026-11-03",
+  "deviceModel": "Pixel 10a",
+  "androidVersion": "17",
+  "apkVersionCode": 4,
+  "apkSha256": "9f222946f0d0d7392e7fea864e78e098285ecfc5b86fc3c9b82a888c2e7cbd13",
+  "install": "adb install -r; no uninstall or data clear",
+  "scope": "https://www.googleapis.com/auth/drive.file",
+  "resultSource": "Owner reported the app's final success message; no raw token, API response or phone session history exported",
+  "personalAccountVerified": true,
+  "syntheticParentMetadataAccessible": true,
+  "selectedSyntheticChildMetadataAccessible": true,
+  "etagPresentInNativeMetadataResponse": false,
+  "conditionalWrites": "unproven; no write attempted",
+  "nativeFileContentRead": false,
+  "workoutUploaded": false,
+  "workoutEndOrDiscardRequired": false,
+  "phoneWorkoutCounterEquality": "not measured; emulator regression verifies unchanged checkpoint/source when opening connection controls",
+  "appCredentialsPersisted": false,
+  "platformCredentialCache": "managed by Google Play services; not an app refresh-token store",
+  "countersIndependentlyRead": {
+    "authorizationAttempts": 4,
+    "nativeCountedDirectRequests": 12,
+    "nativeRequestLimit": 20,
+    "globalConservativelyAllocated": 50,
+    "globalPreviouslyCounted": 30,
+    "unusedNativeReservation": 8,
+    "limit": 500,
+    "sdkInternalTraffic": "unmeasured separately from direct Drive transport"
+  },
+  "productionSync": "not implemented"
+}

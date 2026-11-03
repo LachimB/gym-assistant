@@ -262,3 +262,13 @@ The browser counter reserved 20 direct requests once for the single-phone stage:
 No native Google requests or successful phone authorization are claimed yet.
 Google SDK internal authorization traffic is separately unmeasured; UI attempts
 are capped at six. Do not reset counters or run the allowance on multiple phones.
+
+
+Native phone result: owner reported personal identity and exact synthetic
+folder/selected child metadata access passed on Pixel10a/Android17. Native HTTP
+metadata response had no ETag, so conditional updates remain unproven; no write
+attempted. Independently read only synthetic counters: auth attempts4, direct
+requests12. Global allocation remains50/500 (prior30 + reserved20; eight native
+requests unused). See ../milestones/m1-native-drive-probe.json. No real workout,
+phone session history, token or raw provider response uploaded/exported by this
+probe; system Google Play services cache is distinct from app credential storage.
