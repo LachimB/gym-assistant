@@ -51,3 +51,11 @@ test('credentials cannot go to another service or be forwarded by redirect', asy
   assert.equal(sent[1].referrerPolicy, 'no-referrer');
   assert.equal(sent[1].headers.Authorization, 'Bearer fixture');
 });
+test('v2 synthetic content and exact personal-account verification routes stay on Drive', async () => {
+  const paths = ['/drive/v3/about?fields=user%28emailAddress%29','/drive/v2/files/fixture?fields=etag', '/upload/drive/v2/files/fixture?uploadType=media'];
+  const sent = [];
+  const client = new DriveScopeClient('fixture',budget(),async (url,init) => {sent.push({url,init});return {status:200};});
+  for (const path of paths) assert.equal((await client.request(path)).status,200);
+  assert.deepEqual(sent.map(s=>s.url),paths.map(p=>'https://www.googleapis.com'+p));
+  await assert.rejects(client.request('/drive/v3/about?fields=*'),/Endpoint/);
+});
