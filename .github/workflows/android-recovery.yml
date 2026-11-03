@@ -25,7 +25,7 @@ jobs:
           distribution: temurin
           java-version: '21'
       - name: Build debug app and database instrumentation tests
-        run: ./gradlew :android:assembleDebug :android:assembleDebugAndroidTest
+        run: ./gradlew :android:testDebugUnitTest :android:assembleDebug :android:assembleDebugAndroidTest
       - name: Free unused native SDK space on this disposable runner
         run: |
           test "${RUNNER_ENVIRONMENT:-}" = 'github-hosted'

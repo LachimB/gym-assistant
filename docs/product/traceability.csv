@@ -29,7 +29,7 @@ GA-WEB-003,M0-M3,partial-engine-and-clock-adapter-conformance; broader-fixtures-
 GA-WEB-004,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-004 pending
 GA-WEB-005,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-WEB-005 pending
 GA-DATA-001,M0-M1,partial-volatile-storage-contract,tests/test_storage_contracts.py; docs/operations/m1-drive-scope-experiment.md; synthetic Drive probe passed; app integration pending
-GA-DATA-002,M1-M4,partial-local-edit-preview,tests/test_template_loader.py; tests/test_template_review.py; durable quarantine and publication pending
+GA-DATA-002,M1-M4,partial-local-edit-preview,tests/test_template_loader.py; tests/test_template_review.py; tests/test_session_history_contract.py; durable quarantine and publication pending
 GA-DATA-003,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-003 pending
 GA-DATA-004,M1-M4,partial-transactional-local-store,apps/android/src/androidTest/kotlin/dev/gymassistant/session/RoomSessionStoreTest.kt; network retry and conflict preservation pending
 GA-DATA-005,M1-M4,partial-single-local-execution,apps/android/src/androidTest/kotlin/dev/gymassistant/session/RoomSessionStoreTest.kt; synchronized device handoff and remote fencing pending
@@ -37,7 +37,7 @@ GA-DATA-006,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance ev
 GA-DATA-007,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-007 pending
 GA-DATA-008,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-008 pending
 GA-DATA-009,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-009 pending
-GA-DATA-010,M1-M4,partial-frozen-local-start,apps/android/src/androidTest/kotlin/dev/gymassistant/session/RoomSessionStoreTest.kt; tools/test_android_process_recovery.py; canonical cloud JSON pending
+GA-DATA-010,M1-M4,partial-frozen-local-start,apps/android/src/androidTest/kotlin/dev/gymassistant/session/RoomSessionStoreTest.kt; tools/test_android_process_recovery.py; apps/android/src/test/kotlin/dev/gymassistant/session/SessionProjectionTest.kt; tests/test_session_history_contract.py; canonical1.1.0 projection tested; cloud synchronization pending
 GA-DATA-011,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-011 pending
 GA-DATA-012,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-012 pending
 GA-SEC-001,M1-M5,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-SEC-001 pending

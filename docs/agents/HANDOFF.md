@@ -438,17 +438,22 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   subfolder and back, preserving file ID/grant; every response200. No deletion or
   sharing. Counter now30/500 plus two Picker UI attempts (internal count not
   measured). Key remains restricted; no service account/billing or broader scope.
-- PR #12: https://github.com/LachimB/gym-assistant/pull/12. Earlier head 0c18133
-  passed standard checks and all seven Android recovery jobs. Subsequent tool/docs
-  changes need current-head CI before merge. No Android app/schema/DB change.
+- PR #12 merged as d858724 after final head dfeb290 passed standard CI and all
+  seven Android recovery jobs (41536199398 / 41536199693).
+  https://github.com/LachimB/gym-assistant/pull/12. No Android app/schema/DB change.
+  Continued on codex/m1-session-projection from freshly fetched origin/main;
+  prior branches/worktrees and local proposal preserved.
 - The denied real-workout folder was superseded by an accessible individual PDF.
   The user explicitly selected OpenAI in this chat for that PDF's structure
   extraction. Downloaded privately outside Git; full single-page text and rendered
   table inspected. No real content/identifiers committed or used in the synthetic
   experiment. Owner clarified variant structure, side completion before switching,
   full-set alternation, paired-stage mapping and a missing rest. Private extraction
-  notes updated outside Git. Between-repetition reset and exact fixed initial
-  values replacing ranges remain pending; do not invent choices. Owner wants
+  notes updated outside Git. Owner chose a 4-second reset and upper bounds for
+  fixed initial targets, then explicitly approved the private template preview.
+  Draft YAML passes the existing schema/reference validator; not yet imported
+  or executable on Android. Original/extracted content and draft remain outside
+  Git and the synthetic Drive experiment. Owner wants
   fixed Template targets plus one-click repetition addition and skip during a
   Workout Session, preserving these as session deviations rather than changing
   the immutable source Template.
@@ -458,3 +463,52 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   unknown gaps separately; current draft session timing fields alone cannot do
   this. Review a concrete versioned contract before changing schema or local DB.
   M1 projection/Android sync/web history and real-workout acceptance remain open.
+
+## M1 projection review gate — 2026-11-02
+
+- ADR-0004 is a local proposed document. Owner clarified they want to review it
+  before deciding; no design changes specified and no approval granted. No export schema implementation,
+  data migration or real-workout cloud upload is authorized by this exchange.
+- Review identified duplication between semantic events and per-tick receipts,
+  growing upload size, internal-format coupling and unspecified event/step mapping.
+  The proposal now records these unresolved concerns and a plain-language example.
+  Do not choose a replacement design on the owner’s behalf.
+
+## Human session history versus execution internals — 2026-11-03
+
+- Owner explicitly wants meaningful events for human use; quarter-second tick
+  saves may exist for implementation needs but must stay separate from human
+  session recordings. ADR-0004 revised accordingly: no raw tick/receipt log or
+  mandatory linked internal audit file in ordinary canonical session history.
+- Meaningful events and domain timing/outcome summaries preserve pauses, known
+  and unknown gaps, skips and partial completion without exposing internal rows.
+  Internal records remain available for recovery/integrity; no deletion/migration
+  or technical-log cloud upload introduced. This is data separation, not only UI.
+- The owner confirmed this direction, not the entire new session schema. ADR
+  remains proposed; no schema implementation or database change made. Exact
+  contract fields/event mapping remain for review. Private workout preview stays
+  approved; Android execution/import and real-history cloud upload remain open.
+
+## ADR-0004 approved and meaningful-history projection — 2026-11-03
+
+- Owner replied “approved” to the revised human/internal separation ADR. ADR-0004
+  status updated. New session 1.1.0 export/schema added; 1.0.0 unchanged. This
+  supersedes earlier unapproved-status notes, not the remaining service/data gates.
+- `SessionStore.history(id)` reads a consistent Room transaction and validates
+  frozen source/hash plus the complete committed prefix before projecting domain
+  events/timing/outcome. No tick log, raw receipts, operation IDs or checkpoint in
+  human JSON. No DB migration, outbox acknowledgement, file upload or new UI flow.
+- Explicit partial/planned-end/discard/awaiting-ack outcomes; session-wide events
+  have no invented step. Unknown repeat restarts remain visible even when the
+  reducer emits no event. Source plan hash is verifiable from retained UTF-8 bytes.
+- Nine JVM tests and seven independent Python history-contract tests; full Python
+  suite62, validator19 fixtures/80requirements pass. All12 real SQLite tests on
+  local Android12 pass. Emulator process recovery passed1→97ms, no automatic resume
+  or clear; not drift evidence. Existing engine/store tests and APK builds pass.
+- Phone installation skipped: no physical device connected. No new physical
+  history-export acceptance. Private workout preview remains outside Git and not
+  imported. See `docs/milestones/m1-session-history.md` for contract/mapping/limits.
+- Remote CI/PR pending for this implementation. Remaining M1 work includes private
+  template import/side/weight cues and runtime repetition deviations, durable
+  validated library publication, Android auth/sync/conflict handling and web history.
+  No real-workout cloud upload, token storage or DB migration is authorized by ADR4.
