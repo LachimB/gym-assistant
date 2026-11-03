@@ -999,3 +999,43 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   workout/delivery rows and no authorization. Added to seven-version CI after
   existing process test. API31 local24 SQLite and actual footer UI test pass.
   Current UI follow-up CI/physical install still pending; no M1 completion claim.
+
+
+## Phone v7 ready for owner publication — 2026-11-03
+
+- Routine UI-only v7 installed under the standing install-r workflow after local
+  Android40 JVM/24 SQLite and real selected-import/footer UI regression passed.
+  Source5ba555b17bb256b56b097d83c4c2366abfcee400; APK SHA256
+  6ddb16fbfd8bb30dc7ba38f07489c57c1a5577f10352463785d34f5e2fafcb0c.
+  Same Room3, no further schema migration. Against a fresh verified pre-UI7
+  backup, all11 application tables compare exactly equal after the update.
+  Android's own metadata table is excluded from the app-entity count; comparison
+  resumed against the ORIGINAL pre-update backup after correcting that verifier
+  count, without repeating installation or replacing the baseline.
+- Pre-UI7 backup /Users/michal/.local/share/gym-assistant-backups/pre-ui7-20261103T160311Z,
+  standalone884ef5bf242fe09cfb8bf40faa9f967a28387dba784ded9c5788b71846b6d52b.
+  Post-check /Users/michal/.local/share/gym-assistant-backups/post-ui7-check-20261103T160319Z.
+  The original session's final intent is verified end/partial, outcome retained;
+  no unfinished slot remains. Its source/history have not been converted.
+- All8 private YAML files still match phone readback exactly. Owner is locating
+  them in the system picker: PERSONAL internal storage → Documents →
+  GymAssistant-LOCAL-M1 → Reviewed-workout. The top Documents chip is a file-type
+  filter; a search for gym cannot find generic training-template/exercise filenames.
+  User's latest screenshot is already out of search, with ☰ beside Search this
+  device; instructed to open that menu. Do not repeat search/back instructions
+  once the UI has changed. No need to inspect unrelated files/accounts/work profile.
+- Phone publication was requested, but not yet confirmed. Expected45:50/474phases,
+  fixed Publish reviewed revision footer. Owner physical execution acceptance still
+  open. Keep private data out of AI/Git/cloud; metadata-only local checks remain.
+- APK/schema migration source78b649e CI already passed10/10. This follow-up adds
+  backup regression and fixed-footer UI checks to all seven Android versions;
+  current review CI is authoritative at PR19/checks and required before merge.
+  Do not claim the full milestone complete. Real-workout cloud remains excluded.
+
+
+- Owner has now found the local folder: the phone's visible storage-root label is
+  The Rocket 2. Use that exact UI label, then Documents/GymAssistant-LOCAL-M1/
+  Reviewed-workout. They are selecting all8 YAML files (training-template.yaml +
+  exercise-1..7.yaml). Earlier screenshots were category/search views, not the
+  physical Documents directory. Await the actual validation/publication result;
+  do not claim import complete from folder discovery alone.

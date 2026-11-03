@@ -65,6 +65,7 @@ def main():
             with sqlite3.connect(path) as db:
                 return {t:db.execute('SELECT * FROM '+t+' ORDER BY rowid').fetchall() for t in
                         ('session_starts','checkpoints','actions','unfinished_slot','outbox','drive_connections','session_deliveries','execution_plan_revisions')}
+    device_names={call('shell','getprop','ro.product.model').decode().strip(),call('shell','settings','get','global','device_name').decode().strip()}
     folder='/sdcard/Download/GymRuntimeM1'
     call('shell','mkdir','-p',folder)
     for source,name in [('examples/templates/timed-runtime-v2.yaml','template.yaml'),('examples/exercises/bridge-band-family.yaml','exercise.yaml')]:
@@ -81,7 +82,7 @@ def main():
     if not {'exercise.yaml','template.yaml'}.issubset(labels(tree)):
         click('Show roots')
         choices=labels(nodes())
-        storage=next((s for s in choices if s.startswith('Android SDK built for ') or s in ('Internal storage','Internal shared storage')),None)
+        storage=next((s for s in choices if s.startswith('Android SDK built for ') or s in ('Internal storage','Internal shared storage') or s in device_names),None)
         assert storage, 'No local emulator document storage root'
         click(storage);click('Download');click('GymRuntimeM1')
     wait('exercise.yaml');click('exercise.yaml',long=True);click('template.yaml')
