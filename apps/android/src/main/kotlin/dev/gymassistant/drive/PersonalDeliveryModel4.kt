@@ -50,7 +50,7 @@ class PersonalDeliveryModel4(application:Application):AndroidViewModel(applicati
     fun authorized(scopes:Collection<String>,token:String?) {
         if(sending)return
         if(!awaitingAuthorization() || !exactDriveScope(scopes) || token.isNullOrBlank()){failed();return}
-        val chosen=checkNotNull(selection);sending=true
+        val chosen=checkNotNull(selection);sending=true;mutableStatus.value="Preparing and verifying the selected recording…"
         viewModelScope.launch {
             try {
                 val result=withContext(Dispatchers.IO) {
@@ -59,10 +59,13 @@ class PersonalDeliveryModel4(application:Application):AndroidViewModel(applicati
                     check(revision==chosen.revision && sha256Utf8(h.toCanonicalJson())==chosen.hash)
                     GoogleDeliveryHttp(token){synchronized(preferences){val used=preferences.getInt("direct-requests",0)
                         if(used !in 0 until 50 || !preferences.edit().putInt("direct-requests",used+1).commit())throw DeliveryFailure("budget")}}.use {http->
+                        mutableStatus.value="Verifying the personal account and saved destination…"
                         val (setup,remote)=ensurePersonalRoot4(PersonalSetupFiles4(File(getApplication<Application>().filesDir,"personal-drive/setup.json")),http,BuildConfig.SYNTHETIC_DRIVE_ACCOUNT)
                         val at=Instant.now().toString()
                         val binding=RoomDeliveryStore(db).bind(DriveConnectionRow(UUID.randomUUID().toString(),"googleDrive",setup.permissionId,setup.email,setup.folderId,setup.marker,at,at))
+                        mutableStatus.value="Saving the exact recording and its retry identity…"
                         val job=store.enqueue(binding.connectionId,chosen.id,UUID.randomUUID().toString(),chosen.revision,chosen.hash)
+                        mutableStatus.value="Sending or verifying the same saved file…"
                         SessionDeliverySender(store,remote,BuildConfig.SYNTHETIC_DRIVE_ACCOUNT,personalTarget=PersonalDeliveryTarget4(binding)).send(job.deliveryId)
                     }
                 }
