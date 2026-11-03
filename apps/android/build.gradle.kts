@@ -39,7 +39,14 @@ kotlin {
 
 ksp { arg("room.schemaLocation", "$projectDir/schemas") }
 
+tasks.withType<Test>().configureEach {
+    inputs.dir(rootProject.file("examples")).withPropertyName("historyFixtures")
+    systemProperty("gym.root", rootProject.projectDir.absolutePath)
+    systemProperty("gym.history.outputs", layout.buildDirectory.dir("outputs/history-projection").get().asFile.absolutePath)
+}
+
 dependencies {
+    testImplementation(kotlin("test-junit"))
     implementation("androidx.room:room-runtime:2.8.5")
     implementation("androidx.room:room-ktx:2.8.5")
     ksp("androidx.room:room-compiler:2.8.5")

@@ -1,6 +1,6 @@
 # ADR-0004 — Human-readable Workout Session history and private recovery records
 
-- Status: **Proposed — human/internal separation confirmed by owner; full schema not yet approved**
+- Status: **Approved by owner in chat on 2026-11-03**
 - Created: 2026-11-02; revised: 2026-11-03
 - Requirements: GA-DATA-002/004/010, GA-EXE-008, GA-WEB-004; ADR-0001/0003
 
@@ -10,7 +10,9 @@ On 2026-11-03 the owner clarified: human use needs meaningful workout events.
 If recovery requires saving every quarter-second tick, those saves should remain
 internal and separate from the session recording used by people. This resolves
 the earlier question about including all internal receipts in canonical history.
-It does not approve every remaining schema detail or a database migration.
+The owner subsequently replied “approved” to this revised ADR on 2026-11-03.
+This authorizes the versioned read-only projection and synthetic tests, not a
+database migration or real-workout cloud upload.
 
 ## What the owner sees
 
@@ -45,7 +47,7 @@ feature. Any future technical backup, diagnostic export or device-handoff format
 must be explicitly separate from human history, with appropriate access and
 privacy handling. Existing recovery guarantees remain binding.
 
-## Proposed canonical contract revision
+## Approved canonical contract revision
 
 Use a separately versioned session 1.1.0 contract, retaining existing 1.0.0 fixtures
 and readers. This is a read-only projection from committed local records; it does
@@ -75,9 +77,10 @@ not change the Room database or recording engine.
    Diagnostic machine-replay fidelity is an internal concern; preserving human
    facts does not require exporting every implementation step.
 
-Exact field names, required/optional fields, event types and version dispatch
-remain part of the proposed schema review. No schema implementation is implied
-by the owner's confirmation of the human/internal separation alone.
+Implementation details are specified in `../milestones/m1-session-history.md`
+and `../../schemas/session.v1.1.schema.json`. The prior 1.0.0 contract remains
+unchanged; version dispatch is explicit. Source timestamps retain their actual
+observation/commit precision.
 
 ## Projection and integrity rules
 
