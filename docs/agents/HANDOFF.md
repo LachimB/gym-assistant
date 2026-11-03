@@ -593,3 +593,21 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
 - Remaining M1: Drive conditional-write feasibility, durable auth/outbox/conflicts,
   private template import/runtime side/weight/add-repetition support and real-workout
   acceptance. ADR4 does not authorize DB migrations or real-history cloud upload.
+
+## Synthetic Drive conditional content writes — 2026-11-03
+
+- Seven bounded browser requests with the existing approved drive.file grant
+  verified personal identity/labelled parent/exact synthetic child/content, then
+  tested Drive v2 media PUT: current strong tag200/new tag, stale tag412, final
+  read200 with first update preserved. Earlier v3 no-ETag observations unchanged.
+  See docs/milestones/m1-drive-conditional-write.json. No real workout uploaded.
+- Global allocation57/500 includes unused native8;49 counted setup/direct attempts
+  include consumed native12. SDK/Picker traffic remains unmeasured. No budget reset,
+  new service/scope/key, sharing or deletion. Page credentials forgotten afterward.
+- tools/drive_conditional_probe.mjs has fixed synthetic targets and fail-closed
+  account/metadata/content/tag checks. Fourteen Node tests pass, included in CI.
+  First browser attempt rejected cached old transport locally before any request;
+  versioned import corrected it, budget unchanged until successful seven calls.
+- Conditional-write feasibility is now demonstrated for this exact v2 content
+  path, not v3 compatibility or production conflict/outbox/fencing implementation.
+  M1 remains open; new persistence/security boundaries require reviewed approval.

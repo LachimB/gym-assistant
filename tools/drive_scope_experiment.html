@@ -23,11 +23,13 @@ The access token lives only in this page's memory. The request counter persists 
 <strong>SYNTHETIC-external-child.json</strong> in the labelled test folder.</p>
 <button id="pick-child" disabled>Select only the external synthetic child with Google Picker</button>
 <button id="move-child" disabled>Move the verified synthetic child to a test folder and back</button>
+<button id="conditional-content" disabled>Test v2 conditional content writes on the exact synthetic child</button>
 <button id="reserve-native">Reserve 20 requests for the one-phone Android synthetic probe</button>
 <pre id="status" role="status">Loading Google's authorization library…</pre>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script type="module">
-import {DriveScopeClient, SCOPE, reserveBudget, isExternalSyntheticFixture} from './drive_scope_client.mjs';
+import {probeConditionalContent, FIXTURE} from './drive_conditional_probe.mjs';
+import {DriveScopeClient, SCOPE, reserveBudget, isExternalSyntheticFixture} from './drive_scope_client.mjs?v=conditional-content-1';
 const byId = id => document.getElementById(id);
 const status = byId('status');
 let token = '', expiresAt = 0, busy = false;
@@ -44,7 +46,7 @@ byId('reserve-native').onclick = () => {
 };
 function forget() {
   token = ''; expiresAt = 0;
-  for (const id of ['run','conflict','external-probe','pick-child','move-child']) byId(id).disabled = true;
+  for (const id of ['run','conflict','external-probe','pick-child','move-child','conditional-content']) byId(id).disabled = true;
 }
 byId('forget').onclick = () => {
   forget(); byId('picker-key').value = '';
@@ -73,11 +75,24 @@ byId('authorize').onclick = () => {
       byId('external-probe').disabled = false;
       byId('pick-child').disabled = false;
       byId('move-child').disabled = false;
+      byId('conditional-content').disabled = false;
       report('Authorized only drive.file. Token held in memory. No Drive calls yet.');
     },
     error_callback: () => report('Authorization popup did not complete. No API call made.'),
   });
   auth.requestAccessToken({prompt: ''});
+};
+byId('conditional-content').onclick = async () => {
+  if (busy || !token || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) {forget(); return;}
+  if (byId('folder').value.trim() !== FIXTURE.folder || byId('external').value.trim() !== FIXTURE.child) {
+    report('Enter the exact approved synthetic folder and child identifiers.'); return;
+  }
+  busy = true; byId('authorize').disabled = true;
+  try {
+    await probeConditionalContent(new DriveScopeClient(token, localStorage), byId('account').value.trim(),
+      message => report(message+'; global budget '+localStorage.getItem('gym-m1-drive-requests')+'/500'), crypto.randomUUID());
+  } catch (error) {report(error.message);}
+  finally {busy = false; byId('authorize').disabled = false;}
 };
 byId('run').onclick = async () => {
   if (busy || !token || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) {forget(); return;}
