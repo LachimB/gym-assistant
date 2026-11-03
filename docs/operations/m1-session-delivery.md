@@ -100,3 +100,47 @@ passes. Latest private version5 APK SHA256:
 `87808112806031903050af5a20094eb06489c4d4f9a2d5845e92ca3b9d297368`.
 Earlier APK checksum in the handoff is superseded; signer unchanged. No physical
 phone was visible to ADB at the pre-backup check; owner reconnect requested.
+
+## Physical migration result
+
+On2026-11-03 the reconnected Pixel10a/Android17 was backed up privately outside
+active storage before installation. Version1 integrity/foreign keys and committed
+receipt consistency passed; verified standalone snapshot retained persistently.
+The verified privatev5 APK was installed with data preserved and launched. Local
+private-copy comparison confirms version2, unchanged frozen sources, all702 prior
+action/outbox rows, the same unfinished slot and unchanged scheduled/observed/pause
+and completed-phase values. The app restored paused; only normal recovery records
+were added. No raw session contents printed or committed. Sanitized evidence:
+`../milestones/m1-phone-delivery-migration.json`.
+
+Live synthetic delivery is awaiting the owner's explicit phone action. The
+existing recovered workout has not been selected/uploaded. No automatic send.
+
+## Live synthetic delivery and browser/web result
+
+Owner reported successful phone delivery/read-back, then the same success after
+explicit retry. Whitelisted counters show2 authorization attempts/11 direct HTTP
+requests. One durable delivered job/connection exists; only the generated sample's
+three outbox rows were acknowledged. All original source/action/outbox rows and
+paused progress remain unchanged. Sender-domain counter6 is not the HTTP counter:
+inspect can perform metadata and media calls. No independent pre-retry provider-ID
+snapshot was taken; do not claim one.
+
+Five further requests through the already approved personal browser grant all
+returned200: verify identity, exact labelled parent, exact phone-file metadata,
+list the exact synthetic filename and read canonical bytes. Exactly one matching
+file was visible to this app grant in the test folder. Its SHA256 matches the
+phone receipt. It is not a claim about unrelated folders or inaccessible files.
+Browser credentials forgotten after verification/download; no new scope/service.
+
+The exact13706-byte download was opened through the actual web file chooser.
+Schema/semantic/hash validation succeeded:21 meaningful events,50s observed/planned,
+zero pause/known gap/unknown gaps, reached planned end. This is a synthetic round
+trip via a verified download; product Drive browsing/retrieval remains open.
+Four Node tests reconstruct expected bytes from the public Kotlin golden, verify
+hash equality and fail closed on mismatches/duplicate names; total18 Node tests.
+
+Global allocation now82/500:65 counted setup/direct attempts plus17 unused reserved
+(old native8/new delivery9). SDK/Picker internals remain unmeasured. Sanitized
+physical and round-trip evidence: `../milestones/m1-native-session-delivery.json`.
+M1 real-workout execution/library/sync acceptance is still open.
