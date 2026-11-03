@@ -272,3 +272,43 @@ requests12. Global allocation remains50/500 (prior30 + reserved20; eight native
 requests unused). See ../milestones/m1-native-drive-probe.json. No real workout,
 phone session history, token or raw provider response uploaded/exported by this
 probe; system Google Play services cache is distinct from app credential storage.
+
+## Conditional content update result — 2026-11-03
+
+The v3 browser/native metadata observations above remain valid. A separately
+bounded test of **Drive v2** now establishes conditional content writes for this
+exact synthetic file. This supersedes the blanket feasibility-unproven status;
+production synchronization and v2/v3 tag interoperability remain unproven.
+
+Official references: [v2 File etag](https://developers.google.com/workspace/drive/api/reference/rest/v2/files),
+[v2 media update](https://developers.google.com/workspace/drive/api/reference/rest/v2/files/update)
+and [v2 content read](https://developers.google.com/workspace/drive/api/reference/rest/v2/files/get).
+The experiment tests behavior rather than inferring concurrency guarantees from
+`version` or another Google product's API. No extra API/service/scope/resource.
+
+`tools/drive_conditional_probe.mjs` pins the exact labelled parent and selected
+synthetic child. It verifies selected personal identity, parent marker, child
+name/MIME/parent and made-up contents before writing. Missing/weak/malformed ETags
+stop without writes. Current-tag media PUT returned200 and a different strong
+ETag. Different content with the stale tag returned412. Final read matched the
+first updated content. All seven statuses are recorded without tokens/raw ETags
+in `../milestones/m1-drive-conditional-write.json`.
+
+The original three synthetic fixture fields are retained, with a random
+`conditionalProbe` field. No rename, sharing, deletion, private contents or real
+Workout Session upload. The first attempt used a cached old transport and was
+rejected locally before transmission; explicit module versioning fixed that.
+No automatic retries. Page token and Picker key forgotten after the result;
+existing Google grant unchanged.
+
+Budget: previous global allocation50 plus seven requests = **57/500 allocated**.
+Native reserved20 includes12 consumed and8 unused. Thus49 counted direct/setup
+attempts include the consumed native portion; unmeasured SDK/Picker internal
+traffic remains separately disclosed. Two browser authorization refreshes were
+used in this stage, with no new scope or files selected. Do not refund/reset
+reserved counters. Fourteen Node tests cover request budgets, endpoint confinement,
+identity/fixture gates and conditional success/failure paths; CI includes them.
+
+This proves a v2 current/stale content update case. It does not provide durable
+outbox acknowledgements, multi-device execution fencing, account-binding storage,
+network retries, real-history delivery or general safety of every Drive endpoint.

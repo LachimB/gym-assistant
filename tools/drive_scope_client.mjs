@@ -18,7 +18,8 @@ export class DriveScopeClient {
     this.fetcher = fetcher;
   }
   async request(path, init = {}) {
-    if (!/^\/(?:upload\/)?drive\/v3\/files(?:\/[-\w]+)?(?:\?|$)/.test(path) || path.includes('..')) {
+    if ((!/^\/(?:upload\/)?drive\/v[23]\/files(?:\/[-\w]+)?(?:\?|$)/.test(path) &&
+         !/^\/drive\/v3\/about\?fields=user%28emailAddress%29$/.test(path)) || path.includes('..')) {
       throw new Error('Endpoint outside the synthetic Drive experiment');
     }
     // Persist before transmission. A failed write must prevent the API request.

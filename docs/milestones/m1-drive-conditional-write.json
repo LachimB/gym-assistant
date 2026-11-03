@@ -1,0 +1,30 @@
+{
+  "date": "2026-11-03",
+  "scope": "drive.file",
+  "environment": "approved personal billing-disabled synthetic development project",
+  "client": "localhost browser, existing approved grant",
+  "target": "exact selected SYNTHETIC-external-child.json in the labelled experiment folder",
+  "protocol": "Google Drive v2 files.get and files.update media PUT",
+  "results": [
+    {"step": "verify selected personal account", "httpStatus": 200},
+    {"step": "verify synthetic parent label and application marker", "httpStatus": 200},
+    {"step": "verify exact child identity/name/MIME/parent and strong JSON etag", "httpStatus": 200},
+    {"step": "verify synthetic content before mutation", "httpStatus": 200},
+    {"step": "PUT made-up content with current If-Match", "httpStatus": 200, "newStrongTagReceived": true},
+    {"step": "PUT different made-up content with stale If-Match", "httpStatus": 412},
+    {"step": "read and verify first updated content retained", "httpStatus": 200}
+  ],
+  "directRequests": 7,
+  "globalBudgetAllocationAfter": 57,
+  "globalBudgetLimit": 500,
+  "unusedNativeReservedRequests": 8,
+  "countedSetupAndDirectAttemptsIncludingConsumedNativeReservation": 49,
+  "sdkAndPickerInternalRequestCount": "unmeasured",
+  "initialTransportCacheAttempt": "rejected locally before transmission; budget unchanged at 50",
+  "automaticRetries": 0,
+  "realWorkoutUploaded": false,
+  "productionSyncImplemented": false,
+  "v3TagCompatibilityEstablished": false,
+  "pageCredentialsForgottenAfterProbe": true,
+  "retainedArtifact": "synthetic JSON with original three fixture fields plus a random conditionalProbe marker"
+}
