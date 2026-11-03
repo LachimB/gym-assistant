@@ -512,3 +512,65 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   template import/side/weight cues and runtime repetition deviations, durable
   validated library publication, Android auth/sync/conflict handling and web history.
   No real-workout cloud upload, token storage or DB migration is authorized by ADR4.
+
+## History merged; Android synthetic connection stage — 2026-11-03
+
+- PR13 merged as4646d53 after final54498a5 passed standard CI41581755092 and all
+  seven Android recovery jobs41581755077. ADR4 human-history projection complete
+  at its read-only scope. Continued from fresh origin/main on
+  codex/m1-android-drive-probe, preserving prior branches and local follow-up work.
+- Prepared the native portion of the already-approved synthetic Drive/OAuth
+  experiment: Google AuthorizationClient22.0.0, explicit personal-account-pinned
+  drive.file request with prior scopes excluded, strict returned scopes and
+  about.get identity check before exact synthetic folder/child metadata reads.
+  No app token persistence, auth codes, backend, new Cloud resource or real data.
+  Google Play services may maintain its own account/token cache; not app storage.
+- Local APK configured by private build property with the already-selected
+  personal email. That identifier is embedded in the private test APK, not Git;
+  CI/default account is blank and test button disabled. SDK error bodies/logs and
+  credentials are not emitted. Internet permission added; no account-list/contacts
+  permission, no Room migration or production-sync claim.
+- One-time native20 request reservation succeeded via localhost UI: budget50/500
+  conservatively allocated (prior30 + reserved20), not50 observed requests. Phone
+  counter persists before requests, caps20, authorization attempts6; no resets.
+- Eight native fake-transport tests + nine history JVM tests and12 real SQLite
+  tests pass locally; no Google requests made by tests. Native Google consent and
+  ETag availability need the authorized physical phone. No phone is currently
+  connected, so install/auth test pending. Steps: m1-android-drive-probe.md.
+
+- User connected/unlocked the Pixel10a Android17; verified local APK SHA256
+  f38797518d4434df63163c0785ecff2d8513e712d16100a08deed94bdb5b998f and
+  certificate SHA1 matches the registered Android client. install-r succeeded and
+  app opened. No clear/uninstall/instrumentation/phone DB export. Owner asked to
+  tap Test personal Drive connection, verify the account/specific-file consent,
+  and report final status. Native result pending; no credential contents requested.
+- Native APK also passed emulator process recovery (377→394ms; not drift evidence),
+  no automatic resume or app-data clear. Prepared UI inspected on emulator.
+
+- PR14 draft: https://github.com/LachimB/gym-assistant/pull/14. Owner saw recovered
+  unfinished workout rather than start screen. Fixed test accessibility by adding
+  an independent Drive dialog from recovery; no resume/end/discard required.
+  Emulator regression now checks unchanged complete checkpoint/frozen source while
+  opening/closing it; passed1→111ms after explicit resume only. Version4 APK SHA256
+  9f222946f0d0d7392e7fea864e78e098285ecfc5b86fc3c9b82a888c2e7cbd13 installed-r
+  on confirmed phone, app opened, unfinished workout retained. Google test result
+  pending owner action; do not infer a successful grant/ETag from installation.
+
+
+## Native personal Drive connection passed — 2026-11-03
+
+- Owner reported final native success: personal account verified, synthetic parent
+  and selected child metadata accessible, no ETag received, no workout uploaded.
+  No writes attempted; conditional updates remain unproven (not proof that every
+  Drive endpoint/client lacks ETags). No further connection-case repeats needed.
+- Independently read only two non-secret probe counters: four authorization
+  attempts and12 direct requests. Prior30 + native12 =42 counted direct/setup
+  attempts, with8 unused native requests still reserved inside50/500. No resets.
+  SDK internal traffic separately unmeasured. No phone session DB/history export.
+- Evidence: docs/milestones/m1-native-drive-probe.json; installed source227c17d,
+  APK version4 / SHA9f222946…e7cbd13. Owner's unfinished workout remained in
+  recovery; test required no resume/end/discard. Phone counter equality unmeasured;
+  emulator regression checks complete checkpoint/source equality across dialog.
+- PR14 final evidence/CI pending; code tested on phone does not provide durable
+  synchronization. Read-only web history work is independently saved on branch
+  codex/m1-web-history at d47e917 (19 web tests/build/audit pass; browser QA pending).

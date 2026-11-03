@@ -13,11 +13,14 @@ android {
         applicationId = "dev.gymassistant.m0.debug"
         minSdk = 31
         targetSdk = 36
-        versionCode = 2
-        versionName = "0.1.0-m1-recovery"
+        versionCode = 4
+        versionName = "0.1.2-m1-drive-probe"
+        val probeAccount = providers.gradleProperty("syntheticDriveAccount").orElse("").get()
+        require(probeAccount.isEmpty() || probeAccount.matches(Regex("[A-Za-z0-9._+@-]+")))
+        buildConfigField("String", "SYNTHETIC_DRIVE_ACCOUNT", "\"$probeAccount\"")
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
-    buildFeatures { compose = true }
+    buildFeatures { compose = true; buildConfig = true }
     compileOptions {
         sourceCompatibility = JavaVersion.VERSION_17
         targetCompatibility = JavaVersion.VERSION_17
@@ -46,6 +49,7 @@ tasks.withType<Test>().configureEach {
 }
 
 dependencies {
+    implementation("com.google.android.gms:play-services-auth:22.0.0")
     testImplementation(kotlin("test-junit"))
     implementation("androidx.room:room-runtime:2.8.5")
     implementation("androidx.room:room-ktx:2.8.5")
