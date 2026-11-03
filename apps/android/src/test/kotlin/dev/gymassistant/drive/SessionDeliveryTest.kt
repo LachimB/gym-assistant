@@ -111,6 +111,10 @@ class SessionDeliveryTest {
         assertNotNull(f.job.nextAttemptAt)
         f.sender().send("delivery"); assertEquals(3, f.calls.size)
     }
+    @Test fun clockCorrectionCannotMakeAnExplicitRetryWaitForYears() = runBlocking {
+        val f=Fixture();f.job=f.job.copy(state="retry",nextAttemptAt="2099-01-01T00:00:00Z")
+        assertEquals("delivered",f.sender().send("delivery"));assertEquals(1,f.creates)
+    }
     @Test fun expiredAuthorizationAndBudgetAreNotAutomaticallyRetried() = runBlocking {
         for (reason in listOf("authorization", "budget")) {
             val f = Fixture(); f.identityFailure = reason

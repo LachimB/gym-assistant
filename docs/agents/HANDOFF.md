@@ -711,3 +711,17 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   tools/backup_android_database.py (no content output). Only then install verified
   v5 APK via install-r and launch for preserved paused recovery/migration. Send UI
   steps to owner for synthetic delivery/Google confirmation, not real workout.
+
+
+## Latest delivery artifact and external action — 2026-11-03
+
+- Additional retry contract checks pass: numeric/HTTP-date Retry-After bounded to30s,
+  budget failure before transmission, and explicit retry after a wall-clock reset.
+  Latest JVM39 pass; latest private v5 APK supersedes0d288 checksum:
+  87808112806031903050af5a20094eb06489c4d4f9a2d5845e92ca3b9d297368.
+  Signer unchanged. No phone installation/migration/backup performed.
+- ADB physical count0. Owner was asked asynchronously to reconnect unlocked/idle;
+  answer still pending at this checkpoint. This is a real external action, not a
+  new approval request (ADR5 already approved). Finish CI/independent work first.
+- Updated prototype has no delivery-stage network call yet; global allocation77
+  contains unused old native8 and unused new delivery20. Do not reset counters.

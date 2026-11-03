@@ -6,6 +6,16 @@ import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 import kotlinx.serialization.json.*
 
+internal fun retryAfterDelayMs(value: String?, now: java.time.Instant): Long? {
+    if (value == null) return null
+    val seconds=value.toLongOrNull()
+    if (seconds != null) return if (seconds >= 0) seconds.coerceAtMost(30)*1000 else null
+    return try {
+        val instant=java.time.ZonedDateTime.parse(value,java.time.format.DateTimeFormatter.RFC_1123_DATE_TIME).toInstant()
+        java.time.Duration.between(now,instant).toMillis().coerceIn(0,30000)
+    } catch (_: Exception) { null }
+}
+
 private const val SYNTHETIC_MARKER = "c1d2a450-f45f-43c5-846e-df40845bd21e"
 internal data class DeliveryHttpRequest(val method: String, val path: String, val contentType: String? = null, val body: ByteArray? = null)
 internal data class DeliveryHttpResponse(val status: Int, val body: ByteArray = byteArrayOf(), val retryAfterMs: Long? = null)
@@ -38,7 +48,7 @@ internal class GoogleDeliveryHttp(private var token: String, private val reserve
                 connection.outputStream.use { it.write(body) }
             }
             val code = connection.responseCode
-            val retry = connection.getHeaderField("Retry-After")?.toLongOrNull()?.coerceIn(0, 30)?.times(1000)
+            val retry = retryAfterDelayMs(connection.getHeaderField("Retry-After"), java.time.Instant.now())
             if (code != 200) return DeliveryHttpResponse(code, retryAfterMs = retry)
             val limit = if (path.endsWith("?alt=media")) 8 * 1024 * 1024 else 65536
             val body = connection.inputStream.use { input ->

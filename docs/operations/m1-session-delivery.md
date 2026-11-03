@@ -93,3 +93,10 @@ The dedicated20-request delivery reservation was performed once in the localhost
 page: global allocation **77/500**, including old native unused8 and new unused20.
 Counted direct/setup attempts remain49; no delivery-stage request yet. Private
 build flag is enabled only in the locally configured APK, not source/default CI.
+
+Final retry checks also cover HTTP-date Retry-After, delay caps, pre-transmission
+budget failure and wall-clock correction of a saved retry time. Latest JVM total39
+passes. Latest private version5 APK SHA256:
+`87808112806031903050af5a20094eb06489c4d4f9a2d5845e92ca3b9d297368`.
+Earlier APK checksum in the handoff is superseded; signer unchanged. No physical
+phone was visible to ADB at the pre-backup check; owner reconnect requested.
