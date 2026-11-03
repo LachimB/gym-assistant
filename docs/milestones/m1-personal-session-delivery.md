@@ -40,7 +40,12 @@ retry same ID and external conflict. Existing synthetic transport tests remain.
 Backup archives cover library, personal setup and delivery payloads independently,
 without extracting/printing contents; path/link checks preserve privacy boundaries.
 
-Current-head seven-version CI, actual emulator preview, fresh private physical
+Actual API31 UI also saves a public synthetic partial session, selects it by
+captured Template/date/time, reviews payload scope and saved Not sent status, and
+verifies all recording/delivery rows unchanged without authorization/upload. The
+seven-version workflow includes this sequentially after import/publication.
+
+Current-head seven-version CI, fresh private physical
 backup, phone migration and live owner-selected session/readback/retry remain gates.
 The phone remains v8/Room3 until those pre-installation gates pass. No real folder or
 upload has been performed merely by implementing the feature. Global reservation

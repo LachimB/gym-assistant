@@ -14,7 +14,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.serialization.json.*
 
-internal data class PersonalSessionChoice4(val id:String,val revision:Long,val hash:String,val label:String,val bytes:Int)
+internal data class PersonalSessionChoice4(val id:String,val revision:Long,val hash:String,val label:String,val bytes:Int,val deliveryNote:String)
 class PersonalDeliveryModel4(application:Application):AndroidViewModel(application) {
     private val preferences=application.getSharedPreferences("personal-session-delivery-v1",0)
     private val db by lazy {WorkoutDatabases.open(application)}
@@ -31,7 +31,8 @@ class PersonalDeliveryModel4(application:Application):AndroidViewModel(applicati
         choices.value=store.eligible().map {h->val (revision,current)=store.preview(h.sessionId);val canonical=current.toCanonicalJson()
             val time=Instant.parse(h.startedAt).atZone(java.time.ZoneId.of(h.timeZone)).format(java.time.format.DateTimeFormatter.ofPattern("HH:mm:ss"))
             val title=dev.gymassistant.engine.v2.planJson2.decodeFromString<dev.gymassistant.engine.v2.Plan2>(h.sourcePlanSnapshot.compiledPlanJson).templateName
-            PersonalSessionChoice4(h.sessionId,revision,sha256Utf8(canonical),"${h.localTrainingDate} $time ${h.timeZone} · $title · ${if(h.completionKind=="partial")"Partial" else "Completed"}",canonical.toByteArray(Charsets.UTF_8).size)}
+            val note=when(db.personalDeliveries().latest(h.sessionId)?.state){"delivered"->"Previously delivered. Retry verifies the same saved file.";"conflict"->"Delivery conflict: both copies retained.";null->"Not sent.";else->"Pending delivery retained."}
+            PersonalSessionChoice4(h.sessionId,revision,sha256Utf8(canonical),"${h.localTrainingDate} $time ${h.timeZone} · $title · ${if(h.completionKind=="partial")"Partial" else "Completed"}",canonical.toByteArray(Charsets.UTF_8).size,note)}
         mutableStatus.value=if(choices.value.isEmpty())"No eligible finished local workout. Unfinished and discarded tests cannot be sent." else "Choose a finished session to review."
     }catch(cancelled:CancellationException){throw cancelled}catch(_:Exception){mutableStatus.value="Session list could not be verified. Nothing sent."}}}
     internal fun select(choice:PersonalSessionChoice4){if(!mutableBusy.value)selection=choice}
