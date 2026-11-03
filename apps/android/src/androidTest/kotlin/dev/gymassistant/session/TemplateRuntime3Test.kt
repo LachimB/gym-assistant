@@ -144,4 +144,25 @@ class TemplateRuntime3Test {
         assertNotNull(store.history(next.sessionId))
     }
 
+    @Test fun naturalPlanEndAndAcknowledgementSurviveReopenWithoutAnActivePhase()=runBlocking {
+        val start=start2();var store=RoomSessionStore2(db,contracts)
+        var saved=store.start(start,"start")
+        saved=store.commit(start.sessionId,saved.revision,"add",SessionAction2("add",recordedAt=at,adjustment=Adjustment2("complete_add","set_left",at)))
+        saved=store.commit(start.sessionId,saved.revision,"natural-end",SessionAction2("tick",90000,at))
+        assertEquals(dev.gymassistant.engine.SessionStatus.Completed,saved.state.status)
+        assertNull(saved.checkpoint.activePhaseInstanceId);assertEquals(0L,saved.checkpoint.phaseOffsetMs)
+        assertEquals(12,saved.state.completedInstanceIds.size);assertNotNull(store.unfinished())
+        val atEnd=saved;db.close()
+        db=Room.databaseBuilder(context,WorkoutDatabase::class.java,name).build();store=RoomSessionStore2(db,contracts)
+        assertEquals(atEnd,store.unfinished())
+        val driver=SessionDriver2(store,{0L},{at});val recovered=checkNotNull(driver.restore())
+        assertEquals(dev.gymassistant.engine.SessionStatus.Completed,recovered.state.status)
+        assertEquals(atEnd.state.observedRunMs,recovered.state.observedRunMs)
+        assertEquals(0,recovered.checkpoint.unknownGapCount)
+        val done=driver.send("finish")
+        assertTrue(done.state.completionAcknowledged);assertNull(store.unfinished())
+        assertEquals("plannedEnd",store.history(start.sessionId)?.completionKind)
+        assertEquals(1,store.history(start.sessionId)?.events?.count {it.type=="planEndReached"})
+    }
+
 }

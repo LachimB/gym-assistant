@@ -108,6 +108,7 @@ def check_requirements_traceability() -> int:
 def validate_all() -> tuple[int, int]:
     files = [
         ('session','examples/sessions/synthetic-runtime-v2-session.json','json'),
+        ('session','examples/sessions/synthetic-runtime-v2-completed-session.json','json'),
         ('exercise','examples/exercises/bridge-band-family.yaml','yaml'),
         ('exercise','examples/exercises/plank-family.yaml','yaml'),
         ('template','examples/templates/composite-pyramid.yaml','yaml'),

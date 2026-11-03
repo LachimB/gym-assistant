@@ -5,12 +5,12 @@
   "coreMergedCommit": "bd5dc25",
   "localIntegrationPr": 19,
   "automatedLocal": {
-    "androidJvmTests": 40,
-    "sqliteInstrumentationTests": 24,
-    "webTests": 22,
+    "androidJvmTests": 41,
+    "sqliteInstrumentationTests": 25,
+    "webTests": 23,
     "typeScriptEngineTests": 34,
     "pythonTests": 71,
-    "schemaValidatedFixtures": 22
+    "schemaValidatedFixtures": 23
   },
   "emulator": {
     "api": 31,
@@ -60,9 +60,11 @@
     "plannedDurationMs": 2750000,
     "phases": 474,
     "eligibleSetsChecked": 32,
-    "publishedOnPhone": false,
+    "publishedOnPhone": true,
     "localPhoneFilesCopiedAndReadBack": 8,
-    "ownerFoundLocalImportFolder": true
+    "ownerFoundLocalImportFolder": true,
+    "publishedHeadMatchesPreparedPlan": true,
+    "sourceFilesMatchExactly": 8
   },
   "phone": {
     "installedVersionCode": 7,
@@ -91,8 +93,10 @@
     "billingChanged": false
   },
   "remaining": [
-    "owner private Template review/publication and real local workout acceptance",
-    "authorized real-workout cloud synchronization and full M1 acceptance"
+    "complete a full real workout with the supported local runtime",
+    "owner approval of ADR-0007 before real personal Drive delivery and its separate migration",
+    "implement/test authorized real-data delivery; Template synchronization and direct web Drive retrieval remain open",
+    "remaining M1/product acceptance gates"
   ],
   "publicationFooter": {
     "targetVersionCode": 7,
@@ -108,7 +112,64 @@
     "allChecksPassed": true,
     "installedMigrationApkSha256": "17e5d587a8133c741dbb8847717a4f6347e0d767e9c870e3371433d87dddfca3"
   },
-  "requiredForMerge": [
-    "all current PR19 checks including selected-import/publication UI on seven Android versions"
-  ]
+  "runtimeImplementationPr": 19,
+  "runtimeImplementationMergedCommit": "57692f81c40761206f5db699ae43b84cfc519a04",
+  "currentRuntimeCi": {
+    "head": "1680546cfebc15b5442849aa1af421830c4203a6",
+    "standardRun": 41674024615,
+    "sevenVersionAndroidRun": 41674024398,
+    "allTenChecksPassed": true,
+    "selectedImportAndFooterUiIncluded": true
+  },
+  "physicalRuntimeShortTest": {
+    "result": "PASS",
+    "appVersionCode": 7,
+    "originalPlannedDurationMs": 2750000,
+    "adjustedPlannedDurationMs": 2760000,
+    "extraRepetitionsRetained": 1,
+    "activeCountdownAndCompletedProgressUnchanged": true,
+    "frozenSourceAndEffectivePlansUnchanged": true,
+    "allPriorActionsAndOutboxPreserved": true,
+    "otherSessionsAndLibraryUnchanged": true,
+    "normalUnknownRecoveryGapAdded": 1,
+    "automaticResume": false,
+    "countersFrozenAfterRecovery": true,
+    "appDataCleared": false,
+    "cloudUpload": false,
+    "fullWorkoutAcceptance": "not performed by this short test",
+    "testRecordRetainedAsDiscarded": true,
+    "publishedTemplateStillUnchanged": true,
+    "noUnfinishedWorkout": true
+  },
+  "completionRegression": {
+    "issue": "natural plan end had no active phase; mixed numeric zero type failed checkpoint validation",
+    "fix": "Long zero in absent-phase offset check",
+    "targetVersionCode": 8,
+    "publicCompletedHistoryFixture": "examples/sessions/synthetic-runtime-v2-completed-session.json",
+    "fullVirtualPrivateShape": {
+      "physicalWorkoutEvidence": false,
+      "adjustedPhases": 476,
+      "meaningfulEvents": 956,
+      "canonicalUtf8Bytes": 1219806,
+      "independentWebReaderPassed": true,
+      "networkCalls": 0
+    },
+    "localJvmAndSqliteTestsPassed": true,
+    "phoneUpdateVerified": true,
+    "phoneUpdate": {
+      "installedVersionCode": 8,
+      "versionName": "0.1.6-m1-completion-fix",
+      "sourceCommit": "6977599428ed32e11f5202e6d6ae2b653aba0505",
+      "apkSha256": "1d3e3d6244982c083461eadf1d5f8c59968973e106fa8563d2f0e1b3cab08d0d",
+      "databaseVersionBefore": 3,
+      "databaseVersionAfter": 3,
+      "newMigrationApplied": false,
+      "allElevenTablesExactlyUnchanged": true,
+      "noUnfinishedWorkout": true,
+      "privateImportFilesReadBackExactly": 8,
+      "backupStandaloneSha256": "1d792a9e76ee27230cefce9d848dfda9143fd1694d4e579a2faaaaf0cfebc1e5",
+      "uninstallOrClearPerformed": false,
+      "cloudUpload": false
+    }
+  }
 }
