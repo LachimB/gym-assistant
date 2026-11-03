@@ -1,6 +1,8 @@
 import Ajv2020 from "ajv/dist/2020.js";
 import addFormats from "ajv-formats";
 import schema10 from "../../../schemas/session.v1.schema.json?raw";
+import schema12 from "../../../schemas/session.v1.2.schema.json?raw";
+import type {Adjustment2} from "../../../packages/engine-ts/src/runtime2";
 import schema11 from "../../../schemas/session.v1.1.schema.json?raw";
 import { isMap, isScalar, isSeq, parseDocument } from "yaml";
 
@@ -12,11 +14,13 @@ addFormats(ajv);
 const validators = new Map([
   ["1.0.0", ajv.compile(JSON.parse(schema10))],
   ["1.1.0", ajv.compile(JSON.parse(schema11))],
+  ["1.2.0", ajv.compile(JSON.parse(schema12))],
 ]);
 
 export interface HistoryEvent {
   eventId: string; type: string; recordedAt: string; planStepId?: string; phaseId?: string; setId?: string;
-  scheduledElapsedMs?: number; observedRunMs?: number; actualElapsedMs?: number;
+  phaseInstanceId?: string; adjustmentId?: string; adjustedScheduledElapsedMs?: number;
+  scheduledElapsedMs?: number | null; observedRunMs?: number; actualElapsedMs?: number;
   pauseMs?: number; unobservedGapMs?: number; unknownGapCount?: number;
   detail?: { gapDurationKnown?: boolean; gapDurationMs?: number; completionKind?: string; resumedAfterInterruption?: boolean };
 }
@@ -24,8 +28,10 @@ export interface HumanHistory {
   schemaVersion: string; sessionId: string; templateId: string; revisionId: string;
   executionPlanHash: string; engineVersion: string; startedAt: string; finishedAt?: string;
   timeZone: string; localTrainingDate?: string; status: string; completionKind?: string;
-  sourcePlanSnapshot?: { compiledPlanJson?: string; hashFormat?: string; planFormatVersion?: string; templateYaml?: string; exerciseYamls?: string[] };
-  timing?: Record<string, number>;
+  effectivePlanSnapshot?: {compiledPlanJson:string;compiledPlanHash:string;planFormatVersion:string};
+  adjustments?: Adjustment2[];
+  sourcePlanSnapshot?: { sourceSnapshotJson?:string; sourceHash?:string; compiledPlanHash?:string; compiledPlanJson?: string; hashFormat?: string; planFormatVersion?: string; templateYaml?: string; exerciseYamls?: string[] };
+  timing?: Record<string, number | null>;
   events: HistoryEvent[];
   organizationContext?: { season?: { name: string }; program?: { name: string } };
   overallRpe?: number | null; personalQualityRating?: number | null; journalSummary?: string; notes?: string;
@@ -35,6 +41,7 @@ export interface HumanHistory {
   }[];
 }
 export interface HistoryPhase {
+  instanceId?:string;side?:string;adjustmentId?:string;role?:string;repetitionIndex?:number;
   index: number; stepId: string; phaseId?: string; setId?: string; name: string; startMs: number; endMs: number;
   exerciseId?: string; variationId?: string; resistanceLabel?: string;
 }
@@ -96,6 +103,7 @@ export async function readHistory(text: string): Promise<ReadHistory> {
   requireFact(record.events.length <= 10000, "This session has more events than this viewer supports. The file has not been changed.");
   const ids = record.events.map(event => event.eventId);
   requireFact(ids.length === new Set(ids).size, "The session repeats an event identifier.");
+  if(version === "1.2.0")return (await import("./SessionHistory2")).readRuntimeHistory(record);
   if (version === "1.0.0") {
     for (const time of Object.values(record.timing ?? {})) requireFact(safeTime(time), "A timing value is outside the supported range.");
     for (const event of record.events) for (const time of [event.scheduledElapsedMs, event.actualElapsedMs]) {
@@ -124,7 +132,7 @@ export async function readHistory(text: string): Promise<ReadHistory> {
     boundary = phase.endMs;
   }
   const timing = record.timing!;
-  requireFact(boundary === plan.expectedDurationMs && timing.plannedDurationMs === plan.expectedDurationMs && timing.scheduledElapsedMs <= boundary, "The planned duration or position is inconsistent.");
+  requireFact(boundary === plan.expectedDurationMs && timing.plannedDurationMs === plan.expectedDurationMs && timing.scheduledElapsedMs! <= boundary, "The planned duration or position is inconsistent.");
   for (const counter of Object.values(timing)) requireFact(safeTime(counter), "A timing value is outside the supported range.");
   let localDate: string;
   try {
@@ -141,7 +149,7 @@ export async function readHistory(text: string): Promise<ReadHistory> {
     requireFact(safeTime(event.scheduledElapsedMs) && event.scheduledElapsedMs <= boundary, "An event position is invalid.");
     for (const key of counters) {
       const observed = event[key];
-      requireFact(safeTime(observed) && previous[key] <= observed && observed <= timing[key], "Event timing is inconsistent.");
+      requireFact(safeTime(observed) && previous[key] <= observed && observed <= timing[key]!, "Event timing is inconsistent.");
       previous[key] = observed;
     }
     if (event.planStepId) {

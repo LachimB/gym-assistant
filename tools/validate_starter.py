@@ -25,7 +25,7 @@ def read_json(path: str) -> dict[str, Any]:
 
 
 def check_schema(schema_name: str, data: dict[str, Any]) -> None:
-    version = 'v2' if schema_name == 'compiled-plan' else ('v1.1' if schema_name in ('session', 'template') and data.get('schemaVersion') == '1.1.0' else 'v1')
+    version = 'v1.2' if schema_name == 'session' and data.get('schemaVersion') == '1.2.0' else ('v2' if schema_name == 'compiled-plan' else ('v1.1' if schema_name in ('session', 'template') and data.get('schemaVersion') == '1.1.0' else 'v1'))
     schema = read_json(f'schemas/{schema_name}.{version}.schema.json')
     Draft202012Validator.check_schema(schema)
     errors = sorted(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(data), key=lambda e: list(map(str, e.path)))
@@ -107,6 +107,7 @@ def check_requirements_traceability() -> int:
 
 def validate_all() -> tuple[int, int]:
     files = [
+        ('session','examples/sessions/synthetic-runtime-v2-session.json','json'),
         ('exercise','examples/exercises/bridge-band-family.yaml','yaml'),
         ('exercise','examples/exercises/plank-family.yaml','yaml'),
         ('template','examples/templates/composite-pyramid.yaml','yaml'),

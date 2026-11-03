@@ -895,3 +895,147 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   verified Room2 + app-private library-file backup and complete automated gates.
   Existing unfinished format1 workout must stay paused and never be converted.
   No real-workout cloud upload; exact pinned synthetic sender gate unchanged.
+
+
+## Local library/session integration ready for CI — 2026-11-03
+
+- Core PR18 merged bd5dc25 after all checks: standard41645751316 and Android
+  seven-version41645751343. Follow-up branch codex/m1-local-template-runtime
+  fast-forwarded onto that verified main, preserving all local integration work.
+- Implemented Room3 explicit1→2→3/2→3 migrations, candidate quarantine/review,
+  immutable private file storage and revisions, stale-head/CAS publication;
+  format2 source/base/effective plans, compact stable ordinal checkpoint ranges,
+  atomic append receipts/checkpoints/outbox and structural-only plan rows.
+  Legacy format1 is explicitly dispatched and never converted. New restoration
+  audits the committed prefix before recording unknown gaps/explicit resume.
+- Added Android system-picker import/full-preview/publish/start flow and side,
+  weight/band/note cues, +1 for eligible current sets, late-tap handling. Shared
+  process Room instance is no longer closed by an individual ViewModel.
+  New build versionCode6 /0.1.4-m1-local-template; no physical install yet.
+- Canonical1.2 and schema/public fixture exclude raw ticks/internal receipt IDs;
+  original-plan position is explicitly null during inserted work. TS web reader
+  independently recompiles the frozen source, applies ordered semantic adds,
+  verifies hashes/final effective plan/events/timing. Old1.0/1.1 remain supported.
+  Compiler is loaded only when opening1.2. Web production build has no size warning.
+- Local checks: Android40 JVM,24 SQLite (including rollback and legacy/new
+  coexistence/driver gaps/late tap), web22, TypeScript34, Python70, contracts22
+  and engine/cloud suites pass. Old actual process-stop test passed at current
+  integration. Format2 UI/process acceptance and current-head CI still pending.
+- Backup helper now captures/verifies library archive separately without extracting
+  it or printing source names/contents;6 helper tests pass. New verified Room2/files
+  backup remains mandatory before physical Room3 installation; old Room1 backup kept.
+- Private local conversion prepared outside Git in /private/tmp/gym-m1-source/runtime2.
+  It preserves the approved45m50 timeline,474 phases,7 exercise files;32 explicit
+  repeated sets support adds, two one-off holds do not.203 inter-repetition resets
+  explicitly annotated to the owner's4seconds; remaining original rests preserved.
+  Independent TS and Kotlin plans match; all32 add policies checked locally.
+  Host100 deterministic ticks took25ms (NOT device/background timing evidence).
+  Only validation/count/duration metadata entered chat. Original preview unchanged.
+  Temporary Kotlin local-check test removed; private sources/results remain outside
+  Git/APK. Owner still must review/publish locally and provide physical acceptance.
+- Exact pinned synthetic-only cloud sender remains unchanged. No source/session
+  cloud upload, new external service or billing change occurred.
+
+
+## Verified local format2 UI/process flow and backup rehearsal — 2026-11-03
+
+- System picker on API31 selected only the two public synthetic YAML files;
+  all10 phases were inspected in the review, explicitly published and started.
+  While paused, +1 on the left side changed80→90seconds and retained the cursor.
+  A real process stop/relaunch retained exact source/effective plan rows, the add,
+  observed6745ms and paused counters; recovery did not advance without resume.
+  Repeated after emulator install-r of v6. No clear/uninstall. See structured
+  evidence docs/milestones/m1-local-template-runtime.json.
+- Rehearsed the extended backup CLI on the stopped emulator's Room3 database:
+  integrity/FKs/prefix match passed and four library files archived/hashed without
+  extracting or printing contents. Bundle /private/tmp/gym-m1-pre-v6-emulator-backup.
+  This is rehearsal, not the required physical pre-Room3 backup.
+- Actual browser1.2 example verified: original80s vs adjusted90s, inserted-work
+  base position inapplicable, meaningful addition names exercise/left/repetition3,
+  two unknown gaps and distinct observed/pause values. Screenshot locally at
+  /private/tmp/gym-m1-runtime-history.png; tab16 retained as a deliverable.
+- Tightened1.2 gap-counter checks against semantic interruption details; a known
+  gap supplied while already recovered is rejected rather than silently lost.
+  Existing version1 engine/reader behavior remains unchanged.
+- Physical phone is connected/authorized (exactly one); serial retained only in
+  private /private/tmp/gym-m1-authorized-phone-serial.txt, never printed. Still v5/
+  Room2. After current-head CI, create a fresh persistent verified backup BEFORE
+  installation; never use the emulator bundle as a phone backup.
+
+
+## Physical Room3 upgrade verified; publication usability follow-up — 2026-11-03
+
+- APK source78b649ee9f00e7a6907ffa14942b7bac8b8004e5 passed all10 checks:
+  standard41664633328 / seven Android41664633400. Private v6 APK SHA256
+  17e5d587a8133c741dbb8847717a4f6347e0d767e9c870e3371433d87dddfca3,
+  signerSHA1 cedeecbef3a892f245d283ec4831a007577912bd installed with install-r.
+- Initial backup attempt stopped BEFORE installation because exec-out failed to
+  propagate a missing optional path's status, yielding error text as an archive.
+  No clear/restore/migration on that attempt. Fixed binary reads to shell -T,
+  whose remote exit status distinguishes absent sidecars/library. A CLI regression
+  simulates this failure; backup-helper7/full Python71 pass. Real emulator binary
+  comparison proves exact bytes. Failed raw bundle retained, never auto-restored.
+- Fresh verified Room2 backup <private-path>
+  standaloneSHA2568f721c29712de5ac08dcda1a62ff21b4c66d35272053ffb1e488d58daf825319.
+  Integrity/FKs/prefix checks pass, library correctly absent/0files. Prior Room1
+  backup retained. Tool-only transport fix was locally tested; APK source remained
+  byte-for-byte the CI-tested78b649e before this migration.
+- Pixel10a upgrade2→3 passed exact private before/after comparison: all3 source/
+  checkpoint rows,706 prior actions/outbox, unfinished slot, one Drive binding and
+  one delivered job preserved. Only one legitimate legacy recovery receipt added;
+  observed/scheduled/pause/completed progress unchanged. All four new tables empty.
+  Post-check bundle <private-path>
+  No original source/receipt contents printed, no workout delivery created.
+- Owner then confirmed saving the old workout as a partial record. Do not discard
+  or rewrite it. Eight reviewed YAML definitions transferred over personal USB to
+  phone Documents/GymAssistant-LOCAL-M1/Reviewed-workout and read back exactly;
+  no Drive/AI upload, app publication not yet done. Private local review also at
+  /private/tmp/gym-m1-source/runtime2/review.md. Owner action review/publication and
+  physical real-workout acceptance remain genuine input gates.
+- Long-preview publication action moved to fixed AlertDialog footer; routine UI
+  version7/0.1.5-m1-local-template, SAME Room3/no new migration. New disposable-only
+  test_android_template_review.py proves selection of exactly two public files,
+  complete preview and footer visible at its top, explicit publish, unchanged
+  workout/delivery rows and no authorization. Added to seven-version CI after
+  existing process test. API31 local24 SQLite and actual footer UI test pass.
+  Current UI follow-up CI/physical install still pending; no M1 completion claim.
+
+
+## Phone v7 ready for owner publication — 2026-11-03
+
+- Routine UI-only v7 installed under the standing install-r workflow after local
+  Android40 JVM/24 SQLite and real selected-import/footer UI regression passed.
+  Source5ba555b17bb256b56b097d83c4c2366abfcee400; APK SHA256
+  6ddb16fbfd8bb30dc7ba38f07489c57c1a5577f10352463785d34f5e2fafcb0c.
+  Same Room3, no further schema migration. Against a fresh verified pre-UI7
+  backup, all11 application tables compare exactly equal after the update.
+  Android's own metadata table is excluded from the app-entity count; comparison
+  resumed against the ORIGINAL pre-update backup after correcting that verifier
+  count, without repeating installation or replacing the baseline.
+- Pre-UI7 backup <private-path>
+  standalone884ef5bf242fe09cfb8bf40faa9f967a28387dba784ded9c5788b71846b6d52b.
+  Post-check <private-path>
+  The original session's final intent is verified end/partial, outcome retained;
+  no unfinished slot remains. Its source/history have not been converted.
+- All8 private YAML files still match phone readback exactly. Owner is locating
+  them in the system picker: PERSONAL internal storage → Documents →
+  GymAssistant-LOCAL-M1 → Reviewed-workout. The top Documents chip is a file-type
+  filter; a search for gym cannot find generic training-template/exercise filenames.
+  User's latest screenshot is already out of search, with ☰ beside Search this
+  device; instructed to open that menu. Do not repeat search/back instructions
+  once the UI has changed. No need to inspect unrelated files/accounts/work profile.
+- Phone publication was requested, but not yet confirmed. Expected45:50/474phases,
+  fixed Publish reviewed revision footer. Owner physical execution acceptance still
+  open. Keep private data out of AI/Git/cloud; metadata-only local checks remain.
+- APK/schema migration source78b649e CI already passed10/10. This follow-up adds
+  backup regression and fixed-footer UI checks to all seven Android versions;
+  current review CI is authoritative at PR19/checks and required before merge.
+  Do not claim the full milestone complete. Real-workout cloud remains excluded.
+
+
+- Owner has now found the local folder: the phone's visible storage-root label is
+  The Rocket 2. Use that exact UI label, then Documents/GymAssistant-LOCAL-M1/
+  Reviewed-workout. They are selecting all8 YAML files (training-template.yaml +
+  exercise-1..7.yaml). Earlier screenshots were category/search views, not the
+  physical Documents directory. Await the actual validation/publication result;
+  do not claim import complete from folder discovery alone.
