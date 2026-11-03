@@ -800,3 +800,33 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   should become ready/merge only after current combined head CI passes. Remaining
   M1: validated private template library/import, side/weight cues and one-click
   repetition changes, complete product template/history sync and real-workout gate.
+
+## Real-template/runtime proposal prepared — 2026-11-03
+
+- ADR-0006 proposed, not implemented: reviewed local Template publication, explicit
+  side/weight cues, one-click extras appended to current set before following
+  hold/rest/side. Proposed Template1.1/plan2/internal format2/history1.2 and additive
+  Room3 library/effective-plan records; legacy execution/history stays readable.
+  Existing unfinished workout not converted/ended/discarded. No real cloud upload.
+- Owner review/approval requested asynchronously under rule4. No response yet at
+  this checkpoint. Do not implement these new formats/migration before approval.
+- Proposal is on codex/m1-real-template-runtime-proposal stacked on PR17 head16444f0.
+  PR17 physical migration/delivery/retry/browser-download-web acceptance passed;
+  current combined head16444f0 passed standard CI and all seven Android jobs.
+  PR17 merged503a0b5 on2026-11-03; this proposal branch is brought onto that base.
+
+
+## Current review gate — ADR-0006
+
+- PR17 merged503a0b5 after39 JVM,16 SQLite local tests and successful current-head
+  CI:41627572090 standard /41627572133 seven Android versions. Native physical
+  backup/migration/delivery/retry and same-grant browser download/local-web review
+  evidence retained. No real workout uploaded; original work remains paused.
+- ADR-0006 review answer remains pending. It is proposed only; no Template1.1,
+  engine/plan2, saved format2, canonical1.2 or Room3 implementation/migration yet.
+  Do not infer approval from ADR5 approval or phone test success. Existing latest
+  private v5 APK/Room2 stays installed; private backup remains persistent.
+- Future author must fetch GitHub/check other worktrees and preserve this proposal.
+  If approved, implement contracts consistently with its explicit append-to-set
+  behavior, legacy coexistence, source immutability and backup gates. Private
+  approved workout preview stays outside Git; no new AI/private-cloud consent.
