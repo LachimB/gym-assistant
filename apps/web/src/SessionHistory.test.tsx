@@ -14,6 +14,7 @@ describe("read-only human session history", () => {
     try {
       for (const name of ["synthetic-human-partial-session", "synthetic-human-completed-session"]) {
         const result = await readHistory(fixture(name));
+        expect(result.record).toEqual(JSON.parse(fixture(name)));
         expect(result.record.schemaVersion).toBe("1.1.0");
         expect(result.title).toBe("Synthetic alternating pyramid");
         expect(result.phases).toHaveLength(9);
@@ -34,6 +35,9 @@ describe("read-only human session history", () => {
     expect(result.record.completionKind).toBeUndefined();
     const html = renderToStaticMarkup(<HistoryDetails history={result}/>);
     for (const text of ["Earlier recording format", "Not recorded", "Earlier format; not verified"]) expect(html).toContain(text);
+    expect(html).toContain("Recorded set results");
+    expect(html).toContain("Overall effort (RPE): 4/10");
+    expect(html).toContain("Session quality: 4/5");
   });
   it("rejects tick logs, unsupported versions and broken plan hashes", async () => {
     for (const change of [
@@ -65,6 +69,13 @@ describe("read-only human session history", () => {
     const result = await readHistory(JSON.stringify(value));
     const html = renderToStaticMarkup(<HistoryDetails history={result}/>);
     expect(html).not.toContain("<script>"); expect(html).toContain("&lt;script&gt;");
+  });
+  it("keeps variation labels scoped to their exercise family", async () => {
+    const value = partial();
+    value.sourcePlanSnapshot.exerciseYamls.push('schemaVersion: 1.0.0\nfamilyId: other_family\nnames: {en: Other}\nvariations:\n  - variationId: hip_lift_level_1\n    names: {en: Wrong family label}\n');
+    const result = await readHistory(JSON.stringify(value));
+    const html = renderToStaticMarkup(<HistoryDetails history={result}/>);
+    expect(html).toContain("Hip lift L1"); expect(html).not.toContain("Wrong family label");
   });
   it("bounds input size and rejects malformed JSON without echoing its contents", async () => {
     await expect(readHistory(" ".repeat(MAX_HISTORY_BYTES + 1))).rejects.toThrow("up to 8 MB");
