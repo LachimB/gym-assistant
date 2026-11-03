@@ -41,7 +41,7 @@ export interface HumanHistory {
   }[];
 }
 export interface HistoryPhase {
-  instanceId?:string;side?:string;
+  instanceId?:string;side?:string;adjustmentId?:string;role?:string;repetitionIndex?:number;
   index: number; stepId: string; phaseId?: string; setId?: string; name: string; startMs: number; endMs: number;
   exerciseId?: string; variationId?: string; resistanceLabel?: string;
 }

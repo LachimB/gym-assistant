@@ -935,3 +935,29 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   Git/APK. Owner still must review/publish locally and provide physical acceptance.
 - Exact pinned synthetic-only cloud sender remains unchanged. No source/session
   cloud upload, new external service or billing change occurred.
+
+
+## Verified local format2 UI/process flow and backup rehearsal — 2026-11-03
+
+- System picker on API31 selected only the two public synthetic YAML files;
+  all10 phases were inspected in the review, explicitly published and started.
+  While paused, +1 on the left side changed80→90seconds and retained the cursor.
+  A real process stop/relaunch retained exact source/effective plan rows, the add,
+  observed6745ms and paused counters; recovery did not advance without resume.
+  Repeated after emulator install-r of v6. No clear/uninstall. See structured
+  evidence docs/milestones/m1-local-template-runtime.json.
+- Rehearsed the extended backup CLI on the stopped emulator's Room3 database:
+  integrity/FKs/prefix match passed and four library files archived/hashed without
+  extracting or printing contents. Bundle /private/tmp/gym-m1-pre-v6-emulator-backup.
+  This is rehearsal, not the required physical pre-Room3 backup.
+- Actual browser1.2 example verified: original80s vs adjusted90s, inserted-work
+  base position inapplicable, meaningful addition names exercise/left/repetition3,
+  two unknown gaps and distinct observed/pause values. Screenshot locally at
+  /private/tmp/gym-m1-runtime-history.png; tab16 retained as a deliverable.
+- Tightened1.2 gap-counter checks against semantic interruption details; a known
+  gap supplied while already recovered is rejected rather than silently lost.
+  Existing version1 engine/reader behavior remains unchanged.
+- Physical phone is connected/authorized (exactly one); serial retained only in
+  private /private/tmp/gym-m1-authorized-phone-serial.txt, never printed. Still v5/
+  Room2. After current-head CI, create a fresh persistent verified backup BEFORE
+  installation; never use the emulator bundle as a phone backup.

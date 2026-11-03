@@ -93,6 +93,8 @@ class TemplateRuntime3Test {
         val recovered=store.commit(start.sessionId,old.revision,"recover",SessionAction2("recover",recordedAt=at))
         assertEquals(old.state.observedRunMs,recovered.state.observedRunMs);assertEquals(1,recovered.checkpoint.unknownGapCount)
         assertNull(additionAvailable2(recovered.plan,recovered.state))
+        rejects {store.commit(start.sessionId,recovered.revision,"unsupported-known-gap",SessionAction2("recover",recordedAt=at,gapMs=1000))}
+        assertEquals(recovered,store.load(start.sessionId))
         assertEquals(2,db.library().plans(start.sessionId).size)
         assertEquals(start,recovered.start)
     }
