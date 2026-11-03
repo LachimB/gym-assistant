@@ -1093,3 +1093,18 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   finalized phone session. File-backed proposed ADR7 delivery keeps SQL rows small.
 - Owner was told the completion bug is being fixed BEFORE a full workout request.
   No change to approved exercise targets/order, published source or real-cloud gate.
+
+
+## Completion fix installed with exact preservation — 2026-11-03
+
+- Phone v8/source6977599428ed32e11f5202e6d6ae2b653aba0505 installed with install-r;
+  APK SHA2561d3e3d6244982c083461eadf1d5f8c59968973e106fa8563d2f0e1b3cab08d0d.
+  Same signer and Room3, no migration. All11 application tables compare exactly
+  equal; private library archive and all8 external source files unchanged. No
+  unfinished workout, clear/uninstall, source re-publication or cloud upload.
+- Fresh verified private backup pre-completion8-20261103T194615Z under the personal
+  backup root; standalone SHA2561d792a9e76ee27230cefce9d848dfda9143fd1694d4e579a2faaaaf0cfebc1e5.
+  Post comparison post-completion8-check-20261103T194624Z. Prior backups retained.
+- PR20 current-head checks required before merge. Owner approval requested for
+  proposed ADR7; do not implement Room4 or real delivery until explicitly approved.
+  Full physical workout acceptance still open; short discarded test is retained.
