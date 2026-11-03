@@ -12,7 +12,7 @@ Workout Sessions.
 - Google Identity `AuthorizationClient` from `play-services-auth:22.0.0`, as shown
   in the current official Android authorization guide. Package/signature-bound
   Android client was already registered in the approved synthetic project.
-- Explicit button only, before starting a workout. No automatic sign-in/network
+- Explicit button only, on the start or paused recovery screen. No automatic sign-in/network
   request at startup, background sync or account switching. Local test APK is
   pinned to the already selected personal email via a private Gradle property;
   default/CI builds have a blank account and disable the test button. Email is an
@@ -37,8 +37,8 @@ Workout Sessions.
   logged or shown. No retry/scope escalation. Duplicate callbacks cannot start
   another simultaneous probe.
 - Application Internet permission added; no contacts/account-list permissions.
-  Existing no-backup policy and Room schema remain unchanged. App versionCode 3,
-  versionName 0.1.1-m1-drive-probe; update installation preserves the package/data.
+  Existing no-backup policy and Room schema remain unchanged. App versionCode 4,
+  versionName 0.1.2-m1-drive-probe; update installation preserves the package/data.
 
 ## Budget
 
@@ -99,3 +99,18 @@ Android 17 after verifying the APK hash and registered signing SHA-1. No uninsta
 data clear, instrumentation install or phone database export. Google consent and
 final probe status are pending the owner’s action. Remote CI APKs
 use blank account configuration and are not the phone-test artifact.
+
+
+### Recovery-screen UI correction
+
+The owner reported an unfinished recovery screen, so the initial start-screen-only
+button was inaccessible. Fixed this without requiring resume/end/discard: recovery
+now offers **Drive connection test**, opening independent test controls. The
+emulator process test checks that opening and closing this dialog leaves the
+entire recovered checkpoint and frozen source unchanged, and still requires
+explicit resume. Passed (1→111ms only after explicit resume; not drift evidence).
+
+Updated versionCode4 local APK SHA256:
+`9f222946f0d0d7392e7fea864e78e098285ecfc5b86fc3c9b82a888c2e7cbd13`.
+Installed with install-r on the same confirmed phone and opened. No workout end,
+discard, clear or uninstall. Final Google consent/probe result still pending.

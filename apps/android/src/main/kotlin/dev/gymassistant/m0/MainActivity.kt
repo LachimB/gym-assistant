@@ -90,11 +90,15 @@ class MainActivity : ComponentActivity() {
             val ui by workout.ui.collectAsState()
             var showDetails by remember { mutableStateOf(false) }
             var confirmation by remember { mutableStateOf<String?>(null) }
+            var showDriveTest by remember { mutableStateOf(false) }
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
                     Column(modifier = Modifier.padding(24.dp).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text("Gym Assistant", style = MaterialTheme.typography.headlineSmall)
+                        if (ui.needsRecovery && ui.saved?.checkpoint?.outcome == "inProgress") {
+                            TextButton(onClick = { showDriveTest = true }) { Text("Drive connection test") }
+                        }
                         when {
                             ui.loading -> Text("Loading saved workout…")
                             ui.error != null -> {
@@ -106,17 +110,7 @@ class MainActivity : ComponentActivity() {
                                 Text("Synthetic alternating pyramid · 50 seconds")
                                 Text("Starts an ungrouped Workout Session. Saved on this phone; cloud sync is not connected.")
                                 WorkoutButton("Start Workout") { workout.command("start") }
-                                val probeStatus by driveProbe.status.collectAsState()
-                                val probeBusy by driveProbe.busy.collectAsState()
-                                Text("Drive connection test", style = MaterialTheme.typography.titleMedium)
-                                Text("Reads the labelled synthetic test files only. No workout upload.")
-                                OutlinedTextField(value = BuildConfig.SYNTHETIC_DRIVE_ACCOUNT, onValueChange = {},
-                                    readOnly = true, label = { Text("Approved personal Google account") })
-                                Button(onClick = { testDriveConnection() },
-                                    enabled = !probeBusy && BuildConfig.SYNTHETIC_DRIVE_ACCOUNT.isNotBlank()) {
-                                    Text(if (probeBusy) "Checking…" else "Test personal Drive connection")
-                                }
-                                Text(probeStatus)
+                                DriveTestControls()
                             }
                             else -> {
                                 val saved = checkNotNull(ui.saved)
@@ -186,6 +180,12 @@ class MainActivity : ComponentActivity() {
                             }
                         }
                     }
+                    if (showDriveTest) {
+                        AlertDialog(onDismissRequest = { showDriveTest = false },
+                            title = { Text("Drive connection test") },
+                            text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)) { DriveTestControls() } },
+                            confirmButton = { TextButton(onClick = { showDriveTest = false }) { Text("Close") } })
+                    }
                     if (confirmation != null) {
                         val discard = confirmation == "discard"
                         AlertDialog(onDismissRequest = { confirmation = null },
@@ -199,6 +199,20 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+    }
+
+    @Composable
+    private fun DriveTestControls() {
+        val probeStatus by driveProbe.status.collectAsState()
+        val probeBusy by driveProbe.busy.collectAsState()
+        Text("Reads the labelled synthetic test files only. No workout upload.")
+        OutlinedTextField(value = BuildConfig.SYNTHETIC_DRIVE_ACCOUNT, onValueChange = {},
+            readOnly = true, label = { Text("Approved personal Google account") })
+        Button(onClick = { testDriveConnection() },
+            enabled = !probeBusy && BuildConfig.SYNTHETIC_DRIVE_ACCOUNT.isNotBlank()) {
+            Text(if (probeBusy) "Checking…" else "Test personal Drive connection")
+        }
+        Text(probeStatus)
     }
 }
 

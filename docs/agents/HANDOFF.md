@@ -546,3 +546,12 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   and report final status. Native result pending; no credential contents requested.
 - Native APK also passed emulator process recovery (377→394ms; not drift evidence),
   no automatic resume or app-data clear. Prepared UI inspected on emulator.
+
+- PR14 draft: https://github.com/LachimB/gym-assistant/pull/14. Owner saw recovered
+  unfinished workout rather than start screen. Fixed test accessibility by adding
+  an independent Drive dialog from recovery; no resume/end/discard required.
+  Emulator regression now checks unchanged complete checkpoint/frozen source while
+  opening/closing it; passed1→111ms after explicit resume only. Version4 APK SHA256
+  9f222946f0d0d7392e7fea864e78e098285ecfc5b86fc3c9b82a888c2e7cbd13 installed-r
+  on confirmed phone, app opened, unfinished workout retained. Google test result
+  pending owner action; do not infer a successful grant/ETag from installation.

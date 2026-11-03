@@ -13,8 +13,8 @@ android {
         applicationId = "dev.gymassistant.m0.debug"
         minSdk = 31
         targetSdk = 36
-        versionCode = 3
-        versionName = "0.1.1-m1-drive-probe"
+        versionCode = 4
+        versionName = "0.1.2-m1-drive-probe"
         val probeAccount = providers.gradleProperty("syntheticDriveAccount").orElse("").get()
         require(probeAccount.isEmpty() || probeAccount.matches(Regex("[A-Za-z0-9._+@-]+")))
         buildConfigField("String", "SYNTHETIC_DRIVE_ACCOUNT", "\"$probeAccount\"")
