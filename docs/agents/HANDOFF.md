@@ -1071,3 +1071,25 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   and additive Room3→4 only after tests + fresh backup. Exact fields/boundaries in
   docs/adr/0007-m1-manual-personal-session-delivery.md. NOT APPROVED/IMPLEMENTED.
   Current live sender remains exact-synthetic only. No new Drive resources/calls.
+
+
+## Natural-completion checkpoint fix found before full workout — 2026-11-03
+
+- A local full virtual run of the private prepared plan (metadata only) exposed
+  Checkpoint2.state's `phaseOffsetMs == if(active==null)0 else <Long>` comparison:
+  the absent-phase branch boxed an Int zero, rejecting the valid Long offset0 at
+  natural plan end. This also blocked subsequent acknowledgement/recovery. It did
+  not affect the earlier partial/discarded short test. Changed only0→0L; no schema
+  or source-format migration. Routine bug-fix v8/0.1.6-m1-completion-fix pending.
+- Public regression covers full80→90s completion, absent active phase, reopen,
+  recovery awaiting acknowledgement and explicit finish. Canonical1.2 completed
+  fixture independently read in web. Local Android41 JVM/25 SQLite, web23 and
+  contract23 fixtures pass; Python71 remains. No temporary private tests committed.
+- Full PRIVATE VIRTUAL shape with one extra:476 completed phases,956 meaningful
+  events,1,219,806 UTF8 bytes; independent TypeScript web validation passes without
+  network. This is simulation, NOT evidence of a physical full workout. Raw virtual
+  JSON stays outside Git under runtime2/DO-NOT-UPLOAD-VIRTUAL-human-history.json;
+  temporary Kotlin/Vitest test files removed. Do not upload or treat it as a real
+  finalized phone session. File-backed proposed ADR7 delivery keeps SQL rows small.
+- Owner was told the completion bug is being fixed BEFORE a full workout request.
+  No change to approved exercise targets/order, published source or real-cloud gate.

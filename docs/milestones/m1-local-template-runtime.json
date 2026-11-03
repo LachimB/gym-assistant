@@ -5,12 +5,12 @@
   "coreMergedCommit": "bd5dc25",
   "localIntegrationPr": 19,
   "automatedLocal": {
-    "androidJvmTests": 40,
-    "sqliteInstrumentationTests": 24,
-    "webTests": 22,
+    "androidJvmTests": 41,
+    "sqliteInstrumentationTests": 25,
+    "webTests": 23,
     "typeScriptEngineTests": 34,
     "pythonTests": 71,
-    "schemaValidatedFixtures": 22
+    "schemaValidatedFixtures": 23
   },
   "emulator": {
     "api": 31,
@@ -125,5 +125,21 @@
     "testRecordRetainedAsDiscarded": true,
     "publishedTemplateStillUnchanged": true,
     "noUnfinishedWorkout": true
+  },
+  "completionRegression": {
+    "issue": "natural plan end had no active phase; mixed numeric zero type failed checkpoint validation",
+    "fix": "Long zero in absent-phase offset check",
+    "targetVersionCode": 8,
+    "publicCompletedHistoryFixture": "examples/sessions/synthetic-runtime-v2-completed-session.json",
+    "fullVirtualPrivateShape": {
+      "physicalWorkoutEvidence": false,
+      "adjustedPhases": 476,
+      "meaningfulEvents": 956,
+      "canonicalUtf8Bytes": 1219806,
+      "independentWebReaderPassed": true,
+      "networkCalls": 0
+    },
+    "localJvmAndSqliteTestsPassed": true,
+    "phoneUpdateVerified": false
   }
 }
