@@ -961,3 +961,41 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   private /private/tmp/gym-m1-authorized-phone-serial.txt, never printed. Still v5/
   Room2. After current-head CI, create a fresh persistent verified backup BEFORE
   installation; never use the emulator bundle as a phone backup.
+
+
+## Physical Room3 upgrade verified; publication usability follow-up — 2026-11-03
+
+- APK source78b649ee9f00e7a6907ffa14942b7bac8b8004e5 passed all10 checks:
+  standard41664633328 / seven Android41664633400. Private v6 APK SHA256
+  17e5d587a8133c741dbb8847717a4f6347e0d767e9c870e3371433d87dddfca3,
+  signerSHA1 cedeecbef3a892f245d283ec4831a007577912bd installed with install-r.
+- Initial backup attempt stopped BEFORE installation because exec-out failed to
+  propagate a missing optional path's status, yielding error text as an archive.
+  No clear/restore/migration on that attempt. Fixed binary reads to shell -T,
+  whose remote exit status distinguishes absent sidecars/library. A CLI regression
+  simulates this failure; backup-helper7/full Python71 pass. Real emulator binary
+  comparison proves exact bytes. Failed raw bundle retained, never auto-restored.
+- Fresh verified Room2 backup <private-path>
+  standaloneSHA2568f721c29712de5ac08dcda1a62ff21b4c66d35272053ffb1e488d58daf825319.
+  Integrity/FKs/prefix checks pass, library correctly absent/0files. Prior Room1
+  backup retained. Tool-only transport fix was locally tested; APK source remained
+  byte-for-byte the CI-tested78b649e before this migration.
+- Pixel10a upgrade2→3 passed exact private before/after comparison: all3 source/
+  checkpoint rows,706 prior actions/outbox, unfinished slot, one Drive binding and
+  one delivered job preserved. Only one legitimate legacy recovery receipt added;
+  observed/scheduled/pause/completed progress unchanged. All four new tables empty.
+  Post-check bundle <private-path>
+  No original source/receipt contents printed, no workout delivery created.
+- Owner then confirmed saving the old workout as a partial record. Do not discard
+  or rewrite it. Eight reviewed YAML definitions transferred over personal USB to
+  phone Documents/GymAssistant-LOCAL-M1/Reviewed-workout and read back exactly;
+  no Drive/AI upload, app publication not yet done. Private local review also at
+  /private/tmp/gym-m1-source/runtime2/review.md. Owner action review/publication and
+  physical real-workout acceptance remain genuine input gates.
+- Long-preview publication action moved to fixed AlertDialog footer; routine UI
+  version7/0.1.5-m1-local-template, SAME Room3/no new migration. New disposable-only
+  test_android_template_review.py proves selection of exactly two public files,
+  complete preview and footer visible at its top, explicit publish, unchanged
+  workout/delivery rows and no authorization. Added to seven-version CI after
+  existing process test. API31 local24 SQLite and actual footer UI test pass.
+  Current UI follow-up CI/physical install still pending; no M1 completion claim.

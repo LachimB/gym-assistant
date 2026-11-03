@@ -5,6 +5,8 @@ from pathlib import Path
 import sqlite3
 import tempfile
 import shutil
+import subprocess
+import sys
 import unittest
 from tools.backup_android_database import BackupError,make_verified_snapshot,validate_database,validate_library_archive
 
@@ -67,3 +69,32 @@ class PrivateBackupTest(unittest.TestCase):
             with tarfile.open(fileobj=out,mode='w:') as archive:
                 item=tarfile.TarInfo(name);item.type=kind;archive.addfile(item)
             with self.assertRaises(BackupError):validate_library_archive(out.getvalue())
+
+    def test_cli_absent_optional_files_do_not_become_error_text_archives(self):
+        with tempfile.TemporaryDirectory() as temp:
+            root=Path(temp);source=root/'source.db';self.fixture(source)
+            with sqlite3.connect(source) as db:
+                db.execute('PRAGMA user_version=2')
+                db.execute('CREATE TABLE drive_connections(id TEXT)')
+                db.execute('CREATE TABLE session_deliveries(id TEXT)')
+            fake=root/'adb';fake.write_text('#!/usr/bin/env python3\n'+
+                'import sys\nfrom pathlib import Path\n'+
+                'args=sys.argv[3:]\n'+
+                'if args==["shell","am","force-stop","dev.gymassistant.m0.debug"]: sys.exit(0)\n'+
+                'if args[:4]==["shell","-T","run-as","dev.gymassistant.m0.debug"]:\n'+
+                '    if args[4:]==["cat","databases/workouts-v1.db"]:\n'+
+                '        sys.stdout.buffer.write(Path('+repr(str(source))+').read_bytes());sys.exit(0)\n'+
+                '    sys.stderr.write("optional path absent\\n");sys.exit(1)\n'+
+                'if args and args[0]=="exec-out":\n'+
+                '    sys.stdout.write("remote error text despite exit zero\\n");sys.exit(0)\n'+
+                'sys.exit(2)\n')
+            fake.chmod(0o700)
+            output=root/'backup'
+            tool=Path(__file__).resolve().parents[1]/'tools/backup_android_database.py'
+            result=subprocess.run([sys.executable,str(tool),'--adb',str(fake),'--serial','synthetic-emulator','--schema-version','2','--output',str(output)],capture_output=True,text=True)
+            self.assertEqual(result.returncode,0,result.stderr)
+            evidence=json.loads(result.stdout)
+            self.assertEqual(evidence['libraryFiles']['present'],False)
+            self.assertEqual(evidence['libraryFiles']['fileCount'],0)
+            self.assertEqual(set(evidence['rawFileSha256']),{'workouts-v1.db'})
+            self.assertNotIn('private-looking',result.stdout)
