@@ -592,3 +592,17 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
 - Conditional-write feasibility is now demonstrated for this exact v2 content
   path, not v3 compatibility or production conflict/outbox/fencing implementation.
   M1 remains open; new persistence/security boundaries require reviewed approval.
+
+## Next sync decision prepared — 2026-11-03
+
+- Proposed ADR-0005 makes a first finalized-session delivery slice reviewable:
+  immutable account/root binding, exact-byte durable intent, stable provider ID
+  before create, lost-ack verification, preserved conflicts and no tick upload.
+  New connection/delivery tables require additive Room1→2 migration. Owner review
+  requested; **not approved or implemented**. No phone migration/backup performed.
+- Proposed authorization includes migration implementation/tests and phone
+  application only after a verified private backup. Cloud tests remain synthetic;
+  no general real-history upload, stored OAuth token or background worker.
+  Active-session fencing/library sync/real-workout execution remain open requirements.
+- Web history PR15 and conditional-write PR16 are separate tested slices. Do not
+  infer their merge/CI state from this note; inspect current GitHub checks.
