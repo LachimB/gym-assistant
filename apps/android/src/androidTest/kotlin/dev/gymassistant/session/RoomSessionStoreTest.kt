@@ -215,6 +215,44 @@ class RoomSessionStoreTest {
         assertTrue(driver.needsRecovery)
     }
 
+    @Test fun humanHistoryIsReadOnlyStableAcrossReopenAndDuplicateRetry() = runBlocking {
+        val original = snapshot()
+        var saved = store.start(original, "start")
+        repeat(12) { index -> saved = store.commit(original.sessionId, saved.revision, "tick-$index", action("tick", 250)) }
+        val beforeEnd = saved
+        saved = store.commit(original.sessionId, saved.revision, "end", action("end"))
+        val rows = database.workouts().actions(original.sessionId)
+        val pending = database.workouts().outbox(original.sessionId)
+        val history = checkNotNull(store.history(original.sessionId))
+        assertEquals(listOf("sessionStarted", "phaseStarted", "sessionEnded"), history.events.map { it.type })
+        assertEquals(3000L, history.timing.observedRunMs)
+        assertEquals("partial", history.completionKind)
+        assertEquals(saved, store.commit(original.sessionId, beforeEnd.revision, "end", action("end")))
+        database.close()
+        reopen()
+        assertEquals(history.toCanonicalJson(), checkNotNull(store.history(original.sessionId)).toCanonicalJson())
+        assertEquals(rows, database.workouts().actions(original.sessionId))
+        assertEquals(pending, database.workouts().outbox(original.sessionId))
+        assertEquals(saved, store.load(original.sessionId))
+        assertNull(store.history("missing-session"))
+    }
+
+    @Test fun humanHistoryRejectsCorruptReceiptWithoutChangingSavedDataOrOutbox() = runBlocking {
+        val original = snapshot()
+        val first = store.start(original, "start")
+        val saved = store.commit(original.sessionId, first.revision, "tick", action("tick", 1200))
+        val pending = database.workouts().outbox(original.sessionId)
+        database.openHelper.writableDatabase.execSQL(
+            "UPDATE actions SET payloadJson = ? WHERE sessionId = ? AND sequence = 2",
+            arrayOf("{}", original.sessionId))
+        var rejected = false
+        try { store.history(original.sessionId) } catch (_: Exception) { rejected = true }
+        assertTrue("Corrupt receipts must not produce plausible human history", rejected)
+        assertEquals(saved, store.load(original.sessionId))
+        assertEquals(pending, database.workouts().outbox(original.sessionId))
+        assertEquals("{}", database.workouts().actions(original.sessionId).last().payloadJson)
+    }
+
     private suspend fun assertFails(action: suspend () -> Unit) {
         var failed = false
         try { action() } catch (_: IllegalStateException) { failed = true }

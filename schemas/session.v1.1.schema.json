@@ -1,0 +1,694 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gym-assistant:schema:session:1.1.0",
+  "title": "Workout Session \u2014 meaningful human history (1.1.0)",
+  "type": "object",
+  "required": [
+    "schemaVersion",
+    "sessionId",
+    "templateId",
+    "revisionId",
+    "executionPlanHash",
+    "engineVersion",
+    "startedAt",
+    "timeZone",
+    "status",
+    "events",
+    "localTrainingDate",
+    "completionKind",
+    "sourcePlanSnapshot",
+    "timing"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.1.0"
+    },
+    "sessionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "templateId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "revisionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "executionPlanHash": {
+      "type": "string",
+      "pattern": "^sha256:[a-f0-9]{64}$"
+    },
+    "engineVersion": {
+      "type": "string",
+      "minLength": 1
+    },
+    "startedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "finishedAt": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "timeZone": {
+      "type": "string",
+      "minLength": 1
+    },
+    "localTrainingDate": {
+      "type": "string",
+      "format": "date"
+    },
+    "status": {
+      "enum": [
+        "inProgress",
+        "paused",
+        "awaitingCompletion",
+        "completed",
+        "discarded"
+      ]
+    },
+    "sourcePlanSnapshot": {
+      "type": "object",
+      "properties": {
+        "templateYaml": {
+          "type": "string",
+          "minLength": 1
+        },
+        "exerciseYamls": {
+          "type": "array",
+          "minItems": 1,
+          "items": {
+            "type": "string",
+            "minLength": 1
+          }
+        },
+        "compiledPlanJson": {
+          "type": "string",
+          "minLength": 1
+        },
+        "planFormatVersion": {
+          "const": "1.0.0"
+        },
+        "hashFormat": {
+          "const": "sha256-kotlin-timed-1-json-utf8"
+        }
+      },
+      "required": [
+        "templateYaml",
+        "exerciseYamls",
+        "compiledPlanJson",
+        "planFormatVersion",
+        "hashFormat"
+      ],
+      "additionalProperties": false
+    },
+    "events": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "properties": {
+          "eventId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "type": {
+            "enum": [
+              "sessionStarted",
+              "phaseStarted",
+              "phaseCompleted",
+              "pause",
+              "resume",
+              "skip",
+              "rewind",
+              "interruption",
+              "planEndReached",
+              "sessionEnded",
+              "sessionDiscarded"
+            ]
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          },
+          "scheduledElapsedMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "observedRunMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "pauseMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unobservedGapMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "unknownGapCount": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "planStepId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "phaseId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "setId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "detail": {
+            "type": "object",
+            "properties": {
+              "gapDurationKnown": {
+                "type": "boolean"
+              },
+              "gapDurationMs": {
+                "type": "integer",
+                "minimum": 0
+              },
+              "resumedAfterInterruption": {
+                "const": true
+              },
+              "completionKind": {
+                "enum": [
+                  "unfinished",
+                  "plannedEnd",
+                  "partial",
+                  "discarded"
+                ]
+              }
+            },
+            "required": [],
+            "additionalProperties": false
+          }
+        },
+        "required": [
+          "eventId",
+          "type",
+          "recordedAt",
+          "scheduledElapsedMs",
+          "observedRunMs",
+          "pauseMs",
+          "unobservedGapMs",
+          "unknownGapCount"
+        ],
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "phaseStarted",
+                    "phaseCompleted",
+                    "skip",
+                    "rewind"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "planStepId"
+              ]
+            },
+            "else": {
+              "not": {
+                "anyOf": [
+                  {
+                    "required": [
+                      "planStepId"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "phaseId"
+                    ]
+                  },
+                  {
+                    "required": [
+                      "setId"
+                    ]
+                  }
+                ]
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "interruption"
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "detail"
+              ],
+              "properties": {
+                "detail": {
+                  "required": [
+                    "gapDurationKnown"
+                  ],
+                  "allOf": [
+                    {
+                      "if": {
+                        "properties": {
+                          "gapDurationKnown": {
+                            "const": true
+                          }
+                        }
+                      },
+                      "then": {
+                        "required": [
+                          "gapDurationMs"
+                        ]
+                      },
+                      "else": {
+                        "not": {
+                          "required": [
+                            "gapDurationMs"
+                          ]
+                        }
+                      }
+                    }
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "enum": [
+                    "sessionEnded",
+                    "sessionDiscarded"
+                  ]
+                }
+              }
+            },
+            "then": {
+              "required": [
+                "detail"
+              ],
+              "properties": {
+                "detail": {
+                  "required": [
+                    "completionKind"
+                  ]
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "sessionEnded"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "properties": {
+                    "completionKind": {
+                      "enum": [
+                        "plannedEnd",
+                        "partial"
+                      ]
+                    }
+                  }
+                }
+              }
+            }
+          },
+          {
+            "if": {
+              "properties": {
+                "type": {
+                  "const": "sessionDiscarded"
+                }
+              }
+            },
+            "then": {
+              "properties": {
+                "detail": {
+                  "properties": {
+                    "completionKind": {
+                      "const": "discarded"
+                    }
+                  }
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    "overallRpe": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 0,
+      "maximum": 10
+    },
+    "personalQualityRating": {
+      "type": [
+        "number",
+        "null"
+      ],
+      "minimum": 1,
+      "maximum": 5
+    },
+    "journalSummary": {
+      "type": "string"
+    },
+    "notes": {
+      "type": "string"
+    },
+    "performanceBySet": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": [
+          "blockId",
+          "occurrenceId",
+          "variationId",
+          "setId"
+        ],
+        "properties": {
+          "setId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "completedRepetitions": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "holdDurationMs": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "rpe": {
+            "type": "number",
+            "minimum": 0,
+            "maximum": 10
+          },
+          "resistanceActual": {
+            "type": "object",
+            "properties": {
+              "bands": {
+                "type": "array",
+                "items": {
+                  "type": "object",
+                  "required": [
+                    "equipmentId",
+                    "count",
+                    "placement"
+                  ],
+                  "properties": {
+                    "equipmentId": {
+                      "type": "string",
+                      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                    },
+                    "count": {
+                      "type": "integer",
+                      "minimum": 1
+                    },
+                    "placement": {
+                      "type": "string",
+                      "minLength": 1
+                    }
+                  },
+                  "additionalProperties": false
+                }
+              },
+              "weight": {
+                "type": "object",
+                "required": [
+                  "value",
+                  "unit"
+                ],
+                "properties": {
+                  "value": {
+                    "type": "number",
+                    "minimum": 0
+                  },
+                  "unit": {
+                    "enum": [
+                      "kg",
+                      "lb"
+                    ]
+                  }
+                },
+                "additionalProperties": false
+              },
+              "notes": {
+                "type": "string",
+                "minLength": 1
+              }
+            },
+            "additionalProperties": false
+          },
+          "notes": {
+            "type": "string"
+          },
+          "blockId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "occurrenceId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "variationId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          }
+        },
+        "additionalProperties": false
+      }
+    },
+    "timing": {
+      "type": "object",
+      "properties": {
+        "plannedDurationMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "scheduledElapsedMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "observedRunMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "pauseMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unobservedGapMs": {
+          "type": "integer",
+          "minimum": 0
+        },
+        "unknownGapCount": {
+          "type": "integer",
+          "minimum": 0
+        }
+      },
+      "required": [
+        "plannedDurationMs",
+        "scheduledElapsedMs",
+        "observedRunMs",
+        "pauseMs",
+        "unobservedGapMs",
+        "unknownGapCount"
+      ],
+      "additionalProperties": false
+    },
+    "organizationContext": {
+      "type": "object",
+      "properties": {
+        "season": {
+          "type": "object",
+          "required": [
+            "seasonId",
+            "revisionId",
+            "name"
+          ],
+          "properties": {
+            "seasonId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            },
+            "revisionId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "participationId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "program": {
+          "type": "object",
+          "required": [
+            "programId",
+            "revisionId",
+            "name"
+          ],
+          "properties": {
+            "programId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            },
+            "revisionId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            },
+            "name": {
+              "type": "string",
+              "minLength": 1
+            },
+            "membershipId": {
+              "type": "string",
+              "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+            }
+          },
+          "additionalProperties": false
+        },
+        "selectedAt": {
+          "type": "string",
+          "format": "date-time"
+        }
+      },
+      "additionalProperties": false
+    },
+    "effectiveConfigurationSnapshot": {
+      "type": "object",
+      "description": "Immutable session-start resolution: Template revision + optional Program membership and overrides + expanded plan with source ID provenance. Full compiler-specific schema still under design.",
+      "properties": {
+        "templateRevisionId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "programRevisionId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "membershipId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "overrideFingerprint": {
+          "type": "string",
+          "minLength": 1
+        },
+        "compiledPlan": {
+          "type": "object"
+        }
+      },
+      "required": [
+        "templateRevisionId"
+      ],
+      "additionalProperties": false
+    },
+    "completionKind": {
+      "enum": [
+        "unfinished",
+        "plannedEnd",
+        "partial",
+        "discarded"
+      ]
+    }
+  },
+  "additionalProperties": false,
+  "allOf": [
+    {
+      "if": {
+        "properties": {
+          "completionKind": {
+            "enum": [
+              "plannedEnd",
+              "partial",
+              "discarded"
+            ]
+          }
+        }
+      },
+      "then": {
+        "required": [
+          "finishedAt"
+        ],
+        "properties": {
+          "status": {
+            "enum": [
+              "completed",
+              "discarded"
+            ]
+          }
+        }
+      },
+      "else": {
+        "not": {
+          "required": [
+            "finishedAt"
+          ]
+        },
+        "properties": {
+          "status": {
+            "enum": [
+              "inProgress",
+              "paused",
+              "awaitingCompletion"
+            ]
+          }
+        }
+      }
+    },
+    {
+      "if": {
+        "properties": {
+          "completionKind": {
+            "const": "discarded"
+          }
+        }
+      },
+      "then": {
+        "properties": {
+          "status": {
+            "const": "discarded"
+          }
+        }
+      },
+      "else": {
+        "properties": {
+          "status": {
+            "not": {
+              "const": "discarded"
+            }
+          }
+        }
+      }
+    }
+  ]
+}

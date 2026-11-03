@@ -25,7 +25,8 @@ def read_json(path: str) -> dict[str, Any]:
 
 
 def check_schema(schema_name: str, data: dict[str, Any]) -> None:
-    schema = read_json(f'schemas/{schema_name}.v1.schema.json')
+    version = 'v1.1' if schema_name == 'session' and data.get('schemaVersion') == '1.1.0' else 'v1'
+    schema = read_json(f'schemas/{schema_name}.{version}.schema.json')
     Draft202012Validator.check_schema(schema)
     errors = sorted(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(data), key=lambda e: list(map(str, e.path)))
     if errors:
@@ -123,10 +124,15 @@ def validate_all() -> tuple[int, int]:
         ('promotion-proposal','examples/promotions/selective-promotion.json','json'),
         ('session','examples/sessions/synthetic-standalone-session.json','json'),
         ('session','examples/sessions/synthetic-ungrouped-session.json','json'),
+        ('session','examples/sessions/synthetic-human-partial-session.json','json'),
+        ('session','examples/sessions/synthetic-human-completed-session.json','json'),
     ]
     for schema, path, typ in files:
         obj = read_yaml(path) if typ=='yaml' else read_json(path)
         check_schema(schema,obj)
+    from session_history_contract import validate_history
+    for path in ('synthetic-human-partial-session.json', 'synthetic-human-completed-session.json'):
+        validate_history(read_json('examples/sessions/' + path))
     from organization_contracts import validate_records, validate_start_context
     seasons = [read_yaml('examples/seasons/season-2026-2027.yaml'), read_yaml('examples/seasons/season-2027-2028.yaml')]
     programs = [read_yaml('examples/programs/corrective-training.yaml'), read_yaml('examples/programs/standalone-mobility.yaml')]

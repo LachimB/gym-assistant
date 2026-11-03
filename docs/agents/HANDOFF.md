@@ -488,3 +488,27 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   remains proposed; no schema implementation or database change made. Exact
   contract fields/event mapping remain for review. Private workout preview stays
   approved; Android execution/import and real-history cloud upload remain open.
+
+## ADR-0004 approved and meaningful-history projection — 2026-11-03
+
+- Owner replied “approved” to the revised human/internal separation ADR. ADR-0004
+  status updated. New session 1.1.0 export/schema added; 1.0.0 unchanged. This
+  supersedes earlier unapproved-status notes, not the remaining service/data gates.
+- `SessionStore.history(id)` reads a consistent Room transaction and validates
+  frozen source/hash plus the complete committed prefix before projecting domain
+  events/timing/outcome. No tick log, raw receipts, operation IDs or checkpoint in
+  human JSON. No DB migration, outbox acknowledgement, file upload or new UI flow.
+- Explicit partial/planned-end/discard/awaiting-ack outcomes; session-wide events
+  have no invented step. Unknown repeat restarts remain visible even when the
+  reducer emits no event. Source plan hash is verifiable from retained UTF-8 bytes.
+- Nine JVM tests and seven independent Python history-contract tests; full Python
+  suite62, validator19 fixtures/80requirements pass. All12 real SQLite tests on
+  local Android12 pass. Emulator process recovery passed1→97ms, no automatic resume
+  or clear; not drift evidence. Existing engine/store tests and APK builds pass.
+- Phone installation skipped: no physical device connected. No new physical
+  history-export acceptance. Private workout preview remains outside Git and not
+  imported. See `docs/milestones/m1-session-history.md` for contract/mapping/limits.
+- Remote CI/PR pending for this implementation. Remaining M1 work includes private
+  template import/side/weight cues and runtime repetition deviations, durable
+  validated library publication, Android auth/sync/conflict handling and web history.
+  No real-workout cloud upload, token storage or DB migration is authorized by ADR4.

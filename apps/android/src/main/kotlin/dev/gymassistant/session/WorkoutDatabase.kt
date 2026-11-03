@@ -87,6 +87,11 @@ class RoomSessionStore(
         dao.unfinished()?.let { checkNotNull(read(it.sessionId)) }
     }
 
+    // Read-only and atomic: no outbox acknowledgement, migration or sync claim.
+    override suspend fun history(sessionId: String): SessionHistory? = database.withTransaction {
+        read(sessionId)?.let { projectSession(it, dao.actions(sessionId)) }
+    }
+
     override suspend fun start(snapshot: SessionStart, operationId: String): SavedWorkout {
         require(operationId.isNotBlank())
         snapshot.validate()
