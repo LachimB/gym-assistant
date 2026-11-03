@@ -23,7 +23,9 @@ def digest(path):
     return hashlib.sha256(path.read_bytes()).hexdigest()
 
 def validate_database(path, expected_version, require_paused=True):
-    with sqlite3.connect(f'file:{path}?mode=ro', uri=True) as db:
+    # path is a disposable host-local copy, never the active phone DB/raw bundle.
+    # SQLite may need to recover its copied hot journal before read validation.
+    with sqlite3.connect(path) as db:
         if db.execute('PRAGMA integrity_check').fetchall() != [('ok',)]:
             raise BackupError('SQLite integrity check failed')
         if db.execute('PRAGMA foreign_key_check').fetchone() is not None:
@@ -113,5 +115,9 @@ def main():
 if __name__=='__main__':
     try:
         main()
-    except (BackupError,sqlite3.Error,subprocess.SubprocessError,OSError,ValueError,TypeError):
-        raise SystemExit('Backup not verified. No migration/restore/clear performed; preserve any captured files and stop for review.') from None
+    except BackupError as failure:
+        raise SystemExit('Backup not verified: '+str(failure)+'. No migration/restore/clear performed.') from None
+    except sqlite3.Error as failure:
+        raise SystemExit('Backup not verified: SQLite '+getattr(failure,'sqlite_errorname','error')+'. No migration/restore/clear performed.') from None
+    except (subprocess.SubprocessError,OSError,ValueError,TypeError) as failure:
+        raise SystemExit('Backup not verified: '+type(failure).__name__+'. No migration/restore/clear performed; preserve captured files.') from None
