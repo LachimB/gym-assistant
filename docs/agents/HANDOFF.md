@@ -1157,3 +1157,10 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   library files plus both personal archive namespaces. NOT a phone backup.
   Default build49 JVM checks and private configured build49 pass. Current-head
   CI must re-run for these final UI/status changes before phone migration.
+
+- Supplemental generated stress check (temporary test removed):62m40,470 phases,
+  15,042 quarter-second receipts →943 human events/1,333,718 UTF8 bytes; validation
+  + serialization1610ms on this Mac. NOT phone timing/reliability evidence. No
+  private source or network. Personal flow now reports preparation/account-root/
+  durable-intent/readback stages instead of falsely remaining “waiting for
+  authorization” during this work. Final-head CI remains required.
