@@ -473,3 +473,18 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   growing upload size, internal-format coupling and unspecified event/step mapping.
   The proposal now records these unresolved concerns and a plain-language example.
   Do not choose a replacement design on the owner’s behalf.
+
+## Human session history versus execution internals — 2026-11-03
+
+- Owner explicitly wants meaningful events for human use; quarter-second tick
+  saves may exist for implementation needs but must stay separate from human
+  session recordings. ADR-0004 revised accordingly: no raw tick/receipt log or
+  mandatory linked internal audit file in ordinary canonical session history.
+- Meaningful events and domain timing/outcome summaries preserve pauses, known
+  and unknown gaps, skips and partial completion without exposing internal rows.
+  Internal records remain available for recovery/integrity; no deletion/migration
+  or technical-log cloud upload introduced. This is data separation, not only UI.
+- The owner confirmed this direction, not the entire new session schema. ADR
+  remains proposed; no schema implementation or database change made. Exact
+  contract fields/event mapping remain for review. Private workout preview stays
+  approved; Android execution/import and real-history cloud upload remain open.

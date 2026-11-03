@@ -1,131 +1,139 @@
-# ADR-0004 — Lossless M1 Workout Session projection
+# ADR-0004 — Human-readable Workout Session history and private recovery records
 
-- Status: **Proposed — owner reviewing; not approved for implementation**
-- Date: 2026-11-02
+- Status: **Proposed — human/internal separation confirmed by owner; full schema not yet approved**
+- Created: 2026-11-02; revised: 2026-11-03
 - Requirements: GA-DATA-002/004/010, GA-EXE-008, GA-WEB-004; ADR-0001/0003
 
-## Problem
+## Owner's decision
 
-The approved Room version-1 store retains frozen source/plan, every committed
-action and receipt, scheduled cursor, observed running time, pause time, measured
-unobserved gaps and a count of unknown restart gaps. The draft canonical session
-1.0.0 timing object cannot express all of these. It also cannot distinguish a
-partial finalization from reaching the planned end without interpreting an
-unspecified event detail. Dropping these facts would weaken accepted recovery
-semantics. Putting mutable checkpoints into the immutable source snapshot would
-misrepresent provenance.
+On 2026-11-03 the owner clarified: human use needs meaningful workout events.
+If recovery requires saving every quarter-second tick, those saves should remain
+internal and separate from the session recording used by people. This resolves
+the earlier question about including all internal receipts in canonical history.
+It does not approve every remaining schema detail or a database migration.
 
-## What this would change for the owner
+## What the owner sees
 
-A saved history entry would explicitly distinguish a finished plan from an
-early-ended workout, and show observed exercise, pauses and unobserved gaps
-separately. For example, a session with 12 seconds on the scheduled cursor,
-8 seconds actually observed, 5 seconds paused and one unknown restart gap would
-retain all four facts; it would not become “12 seconds exercised.” This example
-is synthetic. The phone database and existing saved sessions would stay intact.
+A Workout Session contains the plan used, meaningful events and reliable timing
+and performance facts. Examples: workout started, repetition/phase completed,
+pause/resume, skip/rewind, an actual change such as an added repetition, an
+interruption/recovery, and planned or early completion. Events are recorded only
+when supported by committed evidence; this list does not claim all actions are
+already implemented.
 
-## Proposed decision
+The history distinguishes scheduled position, observed exercise, pauses, measured
+unobserved gaps and gaps of unknown duration. For example, 12 seconds on the plan
+cursor, 8 observed seconds, 5 paused seconds and one unknown restart gap remain
+separate facts. This synthetic example must never display as “12 seconds exercised.”
 
-Add a separately versioned canonical **session 1.1.0** contract, retaining the
-existing 1.0.0 contract and fixtures unchanged. This is a read-only projection of
-the existing store, not a Room migration or a new recording engine.
+## Two separate representations
 
-1. Keep canonical identity/start/source fields, the existing engine version and
-   exact current plan hash. `sourcePlanSnapshot` contains only the immutable
-   SessionStart data, including the frozen YAML, exercise definitions and plan.
-   Do not infer Season/Program context for existing ungrouped sessions.
-2. Add required `recording` with `formatVersion: 1`, local `revision`, the exact
-   final `checkpoint`, and ordered `actions`. Each action includes sequence,
-   operation ID, expected revision, original intent, emitted engine events and
-   the committed post-action checkpoint. Preserve original JSON strings where
-   exact bytes matter; do not parse/re-encode and claim their hashes unchanged.
-   This explicit, versioned audit representation includes ticks without engine
-   events and recovery/discard/early-end actions. It is not portable credentials
-   or provider metadata.
-3. Add required `completionKind`: `unfinished`, `plannedEnd`, `partial` or
-   `discarded`. Existing top-level status remains `inProgress`/`paused`/`completed`/
-   `discarded` as appropriate; `completed` means finalized and must always be
-   displayed together with completionKind. Partial never means all planned work
-   was performed. Determine completion kind from the audited final action and
-   checkpoint, not the current cursor alone.
-4. Retain separate `scheduledElapsedMs`, `observedRunMs`, `pauseMs`,
-   `unobservedGapMs`, `unknownGapCount` in the checkpoint. The existing optional
-   aggregate timing/per-set performance fields are omitted until their exact
-   definitions can be computed reliably. Completed phase count is not a rep
-   count. Unknown gaps never become fabricated milliseconds or exercise.
-5. Keep semantic `events` as a deterministic convenience projection of genuine
-   recorded engine events. Stable IDs derive from session ID/action sequence/
-   event ordinal; event timestamps are the action's recorded wall-clock instant,
-   never fabricated per-phase instants. Preserve the original engine event in
-   detail and all original counters. No invented note events to hide raw actions.
-   The required audit recording is the lossless source for web reconstruction.
+| Representation | Purpose | Contents and consumers |
+|---|---|---|
+| Canonical Workout Session | Human history, web review and ordinary session synchronization | Frozen workout provenance, meaningful events, timing/performance summaries, explicit partial/completed outcome; independent of Android database classes |
+| Private execution/recovery records | Reliable local saving, recovery, integrity checks and retry bookkeeping | Ticks, checkpoints, commands, transaction receipts, operation IDs and local outbox state; consumed by implementation machinery |
 
-## Reader and integrity rules
+This is data separation, not merely hiding thousands of tick rows in the UI.
+Ordinary synchronized session files must not embed the raw tick log, duplicate
+internal receipts under event details, or require a second internal audit file
+for a history reader to understand the workout. Human CSV/export/history views
+follow the canonical representation.
 
-- Obtain start, checkpoint and the complete action prefix in one Room read
-  transaction; last sequence must equal exported revision. Do not mix revisions.
-- Validate IDs, schema/format/engine versions, start/source/hash integrity,
-  contiguous sequence, expected revisions, unique operation IDs and every
-  transition/receipt against the accepted deterministic reducer. Fail closed on
-  corruption, unsupported formats or an incomplete prefix. Do not repair history
-  silently. A duplicate operation cannot create another exported action.
-- Build export deterministically from that revision; exclude generated export
-  timestamps so retrying the same revision returns identical content. Preserve
-  original local data on every export error. No UI may claim synchronized merely
-  because projection succeeds.
-- Readers explicitly dispatch 1.0.0 versus 1.1.0. Never rewrite old files or
-  relabel 1.1.0 content as 1.0.0. Unsupported versions remain visible as unsupported.
+Internal records may be retained as needed for correctness. This ADR does not
+introduce their deletion, retention limits, cloud upload or a diagnostic-export
+feature. Any future technical backup, diagnostic export or device-handoff format
+must be explicitly separate from human history, with appropriate access and
+privacy handling. Existing recovery guarantees remain binding.
 
-## Scope and limits
+## Proposed canonical contract revision
 
-No local database/data migration, deletion, phone data export, real-data cloud
-upload, OAuth permission change, runtime repetition insertion, plan-format change,
-remote overwrite, multi-device handoff or last-write-wins policy is authorized by
-this ADR. Those need their own concrete implementation review where required.
-Provider IDs, credentials and acknowledgements remain separate adapter metadata.
-Drive's write preconditions and fencing are still unproven and must not be
-presented as solved by this projection.
+Use a separately versioned session 1.1.0 contract, retaining existing 1.0.0 fixtures
+and readers. This is a read-only projection from committed local records; it does
+not change the Room database or recording engine.
+
+1. Retain stable domain identity, start instant/time zone/local date, the exact
+   frozen source/compiled plan and existing engine/hash provenance. Capture only
+   genuine start provenance; do not copy the whole internal SessionStart or a
+   mutable checkpoint wholesale into source snapshots. Do not infer Season or
+   Program attribution for ungrouped sessions.
+2. Make meaningful events the canonical history. Use portable domain fields and
+   stable event IDs. Session-wide events may lack a plan-step reference; never
+   invent an exercise or step just to satisfy the older draft's required field.
+   Represent pause/resume, known/unknown interruptions and early finalization
+   explicitly rather than smuggling them into a raw internal action payload.
+3. Preserve separate scheduled-position, observed-running, pause, measured-gap
+   and unknown-gap-count facts in a versioned domain timing summary. Quarter-second
+   ticks update those totals internally but do not become human events. Do not
+   claim observed running time is exclusively active exercise: it may include
+   planned rests. Active/rest totals and per-set performance are published only
+   when reliably derived; completed phases are not automatically completed reps.
+4. Add an explicit completion classification: unfinished, reached planned end,
+   ended early, or discarded. Reaching the planned end after skips does not mean
+   all planned repetitions were performed. Preserve those skips in history.
+5. Canonical readers use events, summaries and frozen source information. They
+   do not replay Kotlin timer commands or depend on Room transaction receipts.
+   Diagnostic machine-replay fidelity is an internal concern; preserving human
+   facts does not require exporting every implementation step.
+
+Exact field names, required/optional fields, event types and version dispatch
+remain part of the proposed schema review. No schema implementation is implied
+by the owner's confirmation of the human/internal separation alone.
+
+## Projection and integrity rules
+
+- Read the start, checkpoint and committed action prefix in one local transaction.
+  Check for incomplete/corrupt history and verify source/hash integrity internally.
+  Never mix revisions or silently repair recorded facts.
+- Internal commands that produce no meaningful domain change produce no human
+  event. Conversely, user actions such as ending early must be represented even
+  if the current reducer emits no engine event for them. User-requested deviations
+  belong to the Workout Session and do not rewrite its source Training Template.
+- Derive stable domain event IDs without exposing internal receipt structure or
+  exceeding ID length limits. Use original commit timestamps with their real
+  precision; do not fabricate exact wall-clock times for earlier transitions
+  observed together in one later timer sample.
+- Preserve exact hash-input bytes/algorithm provenance internally or in the
+  appropriate frozen plan representation. Do not rely on another language
+  accidentally reproducing Kotlin serialization.
+- Reprojecting an unchanged revision is deterministic. Ticks without a meaningful
+  event or timing change must not create a duplicate human event. Internal
+  revision/acknowledgement metadata remains distinct from domain history.
+- Synchronization can coalesce superseded pending projections while preserving
+  the local audit history and safe acknowledgements. A 250 ms local save is not
+  an instruction to upload a growing full session every 250 ms. The precise
+  outbox/acknowledgement protocol needs separate implementation review.
+- Projection success does not mean synchronization success. Provider IDs,
+  credentials and acknowledgements remain adapter metadata. Unknown gaps never
+  become invented milliseconds or completed work.
 
 ## Validation before merge
 
-Synthetic replay cases: start/tick/pause/resume, navigation without invented
-completion, known and unknown recovery gaps, natural completion, early partial
-finalization, discard, duplicate operation, missing/reordered/corrupt receipts,
-snapshot/hash mismatch, unsupported versions and byte-identical same-revision
-retry. Validate emitted JSON against the new schema and compare reconstructed
-counters with the source store. Demonstrate that 1.0.0 fixtures remain valid and
-unchanged. Real-workout contents and source documents never become test fixtures.
+Use synthetic cases for timed progress, pauses, navigation, skipped work,
+known/unknown recovery gaps, natural completion, partial completion and discard.
+Verify that frequent ticks add no tick events to human history while accurate
+summaries survive export. Compare canonical facts with the committed source
+store, including events for meaningful actions with no reducer event. Test stable
+IDs, deterministic retry, corruption/unsupported formats, snapshot/hash mismatch,
+and unchanged 1.0.0 fixtures. No private workout or PDF becomes a test fixture.
 
-## Issues identified during revision review
+## Scope and remaining limits
 
-The owner clarified on 2026-11-02 that they want to read the ADR before deciding,
-not that they have specified design changes. The following concerns were found
-by the agent during self-review and are open for review:
+No database migration, record deletion, real-workout cloud upload, OAuth expansion,
+runtime repetition insertion, new plan format, remote overwrite or multi-device
+handoff is authorized by this ADR. Drive conditional writes, writer fencing and
+conflict preservation remain separate unresolved synchronization work.
 
-- Resolve whether full per-tick internal receipts belong in every canonical
-  session, a separately linked audit file, or only a portable diagnostic export.
-  The current proposal duplicates semantic events and internal actions; that has
-  storage, privacy and implementation-coupling costs. Do not silently drop facts
-  whichever representation is selected.
-- Bound transfer behavior. A growing full recording sent after every 250 ms tick
-  would cause excessive repeated uploads. A projection is not an instruction to
-  upload every outbox revision independently. Define coalescing/acknowledgement
-  behavior separately, preserving the local audit history and pending state.
-- Specify stable event IDs within the existing length limits and exact mappings
-  for recovery events and session-wide events without a phase index. Avoid
-  assigning a fabricated plan step just to satisfy the older schema.
-- Separate independent canonical semantics from Kotlin internal JSON wherever
-  possible. The existing hash algorithm must remain verifiable from retained
-  bytes, rather than becoming an undocumented cross-language serialization rule.
-
-These are review findings, not newly approved decisions. No schema or database
-change has been made.
+The owner-approved private workout preview is independent of this schema review.
+It is not yet imported or executable on Android.
 
 ## Alternatives
 
-- Serialize only current draft fields: rejected because pause/gap/action evidence
-  would be lost or ambiguously hidden in snapshots/events.
-- Change Room first: unnecessary for a pure projection of already recorded facts.
-- Replace the canonical contract with raw database JSON: rejected because the
-  session envelope still needs stable versioned domain identity and explicit
-  reader semantics. Raw internal rows alone are not a synchronization protocol.
+- Put all internal receipts in every canonical session: withdrawn following the
+  owner's clarification; duplicates information and couples human history to
+  internal machinery.
+- Require a linked raw audit file for ordinary history: unnecessary for human
+  use and adds another consistency dependency.
+- Export only the existing draft timing fields: insufficient to preserve pauses,
+  partial completion and unknown gaps clearly.
+- Replace local recovery records with human events alone: outside this proposal;
+  keep implementation records needed for reliable local behavior.
