@@ -725,3 +725,78 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   new approval request (ADR5 already approved). Finish CI/independent work first.
 - Updated prototype has no delivery-stage network call yet; global allocation77
   contains unused old native8 and unused new delivery20. Do not reset counters.
+
+## Current external gate — 2026-11-03 (local acceptance note)
+
+- Implementation commit e9b3b9413faf6a58c6bd079a783ce0d3750e37e5 has all standard
+  CI and all seven Android recovery jobs passing: runs41621862466/41621862178.
+  PR17 stays draft pending physical backup/migration/synthetic delivery acceptance.
+- Owner confirmed phone connected/unlocked/idle, but ADB still listed zero physical
+  devices. macOS USB inventory exposed no Pixel/Android name. One local ADB server
+  restart did not change that; no app data/state touched. Latest recheck remains0.
+- Asked owner to reconnect using a data cable, keep unlocked and accept debugging
+  if shown. That follow-up answer is pending. No phone backup, APK install or DB
+  migration has run. No real workout uploaded. Next action is actual USB detection,
+  then approved verified private version1 backup before install-r of the verified
+  v5 artifact (SHA87808112806031903050af5a20094eb06489c4d4f9a2d5845e92ca3b9d297368).
+- At that checkpoint this note was left uncommitted to batch device evidence.
+  Subsequent physical acceptance below supersedes that waiting state.
+
+
+## Physical migration verified — 2026-11-03
+
+- Owner reconnected with a data cable/debugging accepted; exactly one authorized
+  Pixel10a detected. Installedv4 and expected privatev5 APK hash verified. Fetch
+  origin/current PR17 still e9b3b94; all standard/seven Android CI checks pass.
+- Approved private version1 backup completed and verified before installation:
+  /Users/michal/.local/share/gym-assistant-backups/pre-room2-20261103T110050Z
+  StandaloneSHA1ea77e88e58e67f3653813b3e11aeb76d6779ff93a0a5ae3bbc51676ec9a0e9d.
+  Integrity/FKs/receipt-prefix/paused checks pass. Raw/standalone files retained
+  privately; never committed or printed. No restore/clear/uninstall.
+- Verified private v5 installed via install-r and launched. Local private copy
+  comparison confirms schema2, all702 prior action rows/outbox rows and every source
+  snapshot preserved; unfinished slot and scheduled/observed/pause/completed phases
+  unchanged. Only normal recovery action added; restored paused, new delivery and
+  connection tables empty at verification. See m1-phone-delivery-migration.json.
+- Owner now asked to open Drive connection test→Preview synthetic session delivery
+  →Send or retry synthetic example and report final status. This is phone action,
+  not a new approval gate. Account/app/specific-file checks supplied. Do not send
+  current workout. Global allocation77/500; delivery20 reserved separately.
+- Phone migration acceptance is complete; live synthetic delivery/retry evidence
+  still pending. No real-workout cloud upload authorized. Keep PR17 draft until the
+  remaining physical test is verified; batch evidence/docs commit after result.
+
+
+## Native synthetic delivery and retry passed — 2026-11-03
+
+- Owner reported exact delivery/read-back success and same success after explicit
+  retry. Read only whitelisted counter values: new delivery auth attempts2/direct
+  HTTP11. One durable delivered job/connection; sender-domain attempts6 (inspect
+  may issue two HTTP calls). Synthetic outbox3 delivered; all original sources,
+  action/outbox rows and paused progress unchanged. No real workout uploaded.
+- Synthetic provider ID1PpkSmoA4pjgM8mFvhzDLc8ffVV68KLnV; exact canonical SHA
+  07c722af74d1ff2939ba65b2711e39c8ca1e4e0e8ebb29e29cd2dd4a46098b3b.
+  Receipt captured only after retry; do not claim independent before/after ID
+  sampling. Browser same-grant exact-file/list/hash verification being prepared.
+- Added bounded readback tool for only this synthetic file. Four Node tests rebuild
+  the exact expected public sample from the checked-in Kotlin golden and verify
+  hash equality; no phone JSON fixture or personal content added to Git.
+
+
+## Synthetic phone→Drive→verified download→web passed — 2026-11-03
+
+- Existing browser grant verified the exact native file/label/account/hash and
+  one visible matching filename with five200 responses. Canonical13706-byte
+  download SHA matches phone07c722...98b3b. It opened through actual local web file
+  chooser:21 meaningful events,50s observed/planned, zero pauses/gaps, planned end.
+  Screenshot /private/tmp/gym-m1-phone-to-web-history.png. Browser credentials
+  forgotten. Direct product Drive browsing/retrieval is still unimplemented.
+- Global allocation82/500 =65 counted direct/setup +17 unused (native8/delivery9);
+  authorization/Picker internals unmeasured. New bounded fixed-artifact readback
+  harness and4 tests added (Node18 total); fake expected bytes reconstructed from
+  public Kotlin golden, no phone-data fixture. See native-session-delivery.json.
+- Phone backup/migration, initial synthetic delivery and explicit retry acceptance
+  now pass. All real prior sources/rows/progress unchanged, no real upload. PR17
+  should become ready/merge only after current combined head CI passes. Remaining
+  M1: validated private template library/import, side/weight cues and one-click
+  repetition changes, complete product template/history sync and real-workout gate.

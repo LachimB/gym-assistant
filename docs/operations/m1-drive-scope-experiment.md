@@ -312,3 +312,25 @@ identity/fixture gates and conditional success/failure paths; CI includes them.
 This proves a v2 current/stale content update case. It does not provide durable
 outbox acknowledgements, multi-device execution fencing, account-binding storage,
 network retries, real-history delivery or general safety of every Drive endpoint.
+
+
+## Finalized synthetic phone delivery and same-grant browser readback — 2026-11-03
+
+ADR-0005 separately approved the account-bound delivery/migration boundary. Verified
+private backup preceded physical Room1→2 migration; owner initiated synthetic
+phone delivery and retry. One durable job/connection,11 direct HTTP requests and2
+native authorization attempts; original workout untouched, only synthetic outbox
+acknowledged. New20-request reservation increased global allocation57→77 once.
+
+Existing web grant then verified identity/parent/exact new file, listed its exact
+name and read matching canonical bytes: five200 responses, allocation77→82. One
+matching file visible to the app grant in the test parent; download hash equals
+phone receipt. Actual local web history file chooser displayed21 meaningful events
+and50s observed, zero pauses/gaps. This is a verified synthetic download route,
+not completed product Drive history integration. No extra scope/API key/service.
+
+Current allocation82/500 =65 counted direct/setup attempts +17 unused reservation
+(native read8 + session delivery9). Google SDK/Picker internal traffic remains
+unmeasured. Page credentials forgotten after readback. Public synthetic source
+only; no personal workout, source PDF or raw recovery log uploaded. See
+`../milestones/m1-native-session-delivery.json` and `m1-session-delivery.md`.
