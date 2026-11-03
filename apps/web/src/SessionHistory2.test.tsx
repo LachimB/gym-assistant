@@ -27,3 +27,16 @@ it('rejects corrupt source, effective bytes, adjustment identities and invented 
     (v:any)=>{v.timing.unknownGapCount=3;v.events.at(-1).unknownGapCount=3},
   ]) {const value=fixture();change(value);await expect(readHistory(JSON.stringify(value))).rejects.toThrow()}
 });
+
+it('reads a fully completed Kotlin2 timeline and distinguishes adjusted time from the original plan',async()=> {
+  const raw=readFileSync(new URL('../../../examples/sessions/synthetic-runtime-v2-completed-session.json',import.meta.url),'utf8');
+  const result=await readHistory(raw);
+  expect(result.record.completionKind).toBe('plannedEnd');
+  expect(result.record.timing?.plannedDurationMs).toBe(80000);
+  expect(result.record.timing?.adjustedPlannedDurationMs).toBe(90000);
+  expect(result.record.timing?.scheduledElapsedMs).toBe(80000);
+  expect(result.record.timing?.adjustedScheduledElapsedMs).toBe(90000);
+  expect(result.record.events.filter(e=>e.type==='phaseCompleted')).toHaveLength(12);
+  expect(result.record.events.filter(e=>e.type==='planEndReached')).toHaveLength(1);
+  expect(renderToStaticMarkup(<HistoryDetails history={result}/>)).toContain('Reached planned end');
+});

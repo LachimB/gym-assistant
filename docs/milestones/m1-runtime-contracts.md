@@ -106,3 +106,41 @@ The long-preview publication button is now in a fixed footer; a disposable-only
 selected-file UI regression is included in every supported Android CI version.
 The UI follow-up and owner real-template publication/execution remain open.
 Real-workout cloud uploads remain excluded by the existing exact-synthetic gate.
+
+
+## Physical local acceptance, short test only
+
+PR19 merged after10 successful checks (standard41674024615 / Android41674024398),
+including actual selected-import/fixed-footer publication on all seven versions.
+Owner's phone imported and published the private45m50/474-phase source; metadata-
+only independent comparison matches all8 definitions and the prepared plan.
+
+In the first eligible set, a paused addition changed the session45m50→46m00.
+Actual process termination/relaunch retained the exact source/effective plan,
+addition, active cursor/offset, completed identities and observed/pause counters;
+normal unknown-gap evidence increased once. Recovery stayed paused without ticks.
+An initial early sample preceded the recovery commit; verification resumed from
+the ORIGINAL stopped backup, rather than creating a new baseline or claiming an
+instantaneous restore. No numerical device recovery-time guarantee is established.
+
+The owner discarded the short test; its history is retained. The published
+Template still plans45m50 and no unfinished slot remains. This verifies local
+import/publication/addition/recovery, not a full real workout or M1 completion.
+This local acceptance sent no source/session content to Drive or a new AI operation. ADR-0007 is a separate proposed
+manual personal-delivery boundary and migration, awaiting explicit approval.
+
+
+## Natural completion regression
+
+A subsequent full virtual projection found an absent-phase offset comparison using
+an Int zero against the saved Long offset at plan end. Explicit0L preserves the
+existing contract and makes completed checkpoints readable/acknowledgeable. No
+migration. New public complete1.2 fixture plus JVM and real-SQLite reopen/recovery/
+finish tests cover this boundary; independent web reader validates original80s,
+adjusted90s and all12 phases. Counts now41 JVM/25 SQLite/web23/23 fixtures.
+
+The private full virtual shape (one added unit) also validates all476 phases and
+956 meaningful events independently in TypeScript, with1,219,806 UTF8 bytes and no
+network. Its private raw JSON is not committed or uploaded and is not physical
+full-workout acceptance. The v8 phone update and current-head CI must be recorded
+before declaring this regression closed on the installed build.

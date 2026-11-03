@@ -1039,3 +1039,72 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   exercise-1..7.yaml). Earlier screenshots were category/search views, not the
   physical Documents directory. Await the actual validation/publication result;
   do not claim import complete from folder discovery alone.
+
+
+## Local runtime merged and physical short test verified — 2026-11-03
+
+- PR19 merged57692f8 after all10 checks on1680546: standard41674024615 and seven
+  Android41674024398. New selected-import/footer/publish regression passed on every
+  supported version. Phone remains v7/source5ba555b, same app code as that CI head.
+- Owner confirmed45:50/474phases and published. After USB reconnection, local exact
+  comparison proves the published head, plan and all8 source definitions match
+  /private/tmp/gym-m1-source/runtime2.32 eligible sets; Template unchanged by adds.
+- Owner started a short test, paused and added once: adjusted46:00. Verified private
+  stopped Room3/files backup before real process termination/relaunch. First sample
+  was before the recovery commit (revision535/Paused); later verified536/
+  RecoveredPaused against the ORIGINAL baseline, not a replacement snapshot. No
+  automatic resume; source/effective plan rows, cursor/offset/completed identities,
+  observed/pause/known-gap counters exactly unchanged; unknown-gap count +1 only.
+  A second read after a wait is identical. No precise recovery latency claimed.
+- Private recovery evidence /private/tmp/gym-m1-private-runtime2-phone-recovery.json;
+  pre backup <private-path>
+  SHA2564733c03f2809afa9c2bf2c073df66c61f1cc35139f12d21b5c3dade51a221b71;
+  verified post <private-path>
+  Do not print private payloads/receipts or replace the original comparison baseline.
+- Owner confirmed discarding the short test. Verified outcome/last intent discarded,
+  all537 test actions retained, published source still45m50, unfinished slot empty.
+  Prior sessions, bindings/deliveries and source defaults unchanged. This was NOT
+  a completed real workout. Full-workout/offline/synchronization M1 gates stay open.
+- ADR-0007 proposed for the NEXT scope: selected finalized human1.2 session to the
+  same personal Drive account, separate PERSONAL folder, no automatic upload/AI,
+  at most50 additional direct attempts within500, immutable file-backed delivery
+  and additive Room3→4 only after tests + fresh backup. Exact fields/boundaries in
+  docs/adr/0007-m1-manual-personal-session-delivery.md. NOT APPROVED/IMPLEMENTED.
+  Current live sender remains exact-synthetic only. No new Drive resources/calls.
+
+
+## Natural-completion checkpoint fix found before full workout — 2026-11-03
+
+- A local full virtual run of the private prepared plan (metadata only) exposed
+  Checkpoint2.state's `phaseOffsetMs == if(active==null)0 else <Long>` comparison:
+  the absent-phase branch boxed an Int zero, rejecting the valid Long offset0 at
+  natural plan end. This also blocked subsequent acknowledgement/recovery. It did
+  not affect the earlier partial/discarded short test. Changed only0→0L; no schema
+  or source-format migration. Routine bug-fix v8/0.1.6-m1-completion-fix pending.
+- Public regression covers full80→90s completion, absent active phase, reopen,
+  recovery awaiting acknowledgement and explicit finish. Canonical1.2 completed
+  fixture independently read in web. Local Android41 JVM/25 SQLite, web23 and
+  contract23 fixtures pass; Python71 remains. No temporary private tests committed.
+- Full PRIVATE VIRTUAL shape with one extra:476 completed phases,956 meaningful
+  events,1,219,806 UTF8 bytes; independent TypeScript web validation passes without
+  network. This is simulation, NOT evidence of a physical full workout. Raw virtual
+  JSON stays outside Git under runtime2/DO-NOT-UPLOAD-VIRTUAL-human-history.json;
+  temporary Kotlin/Vitest test files removed. Do not upload or treat it as a real
+  finalized phone session. File-backed proposed ADR7 delivery keeps SQL rows small.
+- Owner was told the completion bug is being fixed BEFORE a full workout request.
+  No change to approved exercise targets/order, published source or real-cloud gate.
+
+
+## Completion fix installed with exact preservation — 2026-11-03
+
+- Phone v8/source6977599428ed32e11f5202e6d6ae2b653aba0505 installed with install-r;
+  APK SHA2561d3e3d6244982c083461eadf1d5f8c59968973e106fa8563d2f0e1b3cab08d0d.
+  Same signer and Room3, no migration. All11 application tables compare exactly
+  equal; private library archive and all8 external source files unchanged. No
+  unfinished workout, clear/uninstall, source re-publication or cloud upload.
+- Fresh verified private backup pre-completion8-20261103T194615Z under the personal
+  backup root; standalone SHA2561d792a9e76ee27230cefce9d848dfda9143fd1694d4e579a2faaaaf0cfebc1e5.
+  Post comparison post-completion8-check-20261103T194624Z. Prior backups retained.
+- PR20 current-head checks required before merge. Owner approval requested for
+  proposed ADR7; do not implement Room4 or real delivery until explicitly approved.
+  Full physical workout acceptance still open; short discarded test is retained.
