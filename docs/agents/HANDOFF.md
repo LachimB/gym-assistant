@@ -1176,3 +1176,16 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   finalized database record before preview. No app requirement/assertion relaxed;
   migrations/process/import passed before that new test. Current-head CI rerun
   required; do not migrate/merge a failed revision.
+
+- Corrected run passed32/33/34;35/37 exposed a second harness race: immediate
+  confirmation click before the end-workout dialog rendered. Added explicit
+  library/dialog/confirm visibility waits and synthetic-only failure diagnostics.
+  No source/app/schema change or weakened data assertions. Require complete
+  corrected matrix before the already approved migration.
+
+- The corrected run passed31–34, while35–37 failed at the end-workout confirmation
+  transition. Version split plus unhandled target35+ edge-to-edge makes navigation-
+  bar overlap a concrete layout concern: Activity now enables consistent edge-to-
+  edge and root recording column applies safeDrawingPadding. Main controls remain
+  above system bars; dialog waits remain explicit. Routine layout fix, no engine/
+  schema/transport change. Official guidance: developer.android.com/develop/ui/compose/system/insets-ui.

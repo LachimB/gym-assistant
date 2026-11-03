@@ -41,6 +41,7 @@ def main():
             tree=nodes()
             if text in labels(tree):return tree
             time.sleep(.2)
+        print('Synthetic emulator last visible labels:',labels(tree)[:18],flush=True)
         raise AssertionError('Expected visible control: '+text)
     def click(text,long=False,scroll=False):
         for attempt in range(10 if scroll else 1):
@@ -69,7 +70,7 @@ def main():
     wait('Training Template library')
     initial=workout_rows()
     assert not initial['unfinished_slot'], 'A previous synthetic test must finish first'
-    click('Training Template library',scroll=True)
+    click('Training Template library',scroll=True);wait('Import selected YAML files')
     tree=nodes()
     start=next((label for label in labels(tree) if label.startswith('Start ') and label!='Start Workout'),None)
     if start is None:
@@ -79,7 +80,7 @@ def main():
             if start:break
     assert start and 'Synthetic' in start, 'Only the published public synthetic Template is allowed'
     click(start,scroll=True);click('Pause',scroll=True);wait('Resume')
-    click('End Workout…',scroll=True);click('Save partial workout')
+    click('End Workout…',scroll=True);wait('End this workout?');wait('Save partial workout');click('Save partial workout')
     for _ in range(12):
         before=workout_rows()
         if not before['unfinished_slot'] and len(before['session_starts'])==len(initial['session_starts'])+1:break
