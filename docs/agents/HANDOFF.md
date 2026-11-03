@@ -512,3 +512,37 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   template import/side/weight cues and runtime repetition deviations, durable
   validated library publication, Android auth/sync/conflict handling and web history.
   No real-workout cloud upload, token storage or DB migration is authorized by ADR4.
+
+## History merged; Android synthetic connection stage — 2026-11-03
+
+- PR13 merged as4646d53 after final54498a5 passed standard CI41581755092 and all
+  seven Android recovery jobs41581755077. ADR4 human-history projection complete
+  at its read-only scope. Continued from fresh origin/main on
+  codex/m1-android-drive-probe, preserving prior branches and local follow-up work.
+- Prepared the native portion of the already-approved synthetic Drive/OAuth
+  experiment: Google AuthorizationClient22.0.0, explicit personal-account-pinned
+  drive.file request with prior scopes excluded, strict returned scopes and
+  about.get identity check before exact synthetic folder/child metadata reads.
+  No app token persistence, auth codes, backend, new Cloud resource or real data.
+  Google Play services may maintain its own account/token cache; not app storage.
+- Local APK configured by private build property with the already-selected
+  personal email. That identifier is embedded in the private test APK, not Git;
+  CI/default account is blank and test button disabled. SDK error bodies/logs and
+  credentials are not emitted. Internet permission added; no account-list/contacts
+  permission, no Room migration or production-sync claim.
+- One-time native20 request reservation succeeded via localhost UI: budget50/500
+  conservatively allocated (prior30 + reserved20), not50 observed requests. Phone
+  counter persists before requests, caps20, authorization attempts6; no resets.
+- Eight native fake-transport tests + nine history JVM tests and12 real SQLite
+  tests pass locally; no Google requests made by tests. Native Google consent and
+  ETag availability need the authorized physical phone. No phone is currently
+  connected, so install/auth test pending. Steps: m1-android-drive-probe.md.
+
+- User connected/unlocked the Pixel10a Android17; verified local APK SHA256
+  f38797518d4434df63163c0785ecff2d8513e712d16100a08deed94bdb5b998f and
+  certificate SHA1 matches the registered Android client. install-r succeeded and
+  app opened. No clear/uninstall/instrumentation/phone DB export. Owner asked to
+  tap Test personal Drive connection, verify the account/specific-file consent,
+  and report final status. Native result pending; no credential contents requested.
+- Native APK also passed emulator process recovery (377→394ms; not drift evidence),
+  no automatic resume or app-data clear. Prepared UI inspected on emulator.

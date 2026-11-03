@@ -248,3 +248,17 @@ source identifiers are excluded from Git and this synthetic experiment. Executio
 ambiguities were sent to the owner for review; no executable real template or
 real-workout acceptance is claimed. This operation does not approve another AI
 provider, paid AI API, broader document access or real-data Drive synchronization.
+
+
+## Native Android read-only stage prepared — 2026-11-03
+
+The already-approved Android OAuth-client experiment is prepared in the app:
+explicit account-pinned drive.file authorization, memory-only app token use and
+read-only identity/labelled-fixture metadata checks. No raw file contents, history
+upload, refresh-token storage, schema migration or new Cloud resource. See
+`m1-android-drive-probe.md` for protocol, SDK/cache distinction and phone steps.
+The browser counter reserved 20 direct requests once for the single-phone stage:
+**50/500 conservatively allocated**, including the prior30 and unused native20.
+No native Google requests or successful phone authorization are claimed yet.
+Google SDK internal authorization traffic is separately unmeasured; UI attempts
+are capped at six. Do not reset counters or run the allowance on multiple phones.

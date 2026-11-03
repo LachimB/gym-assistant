@@ -1,10 +1,13 @@
 package dev.gymassistant.m0
 
 import android.os.Bundle
+import android.accounts.Account
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.viewModels
+import androidx.activity.result.IntentSenderRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -19,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -36,10 +40,48 @@ import com.charleskorn.kaml.yamlScalar
 import dev.gymassistant.engine.SessionStatus
 import dev.gymassistant.engine.snapshot
 import dev.gymassistant.session.WorkoutModel
+import dev.gymassistant.drive.DriveProbeModel
+import dev.gymassistant.drive.DRIVE_FILE_SCOPE
+import com.google.android.gms.auth.api.identity.AuthorizationRequest
+import com.google.android.gms.auth.api.identity.AuthorizationResult
+import com.google.android.gms.auth.api.identity.Identity
+import com.google.android.gms.common.api.Scope
 import kotlin.math.ceil
 
 class MainActivity : ComponentActivity() {
     private val workout by viewModels<WorkoutModel>()
+    private val driveProbe by viewModels<DriveProbeModel>()
+    private val authorization by lazy { Identity.getAuthorizationClient(this) }
+    private val driveResolution = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
+        if (result.resultCode != RESULT_OK || result.data == null) driveProbe.failed()
+        else try { completeDriveAuthorization(authorization.getAuthorizationResultFromIntent(result.data)) }
+        catch (_: Exception) { driveProbe.failed() }
+    }
+
+    private fun completeDriveAuthorization(result: AuthorizationResult) {
+        if (result.hasResolution()) { driveProbe.failed(); return }
+        driveProbe.authorized(result.grantedScopes, result.accessToken)
+    }
+
+    private fun testDriveConnection() {
+        val email = BuildConfig.SYNTHETIC_DRIVE_ACCOUNT
+        if (!driveProbe.begin(email)) return
+        try {
+            val request = AuthorizationRequest.builder()
+                .setAccount(Account(email, "com.google"))
+                .setRequestedScopes(listOf(Scope(DRIVE_FILE_SCOPE)))
+                .setOptOutIncludingGrantedScopes(true)
+                .build()
+            authorization.authorize(request).addOnSuccessListener { result ->
+                if (result.hasResolution()) {
+                    val pending = result.pendingIntent
+                    if (pending == null) driveProbe.failed()
+                    else try { driveResolution.launch(IntentSenderRequest.Builder(pending.intentSender).build()) }
+                    catch (_: Exception) { driveProbe.failed() }
+                } else completeDriveAuthorization(result)
+            }.addOnFailureListener { driveProbe.failed() }
+        } catch (_: Exception) { driveProbe.failed() }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -64,6 +106,17 @@ class MainActivity : ComponentActivity() {
                                 Text("Synthetic alternating pyramid · 50 seconds")
                                 Text("Starts an ungrouped Workout Session. Saved on this phone; cloud sync is not connected.")
                                 WorkoutButton("Start Workout") { workout.command("start") }
+                                val probeStatus by driveProbe.status.collectAsState()
+                                val probeBusy by driveProbe.busy.collectAsState()
+                                Text("Drive connection test", style = MaterialTheme.typography.titleMedium)
+                                Text("Reads the labelled synthetic test files only. No workout upload.")
+                                OutlinedTextField(value = BuildConfig.SYNTHETIC_DRIVE_ACCOUNT, onValueChange = {},
+                                    readOnly = true, label = { Text("Approved personal Google account") })
+                                Button(onClick = { testDriveConnection() },
+                                    enabled = !probeBusy && BuildConfig.SYNTHETIC_DRIVE_ACCOUNT.isNotBlank()) {
+                                    Text(if (probeBusy) "Checking…" else "Test personal Drive connection")
+                                }
+                                Text(probeStatus)
                             }
                             else -> {
                                 val saved = checkNotNull(ui.saved)
