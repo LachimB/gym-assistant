@@ -1,0 +1,292 @@
+{
+  "sessionId": "synthetic_runtime_session_v2",
+  "templateId": "template_runtime_synthetic",
+  "revisionId": "revision_runtime_synthetic_1",
+  "engineVersion": "kotlin-timed-2",
+  "startedAt": "2026-11-03T10:00:00Z",
+  "timeZone": "Europe/Berlin",
+  "localTrainingDate": "2026-11-03",
+  "status": "completed",
+  "completionKind": "partial",
+  "sourcePlanSnapshot": {
+    "sourceSnapshotJson": "{\"templateYaml\":\"schemaVersion: 1.1.0\\ntemplateId: template_runtime_synthetic\\nrevisionId: revision_runtime_synthetic_1\\nnames: {en: Synthetic sides and session additions}\\nsections:\\n  - sectionId: section_runtime\\n    names: {en: Synthetic timed work}\\n    blocks:\\n      - blockId: block_sides\\n        names: {en: Left then right}\\n        kind: simple\\n        occurrences:\\n          - occurrenceId: occurrence_runtime_hip\\n            exerciseId: exercise_bridge_band\\n            sets:\\n              - setId: set_left\\n                variationId: hip_lift_level_1\\n                repetitions: 2\\n                side: left\\n                resistance:\\n                  weight: {value: 12.5, unit: kg}\\n                  bands: [{equipmentId: band_yellow, count: 1, placement: knees}]\\n                  notes: Synthetic fixed target\\n                inSessionRepetition: {mode: appendToCurrentSet, resetMs: 4000}\\n                phases: [{phaseId: phase_work, name: Hold, mode: timed, role: work, durationMs: 6000}]\\n              - setId: set_long_hold\\n                variationId: hip_lift_level_1\\n                repetitions: 1\\n                side: left\\n                phases: [{phaseId: phase_long_hold, name: Longer hold, mode: timed, role: work, durationMs: 10000}]\\n              - setId: set_right\\n                variationId: hip_lift_level_1\\n                repetitions: 2\\n                side: right\\n                resistance: {weight: {value: 12.5, unit: kg}}\\n                inSessionRepetition: {mode: appendToCurrentSet, resetMs: 4000}\\n                phases: [{phaseId: phase_work, name: Hold, mode: timed, role: work, durationMs: 6000}]\\n        order:\\n          - {stepId: step_left_1, kind: repetition, setId: set_left, repetitionIndex: 1}\\n          - {stepId: step_reset_left_1, kind: rest, role: reset, resetForStepId: step_left_1, durationMs: 4000}\\n          - {stepId: step_left_2, kind: repetition, setId: set_left, repetitionIndex: 2}\\n          - {stepId: step_reset_left_2, kind: rest, role: reset, resetForStepId: step_left_2, durationMs: 4000}\\n          - {stepId: step_long_hold, kind: repetition, setId: set_long_hold, repetitionIndex: 1}\\n          - {stepId: step_side_change, kind: rest, role: transition, durationMs: 4000, label: {en: Change side}}\\n          - {stepId: step_right_1, kind: repetition, setId: set_right, repetitionIndex: 1}\\n          - {stepId: step_reset_right_1, kind: rest, role: reset, resetForStepId: step_right_1, durationMs: 4000}\\n          - {stepId: step_right_2, kind: repetition, setId: set_right, repetitionIndex: 2}\\n          - {stepId: step_final_rest, kind: rest, role: rest, durationMs: 30000, label: {en: Final rest}}\\n\",\"exerciseYamls\":[\"schemaVersion: 1.0.0\\nfamilyId: exercise_bridge_band\\nnames:\\n  en: Quadruped hip lift\\n  cs: Kyčlozdvih na všech čtyřech\\nshortNames:\\n  en: Hip lift\\n  cs: Kyčlozdvih\\ndescription:\\n  en: Synthetic training example used only for automated testing.\\ntags: [strength, mobility]\\nequipmentIds: [band_yellow, band_red]\\nvariations:\\n  - variationId: hip_lift_level_1\\n    names: {en: Hip lift L1, cs: Kyčlozdvih L1}\\n    instructions:\\n      en: Synthetic test instructions; not physiotherapy advice.\\n  - variationId: hip_lift_level_2\\n    names: {en: Hip lift L2, cs: Kyčlozdvih L2}\\n    instructions:\\n      en: Different range of motion for synthetic testing.\\n\"]}",
+    "sourceHash": "58653e6a1e5f34d61e951a44233a1b6945a7375d913ba811f1e4dd94448a1222",
+    "compiledPlanJson": "{\"templateId\":\"template_runtime_synthetic\",\"revisionId\":\"revision_runtime_synthetic_1\",\"templateName\":\"Synthetic sides and session additions\",\"originalDurationMs\":80000,\"expectedDurationMs\":80000,\"phases\":[{\"instanceId\":\"phase_5ac682d6dd59d9177eedaa1bbaf140a3a19660e3fe85a9a5dc712f63bd4bdb0a\",\"ordinal\":0,\"unitId\":\"unit_cbd9a9e72bec12509dedd7b16d5176590a56bb89c49a9f46ea69c7ed8eb9bf85\",\"sourceStepId\":\"step_left_1\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"phaseId\":\"phase_work\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":0,\"endMs\":6000,\"baseStartMs\":0,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}},{\"instanceId\":\"phase_00614318778143faee5e5cb217a4446a9f38491bc7072af185f3ebaac2ebc643\",\"ordinal\":1,\"unitId\":\"unit_cbd9a9e72bec12509dedd7b16d5176590a56bb89c49a9f46ea69c7ed8eb9bf85\",\"sourceStepId\":\"step_reset_left_1\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Reset\",\"role\":\"reset\",\"startMs\":6000,\"endMs\":10000,\"baseStartMs\":6000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}},{\"instanceId\":\"phase_912dfd0babffd3e14a54e1d452f99b71fd1487e55e082f641d4743c0434a82b9\",\"ordinal\":2,\"unitId\":\"unit_6c16a9a267480b6478c1d44cb2b9a9a6e969fde38d08c7bbd2d10b4457da8d20\",\"sourceStepId\":\"step_left_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"phaseId\":\"phase_work\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":10000,\"endMs\":16000,\"baseStartMs\":10000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}},{\"instanceId\":\"phase_c515e27f6b3c96c76317ff1451b1c7a3f4b2e0457ed72c825b5fd8891b6eb72b\",\"ordinal\":3,\"unitId\":\"unit_6c16a9a267480b6478c1d44cb2b9a9a6e969fde38d08c7bbd2d10b4457da8d20\",\"sourceStepId\":\"step_reset_left_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Reset\",\"role\":\"reset\",\"startMs\":16000,\"endMs\":20000,\"baseStartMs\":16000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}},{\"instanceId\":\"phase_7f8ab7b6c269b91067739a2939a8b71f48b2633de82c095d170472f57f685748\",\"ordinal\":4,\"unitId\":\"unit_7cb106749dd405ecf9f4b707b6f31f48042ffba9693d8c859693963cd28ac2f0\",\"sourceStepId\":\"step_long_hold\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_long_hold\",\"phaseId\":\"phase_long_hold\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Longer hold\",\"role\":\"work\",\"startMs\":20000,\"endMs\":30000,\"baseStartMs\":20000},{\"instanceId\":\"phase_68b42908a1ede92336bd12c8f59eb91c7cd63417df69fe7dabe26aded2e6a1ff\",\"ordinal\":5,\"unitId\":\"unit_68b42908a1ede92336bd12c8f59eb91c7cd63417df69fe7dabe26aded2e6a1ff\",\"sourceStepId\":\"step_side_change\",\"blockId\":\"block_sides\",\"name\":\"Change side\",\"role\":\"transition\",\"startMs\":30000,\"endMs\":34000,\"baseStartMs\":30000},{\"instanceId\":\"phase_c87c83356ecd2e549d1ccba9a08dce616da2ad2f9114166c7ebc4f886c1c8fb5\",\"ordinal\":6,\"unitId\":\"unit_e68e82f034af393ec5af4304b2551e0b0fd6324f3031b33c4000a526c62add64\",\"sourceStepId\":\"step_right_1\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_right\",\"phaseId\":\"phase_work\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"right\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":34000,\"endMs\":40000,\"baseStartMs\":34000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[]}},{\"instanceId\":\"phase_867abb26fe6138649d97a094cad0d197f2bde92961c75658c2f0693950f24ecf\",\"ordinal\":7,\"unitId\":\"unit_e68e82f034af393ec5af4304b2551e0b0fd6324f3031b33c4000a526c62add64\",\"sourceStepId\":\"step_reset_right_1\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_right\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"right\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Reset\",\"role\":\"reset\",\"startMs\":40000,\"endMs\":44000,\"baseStartMs\":40000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[]}},{\"instanceId\":\"phase_02bd727dd1654a2879f84a18ae2ab3f2779abd38d03405dd8e19cd0c5890bbe5\",\"ordinal\":8,\"unitId\":\"unit_1416ab8d36cb15371b785013dd4bf1161c8519dee20af45732c6ddfb8132b063\",\"sourceStepId\":\"step_right_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_right\",\"phaseId\":\"phase_work\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"right\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":44000,\"endMs\":50000,\"baseStartMs\":44000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[]}},{\"instanceId\":\"phase_65c26eddf458e8b189dfa04cae3984dffa8affc7427fe7b027bfbe7d40f26609\",\"ordinal\":9,\"unitId\":\"unit_65c26eddf458e8b189dfa04cae3984dffa8affc7427fe7b027bfbe7d40f26609\",\"sourceStepId\":\"step_final_rest\",\"blockId\":\"block_sides\",\"name\":\"Final rest\",\"role\":\"rest\",\"startMs\":50000,\"endMs\":80000,\"baseStartMs\":50000}],\"policies\":[{\"setId\":\"set_left\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"anchorInstanceId\":\"phase_c515e27f6b3c96c76317ff1451b1c7a3f4b2e0457ed72c825b5fd8891b6eb72b\",\"resetMs\":4000,\"existingReset\":true,\"core\":[{\"instanceId\":\"phase_912dfd0babffd3e14a54e1d452f99b71fd1487e55e082f641d4743c0434a82b9\",\"ordinal\":2,\"unitId\":\"unit_6c16a9a267480b6478c1d44cb2b9a9a6e969fde38d08c7bbd2d10b4457da8d20\",\"sourceStepId\":\"step_left_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"phaseId\":\"phase_work\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":10000,\"endMs\":16000,\"baseStartMs\":10000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}}]},{\"setId\":\"set_right\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"anchorInstanceId\":\"phase_02bd727dd1654a2879f84a18ae2ab3f2779abd38d03405dd8e19cd0c5890bbe5\",\"resetMs\":4000,\"existingReset\":false,\"core\":[{\"instanceId\":\"phase_02bd727dd1654a2879f84a18ae2ab3f2779abd38d03405dd8e19cd0c5890bbe5\",\"ordinal\":8,\"unitId\":\"unit_1416ab8d36cb15371b785013dd4bf1161c8519dee20af45732c6ddfb8132b063\",\"sourceStepId\":\"step_right_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_right\",\"phaseId\":\"phase_work\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"right\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":44000,\"endMs\":50000,\"baseStartMs\":44000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[]}}]}],\"adjustments\":[],\"planFormatVersion\":\"2.0.0\"}",
+    "compiledPlanHash": "50ea8bbb94051fc8db428bf6289aabe8ff3356d478774bc6fb51af386f0390bd",
+    "planFormatVersion": "2.0.0",
+    "hashFormat": "sha256-utf8"
+  },
+  "effectivePlanSnapshot": {
+    "compiledPlanJson": "{\"templateId\":\"template_runtime_synthetic\",\"revisionId\":\"revision_runtime_synthetic_1\",\"templateName\":\"Synthetic sides and session additions\",\"originalDurationMs\":80000,\"expectedDurationMs\":90000,\"phases\":[{\"instanceId\":\"phase_5ac682d6dd59d9177eedaa1bbaf140a3a19660e3fe85a9a5dc712f63bd4bdb0a\",\"ordinal\":0,\"unitId\":\"unit_cbd9a9e72bec12509dedd7b16d5176590a56bb89c49a9f46ea69c7ed8eb9bf85\",\"sourceStepId\":\"step_left_1\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"phaseId\":\"phase_work\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":0,\"endMs\":6000,\"baseStartMs\":0,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}},{\"instanceId\":\"phase_00614318778143faee5e5cb217a4446a9f38491bc7072af185f3ebaac2ebc643\",\"ordinal\":1,\"unitId\":\"unit_cbd9a9e72bec12509dedd7b16d5176590a56bb89c49a9f46ea69c7ed8eb9bf85\",\"sourceStepId\":\"step_reset_left_1\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Reset\",\"role\":\"reset\",\"startMs\":6000,\"endMs\":10000,\"baseStartMs\":6000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}},{\"instanceId\":\"phase_912dfd0babffd3e14a54e1d452f99b71fd1487e55e082f641d4743c0434a82b9\",\"ordinal\":2,\"unitId\":\"unit_6c16a9a267480b6478c1d44cb2b9a9a6e969fde38d08c7bbd2d10b4457da8d20\",\"sourceStepId\":\"step_left_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"phaseId\":\"phase_work\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":10000,\"endMs\":16000,\"baseStartMs\":10000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}},{\"instanceId\":\"phase_c515e27f6b3c96c76317ff1451b1c7a3f4b2e0457ed72c825b5fd8891b6eb72b\",\"ordinal\":3,\"unitId\":\"unit_6c16a9a267480b6478c1d44cb2b9a9a6e969fde38d08c7bbd2d10b4457da8d20\",\"sourceStepId\":\"step_reset_left_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Reset\",\"role\":\"reset\",\"startMs\":16000,\"endMs\":20000,\"baseStartMs\":16000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}},{\"instanceId\":\"phase_e36eca3004986bf0259f71214e0f71b63278d4b49166d95aa823f205946fa2ad\",\"ordinal\":10,\"unitId\":\"unit_23ae009235aa9b1c974e81bf5831b26f756a1b765859f54442090cf106c0124b\",\"sourceStepId\":\"step_left_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"phaseId\":\"phase_work\",\"repetitionIndex\":3,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":20000,\"endMs\":26000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"},\"adjustmentId\":\"extra_left_one\"},{\"instanceId\":\"phase_b363362b9dd4aaa6c16cae5e4e9ae62119500d10cf09b405d06527cdc4f6c211\",\"ordinal\":11,\"unitId\":\"unit_23ae009235aa9b1c974e81bf5831b26f756a1b765859f54442090cf106c0124b\",\"sourceStepId\":\"step_left_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"repetitionIndex\":3,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Reset\",\"role\":\"reset\",\"startMs\":26000,\"endMs\":30000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"},\"adjustmentId\":\"extra_left_one\"},{\"instanceId\":\"phase_7f8ab7b6c269b91067739a2939a8b71f48b2633de82c095d170472f57f685748\",\"ordinal\":4,\"unitId\":\"unit_7cb106749dd405ecf9f4b707b6f31f48042ffba9693d8c859693963cd28ac2f0\",\"sourceStepId\":\"step_long_hold\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_long_hold\",\"phaseId\":\"phase_long_hold\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Longer hold\",\"role\":\"work\",\"startMs\":30000,\"endMs\":40000,\"baseStartMs\":20000},{\"instanceId\":\"phase_68b42908a1ede92336bd12c8f59eb91c7cd63417df69fe7dabe26aded2e6a1ff\",\"ordinal\":5,\"unitId\":\"unit_68b42908a1ede92336bd12c8f59eb91c7cd63417df69fe7dabe26aded2e6a1ff\",\"sourceStepId\":\"step_side_change\",\"blockId\":\"block_sides\",\"name\":\"Change side\",\"role\":\"transition\",\"startMs\":40000,\"endMs\":44000,\"baseStartMs\":30000},{\"instanceId\":\"phase_c87c83356ecd2e549d1ccba9a08dce616da2ad2f9114166c7ebc4f886c1c8fb5\",\"ordinal\":6,\"unitId\":\"unit_e68e82f034af393ec5af4304b2551e0b0fd6324f3031b33c4000a526c62add64\",\"sourceStepId\":\"step_right_1\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_right\",\"phaseId\":\"phase_work\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"right\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":44000,\"endMs\":50000,\"baseStartMs\":34000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[]}},{\"instanceId\":\"phase_867abb26fe6138649d97a094cad0d197f2bde92961c75658c2f0693950f24ecf\",\"ordinal\":7,\"unitId\":\"unit_e68e82f034af393ec5af4304b2551e0b0fd6324f3031b33c4000a526c62add64\",\"sourceStepId\":\"step_reset_right_1\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_right\",\"repetitionIndex\":1,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"right\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Reset\",\"role\":\"reset\",\"startMs\":50000,\"endMs\":54000,\"baseStartMs\":40000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[]}},{\"instanceId\":\"phase_02bd727dd1654a2879f84a18ae2ab3f2779abd38d03405dd8e19cd0c5890bbe5\",\"ordinal\":8,\"unitId\":\"unit_1416ab8d36cb15371b785013dd4bf1161c8519dee20af45732c6ddfb8132b063\",\"sourceStepId\":\"step_right_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_right\",\"phaseId\":\"phase_work\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"right\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":54000,\"endMs\":60000,\"baseStartMs\":44000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[]}},{\"instanceId\":\"phase_65c26eddf458e8b189dfa04cae3984dffa8affc7427fe7b027bfbe7d40f26609\",\"ordinal\":9,\"unitId\":\"unit_65c26eddf458e8b189dfa04cae3984dffa8affc7427fe7b027bfbe7d40f26609\",\"sourceStepId\":\"step_final_rest\",\"blockId\":\"block_sides\",\"name\":\"Final rest\",\"role\":\"rest\",\"startMs\":60000,\"endMs\":90000,\"baseStartMs\":50000}],\"policies\":[{\"setId\":\"set_left\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"anchorInstanceId\":\"phase_c515e27f6b3c96c76317ff1451b1c7a3f4b2e0457ed72c825b5fd8891b6eb72b\",\"resetMs\":4000,\"existingReset\":true,\"core\":[{\"instanceId\":\"phase_912dfd0babffd3e14a54e1d452f99b71fd1487e55e082f641d4743c0434a82b9\",\"ordinal\":2,\"unitId\":\"unit_6c16a9a267480b6478c1d44cb2b9a9a6e969fde38d08c7bbd2d10b4457da8d20\",\"sourceStepId\":\"step_left_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_left\",\"phaseId\":\"phase_work\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"left\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":10000,\"endMs\":16000,\"baseStartMs\":10000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[{\"equipmentId\":\"band_yellow\",\"count\":1,\"placement\":\"knees\"}],\"notes\":\"Synthetic fixed target\"}}]},{\"setId\":\"set_right\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"anchorInstanceId\":\"phase_02bd727dd1654a2879f84a18ae2ab3f2779abd38d03405dd8e19cd0c5890bbe5\",\"resetMs\":4000,\"existingReset\":false,\"core\":[{\"instanceId\":\"phase_02bd727dd1654a2879f84a18ae2ab3f2779abd38d03405dd8e19cd0c5890bbe5\",\"ordinal\":8,\"unitId\":\"unit_1416ab8d36cb15371b785013dd4bf1161c8519dee20af45732c6ddfb8132b063\",\"sourceStepId\":\"step_right_2\",\"blockId\":\"block_sides\",\"occurrenceId\":\"occurrence_runtime_hip\",\"setId\":\"set_right\",\"phaseId\":\"phase_work\",\"repetitionIndex\":2,\"exerciseId\":\"exercise_bridge_band\",\"variationId\":\"hip_lift_level_1\",\"side\":\"right\",\"exerciseName\":\"Quadruped hip lift\",\"variationName\":\"Hip lift L1\",\"name\":\"Hold\",\"role\":\"work\",\"startMs\":44000,\"endMs\":50000,\"baseStartMs\":44000,\"resistance\":{\"weight\":{\"value\":12.5,\"unit\":\"kg\"},\"bands\":[]}}]}],\"adjustments\":[{\"adjustmentId\":\"extra_left_one\",\"setId\":\"set_left\",\"recordedAt\":\"2026-11-03T10:00:00Z\"}],\"planFormatVersion\":\"2.0.0\"}",
+    "compiledPlanHash": "78721b24ceec9624242f10432849f465fcbb43fdba60e4a8c349152f973a8705",
+    "planFormatVersion": "2.0.0"
+  },
+  "adjustments": [
+    {
+      "adjustmentId": "extra_left_one",
+      "setId": "set_left",
+      "recordedAt": "2026-11-03T10:00:00Z"
+    }
+  ],
+  "timing": {
+    "plannedDurationMs": 80000,
+    "adjustedPlannedDurationMs": 90000,
+    "adjustedScheduledElapsedMs": 20000,
+    "observedRunMs": 22250,
+    "pauseMs": 4000,
+    "unobservedGapMs": 0,
+    "unknownGapCount": 2,
+    "scheduledElapsedMs": null
+  },
+  "events": [
+    {
+      "eventId": "event_11d20df1dd4cb9bb55410f266edb3e49fb72ec782a4b9c590f9ed3f252ce73ee",
+      "type": "sessionStarted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 0,
+      "scheduledElapsedMs": 0,
+      "observedRunMs": 0,
+      "pauseMs": 0,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 0
+    },
+    {
+      "eventId": "event_e7ba4784086d5822cc04a8b1e7e4e4c703386ea02c12bc340b2df447e374d956",
+      "type": "phaseStarted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 0,
+      "scheduledElapsedMs": 0,
+      "observedRunMs": 0,
+      "pauseMs": 0,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 0,
+      "phaseInstanceId": "phase_5ac682d6dd59d9177eedaa1bbaf140a3a19660e3fe85a9a5dc712f63bd4bdb0a"
+    },
+    {
+      "eventId": "event_092baad14f0016ee5f140592f0cb71f540bdb7c40394ad7bbfe6da94834b5fa0",
+      "type": "repetitionAdded",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 1000,
+      "scheduledElapsedMs": 1000,
+      "observedRunMs": 1000,
+      "pauseMs": 0,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 0,
+      "adjustmentId": "extra_left_one",
+      "setId": "set_left"
+    },
+    {
+      "eventId": "event_66416d86848a0dcfae643acbb70f62724ed937a92fa5a81c1b73a3292c8c527d",
+      "type": "pause",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 1250,
+      "scheduledElapsedMs": 1250,
+      "observedRunMs": 1250,
+      "pauseMs": 0,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 0
+    },
+    {
+      "eventId": "event_a65b20a26a55598bce81c7b94f9da6cc05dc690be7b49695c77240ce0c2c795d",
+      "type": "interruption",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 1250,
+      "scheduledElapsedMs": 1250,
+      "observedRunMs": 1250,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 1,
+      "detail": {
+        "gapDurationKnown": false
+      }
+    },
+    {
+      "eventId": "event_eb5bcdb8559d385c624e97dafb4c4fcbd849ac79f3c8c279437e37b43421a2d3",
+      "type": "interruption",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 1250,
+      "scheduledElapsedMs": 1250,
+      "observedRunMs": 1250,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "detail": {
+        "gapDurationKnown": false
+      }
+    },
+    {
+      "eventId": "event_f6adb31967c8b56b5bce0394191e25c048693c25080574c25cd269822c724dd5",
+      "type": "resume",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 1250,
+      "scheduledElapsedMs": 1250,
+      "observedRunMs": 1250,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "detail": {
+        "resumedAfterInterruption": true
+      }
+    },
+    {
+      "eventId": "event_ec80907216ce015488cb0c1fea8de2eb82531f761f36b18333457fe483cf77e1",
+      "type": "phaseCompleted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 6000,
+      "scheduledElapsedMs": 6000,
+      "observedRunMs": 6000,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_5ac682d6dd59d9177eedaa1bbaf140a3a19660e3fe85a9a5dc712f63bd4bdb0a"
+    },
+    {
+      "eventId": "event_997c1ffb50080583ec26d877f5b92bb8b8ad892b62743fe490a98bf3d8148d4a",
+      "type": "phaseStarted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 6000,
+      "scheduledElapsedMs": 6000,
+      "observedRunMs": 6000,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_00614318778143faee5e5cb217a4446a9f38491bc7072af185f3ebaac2ebc643"
+    },
+    {
+      "eventId": "event_051bd8761a2aae11988d70174e1f2ef12bb1cecda8f5f9d0ab3707ebb4cc1819",
+      "type": "phaseCompleted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 10000,
+      "scheduledElapsedMs": 10000,
+      "observedRunMs": 10000,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_00614318778143faee5e5cb217a4446a9f38491bc7072af185f3ebaac2ebc643"
+    },
+    {
+      "eventId": "event_a34fb62c84c23c82073ffa4f710a520e4cf82dee0fb5d43764eec3380b1fc9c7",
+      "type": "phaseStarted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 10000,
+      "scheduledElapsedMs": 10000,
+      "observedRunMs": 10000,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_912dfd0babffd3e14a54e1d452f99b71fd1487e55e082f641d4743c0434a82b9"
+    },
+    {
+      "eventId": "event_5f47d9da59c3977394b14f4990fbeca9570a652bab048fa6b923bd4c16b3611b",
+      "type": "phaseCompleted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 16000,
+      "scheduledElapsedMs": 16000,
+      "observedRunMs": 16000,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_912dfd0babffd3e14a54e1d452f99b71fd1487e55e082f641d4743c0434a82b9"
+    },
+    {
+      "eventId": "event_367b0a99e38f481ac571320eed3d9adf4ace0def3a9c23754c724601d34d58f2",
+      "type": "phaseStarted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 16000,
+      "scheduledElapsedMs": 16000,
+      "observedRunMs": 16000,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_c515e27f6b3c96c76317ff1451b1c7a3f4b2e0457ed72c825b5fd8891b6eb72b"
+    },
+    {
+      "eventId": "event_c61194265441b91fc9e18200a26b5a98fa03359473514e897859a575e98e76bc",
+      "type": "phaseCompleted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 20000,
+      "scheduledElapsedMs": 20000,
+      "observedRunMs": 20000,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_c515e27f6b3c96c76317ff1451b1c7a3f4b2e0457ed72c825b5fd8891b6eb72b"
+    },
+    {
+      "eventId": "event_101e922cb24346620fc6374e4f3b312c901f35f69e3673e500030382d0b1506e",
+      "type": "phaseStarted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 20000,
+      "observedRunMs": 20000,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_e36eca3004986bf0259f71214e0f71b63278d4b49166d95aa823f205946fa2ad",
+      "scheduledElapsedMs": null
+    },
+    {
+      "eventId": "event_2e05dae1167dfc341f703b1609865706389747a35b06d4c6164acc360b94a6ba",
+      "type": "skip",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 26000,
+      "observedRunMs": 22250,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_b363362b9dd4aaa6c16cae5e4e9ae62119500d10cf09b405d06527cdc4f6c211",
+      "scheduledElapsedMs": null
+    },
+    {
+      "eventId": "event_4b239140f503d5a7692a483b46f6882a373068cf0c5853553db884b71b146bdd",
+      "type": "phaseStarted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 26000,
+      "observedRunMs": 22250,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_b363362b9dd4aaa6c16cae5e4e9ae62119500d10cf09b405d06527cdc4f6c211",
+      "scheduledElapsedMs": null
+    },
+    {
+      "eventId": "event_a8ae97c25d2617dcff4250a3af62dbc8e04731a50fd86a9594d99fb6f9ed80db",
+      "type": "rewind",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 20000,
+      "observedRunMs": 22250,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_e36eca3004986bf0259f71214e0f71b63278d4b49166d95aa823f205946fa2ad",
+      "scheduledElapsedMs": null
+    },
+    {
+      "eventId": "event_3b1e34e1dd4247acf8ad5187e8a3d8b4d2782d8834d3e6900cda952b238bb964",
+      "type": "phaseStarted",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 20000,
+      "observedRunMs": 22250,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "phaseInstanceId": "phase_e36eca3004986bf0259f71214e0f71b63278d4b49166d95aa823f205946fa2ad",
+      "scheduledElapsedMs": null
+    },
+    {
+      "eventId": "event_ddc4ea26dfaba2a55c078480efd142d953040f5de1ed490bf7cb72e61e441b27",
+      "type": "sessionEnded",
+      "recordedAt": "2026-11-03T10:00:00Z",
+      "adjustedScheduledElapsedMs": 20000,
+      "observedRunMs": 22250,
+      "pauseMs": 4000,
+      "unobservedGapMs": 0,
+      "unknownGapCount": 2,
+      "detail": {
+        "completionKind": "partial"
+      },
+      "scheduledElapsedMs": null
+    }
+  ],
+  "finishedAt": "2026-11-03T10:00:00Z",
+  "schemaVersion": "1.2.0"
+}

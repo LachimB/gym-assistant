@@ -5,6 +5,9 @@ No restore, clear, uninstall, network upload or automatic workout resume.
 """
 import argparse
 import hashlib
+import io
+import tarfile
+from pathlib import PurePosixPath
 import json
 import os
 from pathlib import Path
@@ -32,7 +35,8 @@ def validate_database(path, expected_version, require_paused=True):
             raise BackupError('SQLite foreign-key check failed')
         if db.execute('PRAGMA user_version').fetchone()[0] != expected_version:
             raise BackupError('Unexpected source schema version')
-        tables = TABLES + (['drive_connections','session_deliveries'] if expected_version == 2 else [])
+        tables = TABLES + (['drive_connections','session_deliveries'] if expected_version >= 2 else [])
+        if expected_version >= 3: tables += ['template_candidates','template_revisions','template_heads','execution_plan_revisions']
         counts = {table:db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0] for table in tables}
         if db.execute('SELECT sessionId FROM actions GROUP BY sessionId HAVING MIN(sequence)!=1 OR MAX(sequence)!=COUNT(*)').fetchone():
             raise BackupError('Incomplete committed receipt prefix')
@@ -65,12 +69,34 @@ def make_verified_snapshot(source, destination, expected_version):
     os.chmod(destination,0o600)
     return {**after,'standaloneSha256':digest(destination),'integrity':'ok','foreignKeys':'ok'}
 
+def validate_library_archive(content):
+    """Inspect privately without extracting paths or printing source names/contents."""
+    if not content:
+        return {'present':False,'fileCount':0,'archiveSha256':hashlib.sha256(content).hexdigest()}
+    files={}
+    try:
+        with tarfile.open(fileobj=io.BytesIO(content),mode='r:') as archive:
+            for member in archive:
+                path=PurePosixPath(member.name)
+                if path.is_absolute() or '..' in path.parts or tuple(path.parts[:2]) != ('files','training-library'):
+                    raise BackupError('Library backup contains an unexpected path')
+                if member.isdir():continue
+                if not member.isfile() or path.as_posix() in files:
+                    raise BackupError('Library backup contains a link or duplicate file')
+                stream=archive.extractfile(member)
+                if stream is None:raise BackupError('Library backup entry is unreadable')
+                with stream: files[path.as_posix()]=hashlib.sha256(stream.read()).hexdigest()
+    except tarfile.TarError:
+        raise BackupError('Library archive is invalid') from None
+    logical=hashlib.sha256(json.dumps(files,sort_keys=True,separators=(',',':')).encode()).hexdigest()
+    return {'present':True,'fileCount':len(files),'archiveSha256':hashlib.sha256(content).hexdigest(),'logicalSha256':logical}
+
 def main():
     parser=argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--adb',default='adb')
     parser.add_argument('--serial',required=True)
     parser.add_argument('--output',required=True,type=Path)
-    parser.add_argument('--schema-version',type=int,choices=[1,2],default=1)
+    parser.add_argument('--schema-version',type=int,choices=[1,2,3],default=1)
     args=parser.parse_args()
     os.umask(0o077)
     def adb(*command, optional=False):
@@ -98,6 +124,14 @@ def main():
     args.output.mkdir(parents=True,mode=0o700)
     raw=args.output/'raw'; raw.mkdir(mode=0o700)
     source=capture(raw)
+    def capture_library():
+        exists=adb('exec-out','run-as',PACKAGE,'ls','-d','files/training-library',optional=True)
+        return b'' if exists is None else adb('exec-out','run-as',PACKAGE,'tar','-cf','-','files/training-library')
+    library=capture_library()
+    library_evidence=validate_library_archive(library)
+    (args.output/'training-library.tar').write_bytes(library)
+    repeated=capture_library()
+    if validate_library_archive(repeated) != library_evidence:raise BackupError('Library files changed during capture')
     raw_hashes={p.name:digest(p) for p in raw.iterdir() if p.is_file()}
     # Verify in a disposable copy so SQLite cannot modify the retained raw bundle.
     with tempfile.TemporaryDirectory(prefix='gym-backup-verify-') as temp:
@@ -108,7 +142,7 @@ def main():
         raise BackupError('Raw backup changed during verification')
     evidence.update({'capturedAt':datetime.now(timezone.utc).isoformat(),'package':PACKAGE,
                      'rawFileSha256':raw_hashes,'backupDirectory':str(args.output),'deviceStopped':True,
-                     'contentsPrinted':False,'cloudUpload':False,'restorePerformed':False})
+                     'libraryFiles':library_evidence,'contentsPrinted':False,'cloudUpload':False,'restorePerformed':False})
     (args.output/'manifest.json').write_text(json.dumps(evidence,indent=2)+'\n')
     print(json.dumps(evidence,indent=2))
 

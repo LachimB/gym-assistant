@@ -1,6 +1,13 @@
 package dev.gymassistant.m0
 
 import android.os.Bundle
+import androidx.lifecycle.lifecycleScope
+import android.provider.OpenableColumns
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
+import dev.gymassistant.session.*
+import dev.gymassistant.engine.v2.*
 import android.accounts.Account
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
@@ -53,6 +60,29 @@ class MainActivity : ComponentActivity() {
     private val workout by viewModels<WorkoutModel>()
     private val driveProbe by viewModels<DriveProbeModel>()
     private val driveDelivery by viewModels<DriveDeliveryModel>()
+    private val templateFiles = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
+        if(uris.isNotEmpty())lifecycleScope.launch {
+            try {
+                val inputs=withContext(Dispatchers.IO) {
+                    require(uris.size in 2..33)
+                    var total=0L
+                    uris.map { uri ->
+                        val name=contentResolver.query(uri,arrayOf(OpenableColumns.DISPLAY_NAME),null,null,null)?.use { cursor ->
+                            if(cursor.moveToFirst())cursor.getString(0)else "selected.yaml"
+                        }?:"selected.yaml"
+                        val bytes=checkNotNull(contentResolver.openInputStream(uri)).use { stream ->
+                            val output=java.io.ByteArrayOutputStream();val buffer=ByteArray(8192)
+                            while(true) {val count=stream.read(buffer);if(count<0)break;require(output.size()+count<=1048576);total+=count;require(total<=8388608);output.write(buffer,0,count)}
+                            output.toByteArray()
+                        }
+                        ImportFile3(name,bytes)
+                    }
+                }
+                workout.importFiles(inputs)
+            }catch(cancelled:kotlinx.coroutines.CancellationException){throw cancelled}
+            catch(_:Exception){workout.importFailed()}
+        }
+    }
     private val authorization by lazy { Identity.getAuthorizationClient(this) }
     private val driveResolution = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
         if (result.resultCode != RESULT_OK || result.data == null) failDriveAuthorization()
@@ -98,6 +128,7 @@ class MainActivity : ComponentActivity() {
             val ui by workout.ui.collectAsState()
             var showDetails by remember { mutableStateOf(false) }
             var confirmation by remember { mutableStateOf<String?>(null) }
+            var showLibrary by remember { mutableStateOf(false) }
             var showDriveTest by remember { mutableStateOf(false) }
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
@@ -107,12 +138,16 @@ class MainActivity : ComponentActivity() {
                         if (ui.needsRecovery && ui.saved?.checkpoint?.outcome == "inProgress") {
                             TextButton(onClick = { showDriveTest = true }) { Text("Drive connection test") }
                         }
+                        TextButton(onClick={showLibrary=true},enabled=workout.canImport()) {Text("Training Template library")}
+                        if(!showLibrary)ui.libraryMessage?.let {Text(it)}
                         when {
                             ui.loading -> Text("Loading saved workout…")
                             ui.error != null -> {
                                 Text(checkNotNull(ui.error))
                                 WorkoutButton("Retry saved checkpoint") { workout.retry() }
                             }
+                            ui.saved2 != null -> ModernWorkout(checkNotNull(ui.saved2),ui.needsRecovery,
+                                {workout.command(it)}, {confirmation=it})
                             ui.saved == null -> {
                                 Text("Training Template", style = MaterialTheme.typography.headlineMedium)
                                 Text("Synthetic alternating pyramid · 50 seconds")
@@ -187,6 +222,31 @@ class MainActivity : ComponentActivity() {
                                 }
                             }
                         }
+                    }
+                    if(showLibrary) {
+                        AlertDialog(onDismissRequest={if(!ui.libraryBusy)showLibrary=false},
+                            title={Text("Training Template library")},
+                            text={Column(modifier=Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                                Text("Choose one Template and its exercise YAML files. Imports are stored privately on this phone. Review the complete plan before publishing.")
+                                Button(onClick={templateFiles.launch(arrayOf("*/*"))},enabled=!ui.libraryBusy && workout.canImport()) {Text("Import selected YAML files")}
+                                ui.libraryMessage?.let {Text(it)}
+                                ui.candidate?.takeIf {it.validationCode=="valid"}?.let {candidate ->
+                                    val plan=remember(candidate.candidateId) {planJson2.decodeFromString<Plan2>(checkNotNull(candidate.compiledPlanJson))}
+                                    Text("Review: ${plan.templateName}")
+                                    Text("Revision ${plan.revisionId} · ${formatMs(plan.expectedDurationMs)} · ${plan.phases.size} phases")
+                                    Text("Current published revision: ${candidate.expectedHeadRevisionId?:"none"}")
+                                    plan.phases.forEachIndexed {index,phase->
+                                        Text("${index+1}. ${phase.exerciseName?:phase.name} · ${phase.variationName.orEmpty()} · ${phase.side?:"—"} · ${phase.name} · ${formatMs(phase.endMs-phase.startMs)}${phase.repetitionIndex?.let {" · repetition $it"}.orEmpty()}\n${resistanceText2(phase.resistance)}${if(plan.policies.any {it.setId==phase.setId})" · +1 repetition supported" else ""}")
+                                    }
+                                    Button(onClick={workout.publishCandidate(candidate.candidateId,checkNotNull(candidate.sourceHash),checkNotNull(candidate.compiledPlanHash))},enabled=!ui.libraryBusy && workout.canImport()) {Text("Publish this reviewed revision")}
+                                }
+                                ui.templates.forEach {row ->
+                                    val plan=remember(row.compiledPlanHash){planJson2.decodeFromString<Plan2>(row.compiledPlanJson)}
+                                    Text("${plan.templateName} · ${formatMs(plan.expectedDurationMs)}")
+                                    Button(onClick={workout.startTemplate(row.templateId,row.revisionId);showLibrary=false},enabled=!ui.libraryBusy && (ui.saved2?.checkpoint?.outcome?:ui.saved?.checkpoint?.outcome)!="inProgress") {Text("Start ${plan.templateName}")}
+                                }
+                                if((ui.saved2?.checkpoint?.outcome?:ui.saved?.checkpoint?.outcome)=="inProgress")Text("Your unfinished workout is retained. Finish or discard it before starting another.")
+                            }},confirmButton={TextButton(onClick={showLibrary=false},enabled=!ui.libraryBusy){Text("Close")}})
                     }
                     if (showDriveTest) {
                         AlertDialog(onDismissRequest = { showDriveTest = false },
@@ -270,3 +330,49 @@ private fun frozenExerciseLabels(sources: List<String>): Map<String, String> = r
         }
     }
 }.getOrDefault(emptyMap())
+
+
+private fun resistanceText2(value:Resistance2?):String = buildList {
+    value?.weight?.let {add("${it.value} ${it.unit}")}
+    value?.bands?.forEach {add("${it.equipmentId.replace('_',' ')} ×${it.count} ${it.placement}")}
+    value?.notes?.let {add(it)}
+}.joinToString(" · ").ifBlank {"No resistance"}
+
+@Composable
+private fun ModernWorkout(saved:SavedWorkout2,recovery:Boolean,command:(String)->Unit,confirm:(String)->Unit) {
+    val cp=saved.checkpoint;val state=saved.state;val phase=activePhase2(saved.plan,state.cursorMs)
+    if(recovery && cp.outcome=="inProgress") {
+        Text("Unfinished workout recovered",style=MaterialTheme.typography.headlineMedium)
+        Text("Saved progress is paused. Unobserved time was not counted as exercise.")
+        WorkoutButton(if(state.status==SessionStatus.Completed)"Complete Workout" else "Resume saved workout") {command(if(state.status==SessionStatus.Completed)"finish" else "resume")}
+        WorkoutButton("Save partial workout…") {confirm("end")}
+        WorkoutButton("Discard workout…") {confirm("discard")}
+    }
+    if(cp.outcome!="inProgress")Text(if(cp.outcome=="discarded")"Workout discarded; partial record retained" else "Workout saved",style=MaterialTheme.typography.headlineMedium)
+    else {
+        Text(phase?.name?:"Complete",style=MaterialTheme.typography.displaySmall)
+        Text(formatMs(phase?.let {it.endMs-state.cursorMs}?:0),style=MaterialTheme.typography.displayMedium)
+        phase?.exerciseName?.let {Text(it)};phase?.variationName?.let {Text(it)}
+        phase?.side?.let {Text("Side: ${it.replaceFirstChar {it.uppercase()}}")}
+        phase?.repetitionIndex?.let {Text("Repetition $it")}
+        Text(resistanceText2(phase?.resistance))
+    }
+    Text("Planned ${formatMs(saved.plan.originalDurationMs)} · adjusted ${formatMs(saved.plan.expectedDurationMs)}")
+    Text("Observed ${formatMs(state.observedRunMs)} · pause ${formatMs(state.pauseMs)}")
+    Text("Unobserved ${formatMs(state.unobservedGapMs)} · ${cp.unknownGapCount} interruption(s) of unknown duration")
+    Text("${saved.plan.adjustments.size} extra repetition(s) · ${state.completedInstanceIds.size} phases completed")
+    Text("Saved on this phone · this workout has not been uploaded")
+    when {
+        cp.outcome!="inProgress"->WorkoutButton("New Workout"){command("new")}
+        recovery->Unit
+        state.status==SessionStatus.Completed->WorkoutButton("Complete Workout"){command("finish")}
+        else->{
+            WorkoutButton(if(state.status==SessionStatus.Running)"Pause" else "Resume"){command(if(state.status==SessionStatus.Running)"pause" else "resume")}
+            if(additionAvailable2(saved.plan,state)!=null)WorkoutButton("+1 repetition"){command("add")}
+            Row(horizontalArrangement=Arrangement.spacedBy(8.dp)) {
+                WorkoutButton("Back"){command("back")};WorkoutButton("Forward"){command("forward")}
+            }
+            WorkoutButton("End Workout…"){confirm("end")}
+        }
+    }
+}

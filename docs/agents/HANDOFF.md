@@ -895,3 +895,43 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   verified Room2 + app-private library-file backup and complete automated gates.
   Existing unfinished format1 workout must stay paused and never be converted.
   No real-workout cloud upload; exact pinned synthetic sender gate unchanged.
+
+
+## Local library/session integration ready for CI — 2026-11-03
+
+- Core PR18 merged bd5dc25 after all checks: standard41645751316 and Android
+  seven-version41645751343. Follow-up branch codex/m1-local-template-runtime
+  fast-forwarded onto that verified main, preserving all local integration work.
+- Implemented Room3 explicit1→2→3/2→3 migrations, candidate quarantine/review,
+  immutable private file storage and revisions, stale-head/CAS publication;
+  format2 source/base/effective plans, compact stable ordinal checkpoint ranges,
+  atomic append receipts/checkpoints/outbox and structural-only plan rows.
+  Legacy format1 is explicitly dispatched and never converted. New restoration
+  audits the committed prefix before recording unknown gaps/explicit resume.
+- Added Android system-picker import/full-preview/publish/start flow and side,
+  weight/band/note cues, +1 for eligible current sets, late-tap handling. Shared
+  process Room instance is no longer closed by an individual ViewModel.
+  New build versionCode6 /0.1.4-m1-local-template; no physical install yet.
+- Canonical1.2 and schema/public fixture exclude raw ticks/internal receipt IDs;
+  original-plan position is explicitly null during inserted work. TS web reader
+  independently recompiles the frozen source, applies ordered semantic adds,
+  verifies hashes/final effective plan/events/timing. Old1.0/1.1 remain supported.
+  Compiler is loaded only when opening1.2. Web production build has no size warning.
+- Local checks: Android40 JVM,24 SQLite (including rollback and legacy/new
+  coexistence/driver gaps/late tap), web22, TypeScript34, Python70, contracts22
+  and engine/cloud suites pass. Old actual process-stop test passed at current
+  integration. Format2 UI/process acceptance and current-head CI still pending.
+- Backup helper now captures/verifies library archive separately without extracting
+  it or printing source names/contents;6 helper tests pass. New verified Room2/files
+  backup remains mandatory before physical Room3 installation; old Room1 backup kept.
+- Private local conversion prepared outside Git in /private/tmp/gym-m1-source/runtime2.
+  It preserves the approved45m50 timeline,474 phases,7 exercise files;32 explicit
+  repeated sets support adds, two one-off holds do not.203 inter-repetition resets
+  explicitly annotated to the owner's4seconds; remaining original rests preserved.
+  Independent TS and Kotlin plans match; all32 add policies checked locally.
+  Host100 deterministic ticks took25ms (NOT device/background timing evidence).
+  Only validation/count/duration metadata entered chat. Original preview unchanged.
+  Temporary Kotlin local-check test removed; private sources/results remain outside
+  Git/APK. Owner still must review/publish locally and provide physical acceptance.
+- Exact pinned synthetic-only cloud sender remains unchanged. No source/session
+  cloud upload, new external service or billing change occurred.
