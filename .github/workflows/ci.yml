@@ -41,7 +41,7 @@ jobs:
         working-directory: packages/engine-ts
         run: npm ci && npm test
       - name: Synthetic Drive experiment transport safeguards
-        run: node --test tools/drive_scope_client.test.mjs
+        run: node --test tools/drive_scope_client.test.mjs tools/drive_conditional_probe.test.mjs
       - name: Audit engine test dependencies
         working-directory: packages/engine-ts
         run: npm audit --include=dev --audit-level=moderate
