@@ -122,4 +122,24 @@ class SessionDeliveryTest {
             assertEquals(reason, f.job.errorCode); assertEquals(0, f.creates)
         }
     }
+    @Test fun personalRetryVerifiesSameFileAndRejectsChangedRemoteWithoutAnotherCreate()=runBlocking {
+        val f=Fixture()
+        f.connection=f.connection.copy(rootFolderId="personal-root",namespaceMarker="personal-m1-test")
+        f.folder=DeliveryFolder(PERSONAL_FOLDER_NAME_4,"personal-m1-test","application/vnd.google-apps.folder")
+        val canonical="""{"schemaVersion":"1.2.0","syntheticTest":true}"""
+        f.job=f.job.copy(canonicalJson=canonical,contentSha256=sha256Utf8(canonical))
+        fun sender()=SessionDeliverySender(f,f,"personal@example.test",personalTarget=PersonalDeliveryTarget4(f.connection))
+        assertEquals("delivered",sender().send("delivery"));assertEquals(1,f.creates)
+        val calls=f.calls.size;assertEquals("delivered",sender().send("delivery"));assertTrue(f.calls.size>calls)
+        assertEquals(1,f.creates);assertEquals(1,f.reservations)
+        f.mutateReadback=true
+        assertEquals("conflict",assertFailsWith<DeliveryFailure>{sender().send("delivery")}.reason)
+        assertEquals(1,f.creates)
+    }
+    @Test fun personalSenderCannotUseSyntheticNamespaceOrAnotherBinding()=runBlocking {
+        val f=Fixture();val target=PersonalDeliveryTarget4(f.connection.copy(rootFolderId="personal-root",namespaceMarker="personal-m1-test"))
+        assertEquals("retry",SessionDeliverySender(f,f,"personal@example.test",personalTarget=target).send("delivery"))
+        assertTrue(f.calls.isEmpty());assertEquals("contract",f.job.errorCode)
+    }
+
 }

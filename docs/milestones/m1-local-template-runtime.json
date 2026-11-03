@@ -72,14 +72,15 @@
     "noUnfinishedWorkout": true
   },
   "cloud": {
-    "realWorkoutUploadAuthorized": false,
+    "realWorkoutUploadAuthorized": true,
     "exactSyntheticEligibilityGateChanged": false,
     "newService": false,
-    "billingChanged": false
+    "billingChanged": false,
+    "realWorkoutUploadImplementation": "ADR-0007 approved; implementation/testing in progress; no live real upload"
   },
   "remaining": [
     "complete a full real workout with the supported local runtime",
-    "owner approval of ADR-0007 before real personal Drive delivery and its separate migration",
+    "ADR-0007 approved personal delivery: current-head CI, fresh backup, phone migration and live owner-selected test pending",
     "implement/test authorized real-data delivery; Template synchronization and direct web Drive retrieval remain open",
     "remaining M1/product acceptance gates"
   ],
@@ -155,6 +156,14 @@
       "backupStandaloneSha256": "1d792a9e76ee27230cefce9d848dfda9143fd1694d4e579a2faaaaf0cfebc1e5",
       "uninstallOrClearPerformed": false,
       "cloudUpload": false
+    },
+    "ci": {
+      "pr": 20,
+      "head": "b4c57090fb58601fee21eb71b2ab5552461686fd",
+      "standardRun": 41706474885,
+      "sevenVersionAndroidRun": 41706474849,
+      "allTenPassed": true,
+      "mergedCommit": "c8c0f60"
     }
   }
 }

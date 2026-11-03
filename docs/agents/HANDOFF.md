@@ -1108,3 +1108,41 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
 - PR20 current-head checks required before merge. Owner approval requested for
   proposed ADR7; do not implement Room4 or real delivery until explicitly approved.
   Full physical workout acceptance still open; short discarded test is retained.
+
+## ADR7 approved; personal delivery implementation underway — 2026-11-03
+
+- Owner requested explanation, then explicitly approved ADR-0007 in chat. Updated
+  ADR status; scope includes one separate personal root, manual finalized format2
+  human1.2 delivery and additive Room3→4 after tests + new verified backup. No
+  live folder/upload/phone migration yet. Phone remains verified v8/Room3.
+- Follow-up codex/m1-personal-session-delivery branches from PR20 head b4c5709;
+  PR20 is still completing its seven-version CI and must merge first. Do not
+  conflate current working changes with that reviewed completion-only PR.
+- New dedicated personal table/file-backed payload adapter, durable setup intent,
+  account/root verification, manual session selection/preview and same-ID retry.
+  Existing inline synthetic jobs and exact synthetic remote path remain separate.
+  Large canonical bodies are app-private files; SQL stores pointers/hashes only.
+- Local initial49 JVM checks and28 real SQLite checks pass, including composed
+  migrations/rollback, old inline delivery, immutable payload/reconstruction and
+  final-source verification. Room4 export preserves all11 old entities exactly.
+  Further UI and current-head CI still required. No physical install authorized
+  merely by a successful local build: ADR7 backup/CI gates take precedence.
+- Extended backup captures delivery-payloads/personal-drive archives separately,
+  checking paths/links without extraction/content output. Python backup8 checks
+  pass. Approved global allocation82→132/500; new persistent50 direct/4auth cap,
+  no old counters reset/refunded; SDK internal requests unmeasured.
+
+- PR20 merged c8c0f60 after all10 checks at b4c5709: standard41706474885 and
+  seven-version41706474849. Follow-up branch fast-forwarded onto freshly fetched
+  main without discarding changes. Phone v8 is the same completion-fix code.
+- Strengthened Room3→4 fixture now includes published source/candidate/head,
+  structural plan, paused format2 session and retained inline legacy delivery,
+  comparing all11 tables exactly across rollback/success. Emulator preview
+  assertion corrected to inspect disabled clickable ancestor, not enabled TextView;
+  actual control was disabled. No product gate weakened.
+
+- Final API31 real UI: process recovery passed, selected import/full review/fixed
+  publication and personal preview passed with all recording/delivery rows unchanged,
+  no selected-session send enabled and no Google authorization. Strengthened28
+  SQLite tests pass after correcting only the synthetic fixture date to its UTC
+  timestamp. Default build's personal allowance remains disabled; no phone Room4.

@@ -13,12 +13,13 @@ android {
         applicationId = "dev.gymassistant.m0.debug"
         minSdk = 31
         targetSdk = 36
-        versionCode = 8
-        versionName = "0.1.6-m1-completion-fix"
+        versionCode = 9
+        versionName = "0.1.7-m1-personal-delivery"
         val probeAccount = providers.gradleProperty("syntheticDriveAccount").orElse("").get()
         require(probeAccount.isEmpty() || probeAccount.matches(Regex("[A-Za-z0-9._+@-]+")))
         buildConfigField("String", "SYNTHETIC_DRIVE_ACCOUNT", "\"$probeAccount\"")
         buildConfigField("boolean", "SYNTHETIC_DELIVERY_BUDGET_RESERVED", providers.gradleProperty("syntheticDeliveryBudgetReserved").orElse("false").get().also { require(it in setOf("true", "false")) })
+        buildConfigField("boolean", "PERSONAL_DELIVERY_BUDGET_RESERVED", providers.gradleProperty("personalDeliveryBudgetReserved").orElse("false").get().also { require(it in setOf("true", "false")) })
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true; buildConfig = true }

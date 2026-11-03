@@ -1,6 +1,6 @@
 # ADR-0007 — Explicit personal Drive delivery of a selected human session
 
-- Status: **Proposed — owner approval required; not implemented**
+- Status: **Approved by owner in chat on 2026-11-03 — implementation in progress**
 - Date: 2026-11-03
 - Requirements: GA-DATA-004/005/010/011, GA-EXE-008/012, GA-WEB-004
 - Builds on approved ADR-0004/0005/0006. Does not complete M1 by itself.
