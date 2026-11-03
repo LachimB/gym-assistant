@@ -67,7 +67,8 @@ def main():
                         ('session_starts','checkpoints','actions','unfinished_slot','outbox','drive_connections','session_deliveries','execution_plan_revisions','personal_session_deliveries')}
     call('shell','am','start','-W','-n',PACKAGE+'/dev.gymassistant.m0.MainActivity')
     wait('Training Template library')
-    assert not workout_rows()['unfinished_slot'], 'A previous synthetic test must finish first'
+    initial=workout_rows()
+    assert not initial['unfinished_slot'], 'A previous synthetic test must finish first'
     click('Training Template library',scroll=True)
     tree=nodes()
     start=next((label for label in labels(tree) if label.startswith('Start ') and label!='Start Workout'),None)
@@ -77,10 +78,13 @@ def main():
             start=next((label for label in labels(nodes()) if label.startswith('Start ') and label!='Start Workout'),None)
             if start:break
     assert start and 'Synthetic' in start, 'Only the published public synthetic Template is allowed'
-    click(start,scroll=True);wait('Pause');click('Pause',scroll=True)
-    click('End Workout…',scroll=True);click('Save partial workout');wait('Workout saved')
-    before=workout_rows()
-    assert not before['unfinished_slot']
+    click(start,scroll=True);click('Pause',scroll=True);wait('Resume')
+    click('End Workout…',scroll=True);click('Save partial workout')
+    for _ in range(12):
+        before=workout_rows()
+        if not before['unfinished_slot'] and len(before['session_starts'])==len(initial['session_starts'])+1:break
+        time.sleep(.2)
+    else:raise AssertionError('Expected exactly one finalized synthetic recording')
     click('Send a finished session to personal Drive…',scroll=True);wait('Personal session delivery')
     choice=None
     for _ in range(12):

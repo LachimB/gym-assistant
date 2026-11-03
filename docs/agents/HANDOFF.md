@@ -1169,3 +1169,10 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   Not sent note. A generation guard prevents an older list refresh from replacing
   a selection/send status. No SQL/network policy or payload changes. Final source
   checks must cover this status correction before migration.
+
+- Current CI caught the new personal-preview harness waiting for an offscreen
+  Pause before scrolling on API37. Use the existing bounded scroll-and-click
+  operation, require visible Resume after pausing, and verify exactly one new
+  finalized database record before preview. No app requirement/assertion relaxed;
+  migrations/process/import passed before that new test. Current-head CI rerun
+  required; do not migrate/merge a failed revision.
