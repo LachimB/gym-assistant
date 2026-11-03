@@ -31,7 +31,7 @@ GA-WEB-005,M0-M3,planned-not-implemented,docs/milestones/plan.md; acceptance evi
 GA-DATA-001,M0-M1,partial-volatile-storage-contract,tests/test_storage_contracts.py; docs/operations/m1-drive-scope-experiment.md; synthetic Drive probe passed; app integration pending
 GA-DATA-002,M1-M4,partial-local-edit-preview,tests/test_template_loader.py; tests/test_template_review.py; tests/test_session_history_contract.py; durable quarantine and publication pending
 GA-DATA-003,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-003 pending
-GA-DATA-004,M1-M4,partial-transactional-local-store,apps/android/src/androidTest/kotlin/dev/gymassistant/session/RoomSessionStoreTest.kt; network retry and conflict preservation pending
+GA-DATA-004,M1-M4,partial-account-bound-synthetic-delivery,apps/android/src/androidTest/kotlin/dev/gymassistant/session/RoomSessionStoreTest.kt; apps/android/src/test/kotlin/dev/gymassistant/drive/SessionDeliveryTest.kt; docs/operations/m1-session-delivery.md; durable finalized synthetic delivery implemented; docs/milestones/m1-native-session-delivery.json; synthetic phone delivery/retry and verified download-to-web passed; real-workout/full synchronization pending
 GA-DATA-005,M1-M4,partial-single-local-execution,apps/android/src/androidTest/kotlin/dev/gymassistant/session/RoomSessionStoreTest.kt; synchronized device handoff and remote fencing pending
 GA-DATA-006,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-006 pending
 GA-DATA-007,M1-M4,planned-not-implemented,docs/milestones/plan.md; acceptance evidence for GA-DATA-007 pending

@@ -13,11 +13,12 @@ android {
         applicationId = "dev.gymassistant.m0.debug"
         minSdk = 31
         targetSdk = 36
-        versionCode = 4
-        versionName = "0.1.2-m1-drive-probe"
+        versionCode = 5
+        versionName = "0.1.3-m1-delivery"
         val probeAccount = providers.gradleProperty("syntheticDriveAccount").orElse("").get()
         require(probeAccount.isEmpty() || probeAccount.matches(Regex("[A-Za-z0-9._+@-]+")))
         buildConfigField("String", "SYNTHETIC_DRIVE_ACCOUNT", "\"$probeAccount\"")
+        buildConfigField("boolean", "SYNTHETIC_DELIVERY_BUDGET_RESERVED", providers.gradleProperty("syntheticDeliveryBudgetReserved").orElse("false").get().also { require(it in setOf("true", "false")) })
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true; buildConfig = true }
@@ -28,6 +29,7 @@ android {
     packaging {
         resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
     }
+    sourceSets.getByName("androidTest").assets.srcDir("schemas")
     sourceSets.getByName("main").apply {
         kotlin.srcDir("../../packages/engine/src/commonMain/kotlin")
         assets.srcDirs("../../examples/templates", "../../examples/exercises")

@@ -611,3 +611,192 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
 - Conditional-write feasibility is now demonstrated for this exact v2 content
   path, not v3 compatibility or production conflict/outbox/fencing implementation.
   M1 remains open; new persistence/security boundaries require reviewed approval.
+
+## Next sync decision prepared — 2026-11-03
+
+- Proposed ADR-0005 makes a first finalized-session delivery slice reviewable:
+  immutable account/root binding, exact-byte durable intent, stable provider ID
+  before create, lost-ack verification, preserved conflicts and no tick upload.
+  New connection/delivery tables require additive Room1→2 migration. Owner review
+  requested; **not approved or implemented**. No phone migration/backup performed.
+- Proposed authorization includes migration implementation/tests and phone
+  application only after a verified private backup. Cloud tests remain synthetic;
+  no general real-history upload, stored OAuth token or background worker.
+  Active-session fencing/library sync/real-workout execution remain open requirements.
+- Web history PR15 and conditional-write PR16 are separate tested slices. Do not
+  infer their merge/CI state from this note; inspect current GitHub checks.
+
+## ADR-0005 approved; delivery implementation in progress — 2026-11-03
+
+- Owner requested a plain-language explanation, then explicitly chose “Approve
+  ADR-0005”. The approved scope includes account-bound finalized synthetic delivery,
+  additive Room1→2 migration/tests and phone application only after verified private
+  backup. Real-workout upload remains excluded. ADR status updated locally.
+- Current branch codex/m1-account-bound-delivery includes proposed-doc branch and
+  latest PR16 merge of web history. PR15 merged1d8249a after all checks; PR16 current
+  head433a47a has web/engine/contracts passing, final Android jobs still pending at
+  last check. Inspect live GitHub status before merging; no failing-CI merge.
+- In-progress/uncommitted: additive connection/delivery tables and explicit migration;
+  immutable delivery store with deduplication and outbox acknowledgement transaction;
+  fail-closed synthetic sender with durable provider ID, exact read-back, bounded
+  transient retries/cancellation; fixed-host Google transport, no token persistence.
+  Existing main DB builder now registers migration. App build version5.
+- JVM tests including10 sender and7 HTTP-domain tests pass (34 total including17
+  prior). Migration instrumentation first run:14 pass,1 incorrect test expectation
+  (two actions expected as three); assertion corrected. Rerun15 currently running
+  on explicit emulator-5560. Fresh APK built. Physical install deliberately held
+  under the latest ADR5 tests+backup gate; no phone DB migration/backup yet.
+- Sender defaults to refusing all payloads unless exact synthetic eligibility is
+  supplied. No delivery UI/fixture factory wired yet; no actual delivery calls or
+  extra budget reservation. Prior global allocation57/500 remains unchanged.
+- Remaining implementation: exact generated synthetic fixture admission/predicate;
+  Compose preview/explicit consent-purpose auth and delivery status/retry; reserve
+  additional20 before any live tests; emulator crash/SQLite acceptance; verified
+  private phone backup before install/migration; phone synthetic live evidence; docs
+  and PR CI. Do not upload current phone history or touch unfinished slot for test.
+
+## Delivery local tests and preview wired — 2026-11-03
+
+- 36 JVM and16 actual SQLite emulator tests pass. Source-pinned generated sample
+  can be persisted/retried without changing the existing unfinished workout. Live
+  sender rejects all payloads unless exact generated canonical eligibility matches.
+  Preview/explicit send uses independent purpose routing through the existing
+  authorization client; status is recovered locally after restart, no auto-send.
+- Local process-recovery test passed541→948ms only after explicit resume; no clear or
+  auto-resume. Python67, validator19fixtures/80requirements, hygiene pass. No phone
+  build installed/migration run yet. Default budget flagfalse blocks sending.
+- Private backup helper/tests added; not run on phone. It refuses running work,
+  verifies source consistency/receipt prefix, retains raw bundle and standalone
+  verified copy outside active app, prints only counts/checksums/status. No contents
+  sent to AI/cloud. Actual backup path must be persistent/private, not just tmp.
+- Next: final emulator preview/crash checks, implementation PR/current-head CI,
+  separate20-request global reservation, private configured APK build, verified
+  phone backup then install-r/migration. User must complete phone synthetic send/
+  Google consent if prompted. No real workout upload. See operations/m1-session-delivery.md.
+- PR16's current-head API37 job failed only on truncated uiautomator XML after
+  SQLite12passed; one failed-job rerun is running. This implementation adds a bounded
+  observation-only re-dump with2 Python tests; do not weaken actual app assertions.
+
+## CI integration checkpoint — 2026-11-03
+
+- PR15 merged1d8249a; PR16 merged9307121 after current-head standard CI and all
+  seven Android recovery checks passed. The one API37 truncated-XML observation
+  rerun passed; bounded observation retry is included in this new delivery slice.
+- Current implementation local:36 JVM and16 SQLite tests pass, including local
+  synthetic status after reopen.67 Python tests pass. Default build's delivery
+  budget flag remainsfalse. No phone backup/install or new cloud API call yet.
+- Added a distinct one-time localhost20-request delivery reservation button. This
+  has not been pressed at this checkpoint; global allocation still57/500. Only
+  enable private build flag after verifying reservation; keep old native counters.
+
+
+## Delivery build ready for CI/phone backup — 2026-11-03
+
+- PR17 draft opened with implementation. Current code has36 JVM/16 SQLite tests;
+  new emulator script also opens/closes synthetic preview and verifies exact saved
+  source/checkpoint unchanged. Private configured v5 APK built with reserved flag;
+  SHA2560d2881e4f151db81e3a5ea193980469df28cbe25458bdfe5a6fd89b64fde3344,
+  signingSHA1CE:DE:EC:BE:F3:A8:92:F2:45:D2:83:EC:48:31:A0:07:57:79:12:BD.
+- The20-request delivery reservation was pressed once:77/500 allocated.49 counted
+  setup/direct attempts remain; unused native8 + delivery20. No delivery API request
+  yet. Private build has account pin and syntheticDeliveryBudgetReserved=true; CI
+  defaultfalse. No phone install/migration or backup yet; do not silently apply it.
+- Emulator recovery/preview check passed447→530ms, no auto-resume/clear and no change
+  from preview. Backup rehearsal then exposed copied hot-journal recovery: corrected
+  validation to recover only a disposable working copy. Rehearsal now passes with
+  raw retained bundle untouched.4 backup unit tests, full Python now68 expected.
+  Emulator backup at /private/tmp/gym-m1-delivery-emulator-backup-v4 (public synthetic).
+- Next: push new helper/preview checks, await current-head seven-version CI; verify
+  one authorized physical phone and make persistent private version1 backup using
+  tools/backup_android_database.py (no content output). Only then install verified
+  v5 APK via install-r and launch for preserved paused recovery/migration. Send UI
+  steps to owner for synthetic delivery/Google confirmation, not real workout.
+
+
+## Latest delivery artifact and external action — 2026-11-03
+
+- Additional retry contract checks pass: numeric/HTTP-date Retry-After bounded to30s,
+  budget failure before transmission, and explicit retry after a wall-clock reset.
+  Latest JVM39 pass; latest private v5 APK supersedes0d288 checksum:
+  87808112806031903050af5a20094eb06489c4d4f9a2d5845e92ca3b9d297368.
+  Signer unchanged. No phone installation/migration/backup performed.
+- ADB physical count0. Owner was asked asynchronously to reconnect unlocked/idle;
+  answer still pending at this checkpoint. This is a real external action, not a
+  new approval request (ADR5 already approved). Finish CI/independent work first.
+- Updated prototype has no delivery-stage network call yet; global allocation77
+  contains unused old native8 and unused new delivery20. Do not reset counters.
+
+## Current external gate — 2026-11-03 (local acceptance note)
+
+- Implementation commit e9b3b9413faf6a58c6bd079a783ce0d3750e37e5 has all standard
+  CI and all seven Android recovery jobs passing: runs41621862466/41621862178.
+  PR17 stays draft pending physical backup/migration/synthetic delivery acceptance.
+- Owner confirmed phone connected/unlocked/idle, but ADB still listed zero physical
+  devices. macOS USB inventory exposed no Pixel/Android name. One local ADB server
+  restart did not change that; no app data/state touched. Latest recheck remains0.
+- Asked owner to reconnect using a data cable, keep unlocked and accept debugging
+  if shown. That follow-up answer is pending. No phone backup, APK install or DB
+  migration has run. No real workout uploaded. Next action is actual USB detection,
+  then approved verified private version1 backup before install-r of the verified
+  v5 artifact (SHA87808112806031903050af5a20094eb06489c4d4f9a2d5845e92ca3b9d297368).
+- At that checkpoint this note was left uncommitted to batch device evidence.
+  Subsequent physical acceptance below supersedes that waiting state.
+
+
+## Physical migration verified — 2026-11-03
+
+- Owner reconnected with a data cable/debugging accepted; exactly one authorized
+  Pixel10a detected. Installedv4 and expected privatev5 APK hash verified. Fetch
+  origin/current PR17 still e9b3b94; all standard/seven Android CI checks pass.
+- Approved private version1 backup completed and verified before installation:
+  <private-path>
+  StandaloneSHA1ea77e88e58e67f3653813b3e11aeb76d6779ff93a0a5ae3bbc51676ec9a0e9d.
+  Integrity/FKs/receipt-prefix/paused checks pass. Raw/standalone files retained
+  privately; never committed or printed. No restore/clear/uninstall.
+- Verified private v5 installed via install-r and launched. Local private copy
+  comparison confirms schema2, all702 prior action rows/outbox rows and every source
+  snapshot preserved; unfinished slot and scheduled/observed/pause/completed phases
+  unchanged. Only normal recovery action added; restored paused, new delivery and
+  connection tables empty at verification. See m1-phone-delivery-migration.json.
+- Owner now asked to open Drive connection test→Preview synthetic session delivery
+  →Send or retry synthetic example and report final status. This is phone action,
+  not a new approval gate. Account/app/specific-file checks supplied. Do not send
+  current workout. Global allocation77/500; delivery20 reserved separately.
+- Phone migration acceptance is complete; live synthetic delivery/retry evidence
+  still pending. No real-workout cloud upload authorized. Keep PR17 draft until the
+  remaining physical test is verified; batch evidence/docs commit after result.
+
+
+## Native synthetic delivery and retry passed — 2026-11-03
+
+- Owner reported exact delivery/read-back success and same success after explicit
+  retry. Read only whitelisted counter values: new delivery auth attempts2/direct
+  HTTP11. One durable delivered job/connection; sender-domain attempts6 (inspect
+  may issue two HTTP calls). Synthetic outbox3 delivered; all original sources,
+  action/outbox rows and paused progress unchanged. No real workout uploaded.
+- Synthetic provider ID1PpkSmoA4pjgM8mFvhzDLc8ffVV68KLnV; exact canonical SHA
+  07c722af74d1ff2939ba65b2711e39c8ca1e4e0e8ebb29e29cd2dd4a46098b3b.
+  Receipt captured only after retry; do not claim independent before/after ID
+  sampling. Browser same-grant exact-file/list/hash verification being prepared.
+- Added bounded readback tool for only this synthetic file. Four Node tests rebuild
+  the exact expected public sample from the checked-in Kotlin golden and verify
+  hash equality; no phone JSON fixture or personal content added to Git.
+
+
+## Synthetic phone→Drive→verified download→web passed — 2026-11-03
+
+- Existing browser grant verified the exact native file/label/account/hash and
+  one visible matching filename with five200 responses. Canonical13706-byte
+  download SHA matches phone07c722...98b3b. It opened through actual local web file
+  chooser:21 meaningful events,50s observed/planned, zero pauses/gaps, planned end.
+  Screenshot /private/tmp/gym-m1-phone-to-web-history.png. Browser credentials
+  forgotten. Direct product Drive browsing/retrieval is still unimplemented.
+- Global allocation82/500 =65 counted direct/setup +17 unused (native8/delivery9);
+  authorization/Picker internals unmeasured. New bounded fixed-artifact readback
+  harness and4 tests added (Node18 total); fake expected bytes reconstructed from
+  public Kotlin golden, no phone-data fixture. See native-session-delivery.json.
+- Phone backup/migration, initial synthetic delivery and explicit retry acceptance
+  now pass. All real prior sources/rows/progress unchanged, no real upload. PR17
+  should become ready/merge only after current combined head CI passes. Remaining
+  M1: validated private template library/import, side/weight cues and one-click
+  repetition changes, complete product template/history sync and real-workout gate.
