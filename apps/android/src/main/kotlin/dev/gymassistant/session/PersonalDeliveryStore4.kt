@@ -21,6 +21,7 @@ data class PersonalDeliveryRow4(@PrimaryKey val deliveryId:String,val connection
 @Dao interface PersonalDeliveryDao4 {
     @Query("SELECT * FROM personal_session_deliveries WHERE deliveryId=:id") suspend fun get(id:String):PersonalDeliveryRow4?
     @Query("SELECT * FROM personal_session_deliveries WHERE connectionId=:connection AND sessionId=:session") suspend fun forSession(connection:String,session:String):PersonalDeliveryRow4?
+    @Query("SELECT * FROM personal_session_deliveries WHERE sessionId=:session ORDER BY rowid DESC LIMIT 1") suspend fun latest(session:String):PersonalDeliveryRow4?
     @Insert suspend fun insert(row:PersonalDeliveryRow4)
     @Update suspend fun update(row:PersonalDeliveryRow4):Int
     @Query("SELECT sessionId FROM session_starts ORDER BY rowid DESC") suspend fun sessionIds():List<String>

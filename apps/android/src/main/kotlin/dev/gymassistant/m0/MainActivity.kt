@@ -295,7 +295,7 @@ class MainActivity : ComponentActivity() {
                 Text("Destination: Gym Assistant — PERSONAL M1 DEV. Created privately on the first send. No automatic uploads.")
                 if(selected==null)choices.forEach {choice->TextButton(onClick={selected=choice;personalDelivery.select(choice)}) {Text(choice.label)}}
                 selected?.let {choice->
-                    Text(choice.label);Text("${choice.bytes} bytes. Includes frozen workout instructions, meaningful events, dates and timing. Internal ticks and the original PDF stay off Drive.")
+                    Text(choice.label);Text(choice.deliveryNote);Text("${choice.bytes} bytes. Includes frozen workout instructions, meaningful events, dates and timing. Internal ticks and the original PDF stay off Drive.")
                     Text("Send freezes this exact recording. Retry uses the same file; conflicts stop without overwriting.")
                     TextButton(onClick={selected=null},enabled=!busy){Text("Choose another session")}
                 }
@@ -397,7 +397,7 @@ private fun ModernWorkout(saved:SavedWorkout2,recovery:Boolean,command:(String)-
     Text("Observed ${formatMs(state.observedRunMs)} · pause ${formatMs(state.pauseMs)}")
     Text("Unobserved ${formatMs(state.unobservedGapMs)} · ${cp.unknownGapCount} interruption(s) of unknown duration")
     Text("${saved.plan.adjustments.size} extra repetition(s) · ${state.completedInstanceIds.size} phases completed")
-    Text("Saved on this phone · this workout has not been uploaded")
+    Text("Saved on this phone · check personal Drive delivery for send status")
     when {
         cp.outcome!="inProgress"->WorkoutButton("New Workout"){command("new")}
         recovery->Unit

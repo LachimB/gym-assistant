@@ -1146,3 +1146,14 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   no selected-session send enabled and no Google authorization. Strengthened28
   SQLite tests pass after correcting only the synthetic fixture date to its UTC
   timestamp. Default build's personal allowance remains disabled; no phone Room4.
+
+- Added actual finalized public synthetic-session UI selection test to the seven-
+  version workflow. API31 passed: save partial, select captured Template/date/time,
+  review27KB payload scope/Not sent status; all recording/delivery rows unchanged
+  by selection, no Google authorization or upload. Corrected obsolete modern UI
+  “not uploaded” claim to neutral persistent-delivery status; preview shows saved
+  delivered/pending/conflict state. New test runs sequentially after import.
+- Extended Room4 backup rehearsal passed on emulator,12 tables and14 public
+  library files plus both personal archive namespaces. NOT a phone backup.
+  Default build49 JVM checks and private configured build49 pass. Current-head
+  CI must re-run for these final UI/status changes before phone migration.
