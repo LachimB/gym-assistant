@@ -1,10 +1,12 @@
 import { useRef, useState } from "react";
 import partialSample from "../../../examples/sessions/synthetic-human-partial-session.json?raw";
+import extraRepetitionSample from "../../../examples/sessions/synthetic-runtime-v2-session.json?raw";
 import completedSample from "../../../examples/sessions/synthetic-human-completed-session.json?raw";
 import { MAX_HISTORY_BYTES, readHistory, type ReadHistory, type HistoryEvent } from "./SessionHistory";
 
-export const duration = (ms?: number) => ms === undefined ? "Not recorded" : `${(ms / 1000).toLocaleString("en", { maximumFractionDigits: 3 })} s`;
+export const duration = (ms?: number | null) => ms == null ? "Not recorded" : `${(ms / 1000).toLocaleString("en", { maximumFractionDigits: 3 })} s`;
 const eventNames: Record<string, string> = {
+  repetitionAdded: "Extra repetition added",
   sessionStarted: "Workout started", phaseStarted: "Phase started", phaseCompleted: "Phase completed",
   pause: "Paused", resume: "Resumed", skip: "Skipped ahead to", rewind: "Moved back to", interruption: "Interruption",
   planEndReached: "Reached end of plan", sessionEnded: "Workout ended", sessionDiscarded: "Workout discarded",
@@ -25,13 +27,13 @@ function eventLabel(event: HistoryEvent, modern: boolean): string {
 
 export function HistoryDetails({ history, sample = false }: { history: ReadHistory; sample?: boolean }) {
   const { record, phases, labels, title } = history;
-  const modern = record.schemaVersion === "1.1.0";
+  const modern = record.schemaVersion !== "1.0.0";
   const timing = record.timing ?? {};
-  const phaseFor = (event: HistoryEvent) => phases.find(p => p.stepId === event.planStepId && (!event.phaseId || p.phaseId === event.phaseId));
+  const phaseFor = (event: HistoryEvent) => phases.find(p => event.phaseInstanceId ? p.instanceId === event.phaseInstanceId : p.stepId === event.planStepId && (!event.phaseId || p.phaseId === event.phaseId));
   const phaseLabel = (event: HistoryEvent) => {
     const phase = phaseFor(event);
     if (!phase) return event.planStepId ? "Recorded phase" : "Whole workout";
-    return [labels[`family/${phase.exerciseId}`], labels[`variation/${phase.exerciseId}/${phase.variationId}`], phase.name].filter(Boolean).join(" · ");
+    return [labels[`family/${phase.exerciseId}`], labels[`variation/${phase.exerciseId}/${phase.variationId}`], phase.side, phase.name].filter(Boolean).join(" · ");
   };
   return <section aria-label="Workout details" className="history-details">
     {sample && <p className="sample-label">Synthetic example · not your workout history</p>}
@@ -43,7 +45,8 @@ export function HistoryDetails({ history, sample = false }: { history: ReadHisto
     {record.completionKind === "plannedEnd" && <p>Reaching the end of the plan does not mean every repetition was performed. Skips remain in the event history.</p>}
     <dl className="timing-summary">
       <div><dt>Planned duration</dt><dd>{duration(modern ? timing.plannedDurationMs : timing.scheduledDurationMs)}</dd></div>
-      <div><dt>Position in plan</dt><dd>{duration(modern ? timing.scheduledElapsedMs : undefined)}</dd></div>
+      {record.schemaVersion === "1.2.0" && <><div><dt>Adjusted planned duration</dt><dd>{duration(timing.adjustedPlannedDurationMs)}</dd></div><div><dt>Position in adjusted plan</dt><dd>{duration(timing.adjustedScheduledElapsedMs)}</dd></div><div><dt>Extra repetitions added</dt><dd>{record.adjustments?.length}</dd></div></>}
+      <div><dt>Position in plan</dt><dd>{record.schemaVersion === "1.2.0" && timing.scheduledElapsedMs === null ? "Within an added repetition" : duration(modern ? timing.scheduledElapsedMs : undefined)}</dd></div>
       <div><dt>Observed running time, including planned rests</dt><dd>{duration(modern ? timing.observedRunMs : undefined)}</dd></div>
       <div><dt>Paused time</dt><dd>{duration(modern ? timing.pauseMs : undefined)}</dd></div>
       <div><dt>Known unobserved time</dt><dd>{duration(modern ? timing.unobservedGapMs : undefined)}</dd></div>
@@ -124,6 +127,7 @@ export function HistoryScreen() {
     <div className="controls">
       <button type="button" onClick={() => void open(partialSample, true)}>View synthetic partial example</button>
       <button type="button" onClick={() => void open(completedSample, true)}>View synthetic completed example</button>
+      <button type="button" onClick={() => void open(extraRepetitionSample, true)}>View synthetic extra-repetition example</button>
       <button type="button" onClick={() => { ++generation.current; setHistory(null); setError(""); setBusy(false); }}>Clear view</button>
     </div>
     {busy && <p role="status">Checking the saved session…</p>}

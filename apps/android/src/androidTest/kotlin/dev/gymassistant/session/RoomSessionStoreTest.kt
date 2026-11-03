@@ -36,7 +36,7 @@ class RoomSessionStoreTest {
     }
 
     private fun reopen() {
-        database = Room.databaseBuilder(context, WorkoutDatabase::class.java, databaseName).addMigrations(DELIVERY_MIGRATION_1_2).build()
+        database = Room.databaseBuilder(context, WorkoutDatabase::class.java, databaseName).addMigrations(DELIVERY_MIGRATION_1_2, LIBRARY_MIGRATION_2_3).build()
         store = RoomSessionStore(database)
     }
 
@@ -260,9 +260,9 @@ class RoomSessionStoreTest {
         assertEquals("{}", database.workouts().actions(original.sessionId).last().payloadJson)
     }
 
-    private fun originalRows(): Map<String, List<List<Any?>>> = listOf(
+    private fun originalRows(tables:List<String> = listOf(
         "session_starts", "checkpoints", "actions", "unfinished_slot", "outbox",
-    ).associateWith { table ->
+    )): Map<String, List<List<Any?>>> = tables.associateWith { table ->
         database.openHelper.writableDatabase.query("SELECT * FROM `$table` ORDER BY rowid").use { cursor ->
             buildList {
                 while (cursor.moveToNext()) add((0 until cursor.columnCount).map { index ->
@@ -276,11 +276,11 @@ class RoomSessionStoreTest {
         }
     }
 
-    private fun legacyHelper(rows: Map<String, List<List<Any?>>>): SupportSQLiteOpenHelper {
+    private fun legacyHelper(rows: Map<String, List<List<Any?>>>, version:Int=1): SupportSQLiteOpenHelper {
         val schema = InstrumentationRegistry.getInstrumentation().context.assets
-            .open("dev.gymassistant.session.WorkoutDatabase/1.json").bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }
+            .open("dev.gymassistant.session.WorkoutDatabase/$version.json").bufferedReader().use { JSONObject(it.readText()).getJSONObject("database") }
         return FrameworkSQLiteOpenHelperFactory().create(SupportSQLiteOpenHelper.Configuration.builder(context)
-            .name(databaseName).callback(object : SupportSQLiteOpenHelper.Callback(1) {
+            .name(databaseName).callback(object : SupportSQLiteOpenHelper.Callback(version) {
                 override fun onCreate(db: SupportSQLiteDatabase) {
                     val entities = schema.getJSONArray("entities")
                     for (i in 0 until entities.length()) {
@@ -315,7 +315,7 @@ class RoomSessionStoreTest {
         context.deleteDatabase(databaseName)
         legacyHelper(before).use { assertEquals(1, it.writableDatabase.version) }
         reopen()
-        assertEquals(2, database.openHelper.writableDatabase.version)
+        assertEquals(3, database.openHelper.writableDatabase.version)
         assertEquals(before, originalRows())
         assertEquals(saved, store.unfinished())
         assertEquals(done, store.load(completed.sessionId))
@@ -333,16 +333,19 @@ class RoomSessionStoreTest {
         val before = originalRows()
         database.close(); context.deleteDatabase(databaseName)
         legacyHelper(before).use { it.writableDatabase }
+        var migrationEntered=false
         database = Room.databaseBuilder(context, WorkoutDatabase::class.java, databaseName)
             .addMigrations(object : Migration(1, 2) {
                 override fun migrate(db: SupportSQLiteDatabase) {
+                    migrationEntered=true
                     DELIVERY_MIGRATION_1_2.migrate(db)
                     error("Injected migration failure")
                 }
-            }).build()
+            }, LIBRARY_MIGRATION_2_3).build()
         var failed = false
         try { database.openHelper.writableDatabase } catch (_: Exception) { failed = true }
         assertTrue(failed)
+        assertTrue(migrationEntered)
         database.close()
         legacyHelper(before).use { helper ->
             val db = helper.writableDatabase
@@ -402,6 +405,53 @@ class RoomSessionStoreTest {
         database.close(); reopen()
         assertEquals("queued",RoomDeliveryStore(database).syntheticStatus(sample))
         assertEquals(paused,store.unfinished())
+    }
+
+
+    @Test fun versionTwoMigrationPreservesPausedWorkoutAndBoundDelivery() = runBlocking {
+        val source=snapshot()
+        var done=store.start(source,"done-start")
+        done=store.commit(source.sessionId,done.revision,"done-end",action("end",1000))
+        val delivery=RoomDeliveryStore(database)
+        val binding=delivery.bind(DriveConnectionRow("migrate-binding","googleDrive","personal-id","fixture@example.test","root","synthetic",utc,utc))
+        val job=delivery.enqueue(binding.connectionId,source.sessionId,"migration-job")
+        val reserved=job.copy(remoteFileId="reserved-stable",state="ready")
+        delivery.save(job,reserved)
+        val pausedSource=snapshot()
+        var paused=store.start(pausedSource,"paused-start")
+        paused=store.commit(pausedSource.sessionId,paused.revision,"pause",action("pause",1234))
+        val tables=listOf("session_starts","checkpoints","actions","unfinished_slot","outbox","drive_connections","session_deliveries")
+        val before=originalRows(tables)
+        database.close();context.deleteDatabase(databaseName)
+        legacyHelper(before,2).use { assertEquals(2,it.writableDatabase.version) }
+        reopen()
+        assertEquals(3,database.openHelper.writableDatabase.version)
+        assertEquals(before,originalRows(tables))
+        assertEquals(paused,store.unfinished())
+        assertEquals(done,store.load(source.sessionId))
+        assertEquals(reserved,RoomDeliveryStore(database).load(job.deliveryId).second)
+        for(table in listOf("template_candidates","template_revisions","template_heads","execution_plan_revisions"))
+            assertEquals(0,database.openHelper.writableDatabase.query("SELECT COUNT(*) FROM `$table`").use { it.moveToFirst();it.getInt(0) })
+    }
+
+    @Test fun failedVersionThreeMigrationRollsBackAllLibraryTablesAndRetainsVersionTwo()=runBlocking {
+        val first=store.start(snapshot(),"start")
+        store.commit(first.start.sessionId,first.revision,"pause",action("pause",100))
+        val tables=listOf("session_starts","checkpoints","actions","unfinished_slot","outbox","drive_connections","session_deliveries")
+        val before=originalRows(tables)
+        database.close();context.deleteDatabase(databaseName)
+        legacyHelper(before,2).use {it.writableDatabase}
+        var entered=false
+        database=Room.databaseBuilder(context,WorkoutDatabase::class.java,databaseName).addMigrations(object:Migration(2,3) {
+            override fun migrate(db:SupportSQLiteDatabase) {entered=true;LIBRARY_MIGRATION_2_3.migrate(db);error("Injected migration failure")}
+        }).build()
+        var failed=false;try {database.openHelper.writableDatabase}catch(_:Exception){failed=true}
+        assertTrue(failed);assertTrue(entered);database.close()
+        legacyHelper(before,2).use {helper->
+            assertEquals(2,helper.writableDatabase.version)
+            assertEquals(0,helper.writableDatabase.query("SELECT COUNT(*) FROM sqlite_master WHERE name IN ('template_candidates','template_revisions','template_heads','execution_plan_revisions')").use {it.moveToFirst();it.getInt(0)})
+        }
+        reopen();assertEquals(before,originalRows(tables))
     }
 
     private suspend fun assertFails(action: suspend () -> Unit) {

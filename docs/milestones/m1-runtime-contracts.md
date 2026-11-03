@@ -55,16 +55,49 @@ base cursor is inapplicable during inserted work. Rewind does not subtract
 observed work. Recovery blocks additions until explicit resume; paused additions
 stay paused. Meaningful history still excludes empty ticks and internal receipts.
 
-## Remaining implementation and evidence
+## Local integration and evidence
 
-Core tests cover cue/source identity, independent cross-language frozen plans,
-both reset boundaries, ordered/idempotent additions, unchanged active countdown,
-pause/recovery/skip, unsafe input and overflow. Legacy engine remains unchanged.
-Android compiles both engines, but new engine has not yet been wired into a phone
-workout. No new APK installed or Room migration applied under ADR6 yet.
+The following integration is implemented in the follow-up review after the core
+compiler PR. Four additive Room3 tables store staged candidates, immutable
+revisions, reviewed heads and structural execution plans. Publication rechecks
+source/plan hashes and uses a transaction plus expected-head comparison; failed
+publication leaves the prior revision executable. Source files are app-private,
+atomic and immutable. The system picker reads only explicitly selected files.
 
-Next: staged file library/review/CAS publication; additive Room3 records; saved
-format2/compact checkpoints and legacy dispatcher; canonical1.2 projection and
-reader; Android import/execution UI; complete emulator/device evidence and new
-verified private backup before phone upgrade. Current unfinished workout must
-remain usable in engine1. Full M1/private-workout acceptance remains open.
+Saved format2 freezes the exact source and base plan/hash. Checkpoints reference
+an immutable effective plan revision, stable active instance/offset and compact
+completed ordinal ranges. Only structural additions create a plan row; ticks do
+not duplicate plans. Action, checkpoint, plan revision and outbox commit together.
+Recovery validates the complete receipt/plan prefix and requires explicit resume.
+Legacy format1 dispatch remains unchanged; neither version converts the other.
+
+Canonical1.2 includes original/effective plan snapshots and hashes, domain
+adjustments, meaningful events and distinct planned/adjusted/observed/pause/gap
+facts. Original-plan position is explicitly null during extra work. It excludes
+raw ticks, transaction IDs, checkpoints, plan-revision rows and outbox. The web
+reader recompiles the frozen source independently in TypeScript, applies ordered
+semantic adjustments and checks effective bytes/identities/positions/counters.
+Existing1.0/1.1 readers and tests remain.
+
+Android supports local import, complete phase/cue preview, explicit publication,
+ungrouped start, side/structured resistance and eligible +1 repetition. Publication
+and import require idle/paused state. An unfinished workout prevents another
+start; nothing discards or converts it automatically. A tap that arrives after its
+set boundary records timing without adding to another set and reports the result.
+The process-owned Room instance stays shared with the Drive adapters.
+
+Local checks so far: Kotlin9 runtime tests, TypeScript34, web22, Android40 JVM and
+24 real SQLite tests; Python70. Public Kotlin base/trace and human1.2 fixtures are
+independently verified by TS. SQLite checks cover populated1→2→3 and2→3 preserving
+all original rows, failed migrations/publication rollback, quarantine/stale review,
+source tampering, duplicate/failed additions, compact checkpoints, recovery,
+late-tap boundary and legacy/new coexistence. Existing engine1 real process-stop
+acceptance passes. Seven-version CI, real format2 process/UI evidence, private
+preview conversion/comparison and physical acceptance remain required.
+
+No phone Room3 migration yet. The backup helper now verifies both the standalone
+SQLite database and a separate private library-file archive (no extraction or
+contents in output). Before any physical upgrade, complete automated gates and
+create/verify a fresh Room2/files backup; keep the prior Room1 backup. Never clear,
+uninstall, restore automatically, end or convert the paused phone workout.
+Real-workout cloud uploads remain excluded by the existing exact-synthetic gate.

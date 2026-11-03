@@ -1,10 +1,12 @@
 import json
+import io
+import tarfile
 from pathlib import Path
 import sqlite3
 import tempfile
 import shutil
 import unittest
-from tools.backup_android_database import BackupError,make_verified_snapshot,validate_database
+from tools.backup_android_database import BackupError,make_verified_snapshot,validate_database,validate_library_archive
 
 class PrivateBackupTest(unittest.TestCase):
     def fixture(self, path, status='Paused'):
@@ -48,3 +50,20 @@ class PrivateBackupTest(unittest.TestCase):
             with self.assertRaisesRegex(BackupError,'schema'):validate_database(source,2)
             with sqlite3.connect(source) as db:db.execute('UPDATE checkpoints SET revision=2')
             with self.assertRaisesRegex(BackupError,'differ'):validate_database(source,1)
+
+    def test_library_archive_is_verified_without_extraction_or_source_names_in_evidence(self):
+        out=io.BytesIO()
+        with tarfile.open(fileobj=out,mode='w:') as archive:
+            item=tarfile.TarInfo('files/training-library/imported/private-source.yaml')
+            content=b'private-looking fixture text';item.size=len(content)
+            archive.addfile(item,io.BytesIO(content))
+        evidence=validate_library_archive(out.getvalue())
+        self.assertEqual(evidence['fileCount'],1)
+        self.assertNotIn('private-',json.dumps(evidence))
+        self.assertFalse(validate_library_archive(b'')['present'])
+    def test_library_archive_rejects_traversal_and_links(self):
+        for name,kind in [('files/training-library/../../outside',tarfile.REGTYPE),('files/training-library/link',tarfile.SYMTYPE)]:
+            out=io.BytesIO()
+            with tarfile.open(fileobj=out,mode='w:') as archive:
+                item=tarfile.TarInfo(name);item.type=kind;archive.addfile(item)
+            with self.assertRaises(BackupError):validate_library_archive(out.getvalue())
