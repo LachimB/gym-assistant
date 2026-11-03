@@ -65,7 +65,8 @@ def read_document(path: Path) -> dict:
 
 
 def validate_schema(kind: str, data: dict) -> None:
-    schema = json.loads((ROOT / f'schemas/{kind}.v1.schema.json').read_text())
+    version = 'v1.1' if kind == 'template' and data.get('schemaVersion') == '1.1.0' else 'v1'
+    schema = json.loads((ROOT / f'schemas/{kind}.{version}.schema.json').read_text())
     validator = Draft202012Validator(schema, format_checker=FormatChecker())
     for error in validator.iter_errors(data):
         location = '/' + '/'.join(str(part) for part in error.absolute_path)

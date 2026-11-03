@@ -1,13 +1,13 @@
 # ADR-0006 — Validated local templates and session-only extra repetitions
 
-- Status: **Proposed; owner review required before schema/runtime implementation**
+- Status: **Approved by owner in chat on 2026-11-03**
 - Date: 2026-11-03
 - Requirements: GA-DOM-006, GA-EXE-001/002/008/012, GA-DATA-002/004/010,
   GA-WEB-003/004, GA-ORG-009/015/021; approved ADR-0001/0002/0003/0004/0005
 
-## Decision requested, in plain language
+## Approved decision, in plain language
 
-Approve the next M1 slice: import a reviewed Training Template into a validated
+The owner approved the next M1 slice: import a reviewed Training Template into a validated
 local library, show the correct side and resistance on the phone, and allow one
 extra timed repetition with one tap during an eligible set. Adding or skipping
 work changes **that Workout Session only**. It never changes the source Template,
@@ -20,7 +20,7 @@ real-workout cloud upload. Private import stays local and uses deterministic
 validation, with no additional AI operation/provider or external service.
 
 This needs versioned Template/compiled-plan/history contracts and an additive
-local database migration. Approval would cover implementation and tests, followed
+local database migration. Approval covers implementation and tests, followed
 by phone migration only after a new verified backup and successful automated
 checks. It does not authorize converting the currently unfinished workout,
 clearing data, automatic source adoption or automatic future-default promotion.

@@ -25,7 +25,7 @@ def read_json(path: str) -> dict[str, Any]:
 
 
 def check_schema(schema_name: str, data: dict[str, Any]) -> None:
-    version = 'v1.1' if schema_name == 'session' and data.get('schemaVersion') == '1.1.0' else 'v1'
+    version = 'v2' if schema_name == 'compiled-plan' else ('v1.1' if schema_name in ('session', 'template') and data.get('schemaVersion') == '1.1.0' else 'v1')
     schema = read_json(f'schemas/{schema_name}.{version}.schema.json')
     Draft202012Validator.check_schema(schema)
     errors = sorted(Draft202012Validator(schema, format_checker=FormatChecker()).iter_errors(data), key=lambda e: list(map(str, e.path)))
@@ -110,6 +110,8 @@ def validate_all() -> tuple[int, int]:
         ('exercise','examples/exercises/bridge-band-family.yaml','yaml'),
         ('exercise','examples/exercises/plank-family.yaml','yaml'),
         ('template','examples/templates/composite-pyramid.yaml','yaml'),
+        ('template','examples/templates/timed-runtime-v2.yaml','yaml'),
+        ('compiled-plan','examples/expected/timed-runtime-v2.plan.json','json'),
         ('session','examples/sessions/synthetic-completed-session.json','json'),
         ('execution-plan','examples/expected/composite-pyramid.timeline.json','json'),
         ('storage-manifest','examples/storage/manifest.json','json'),

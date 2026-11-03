@@ -1,0 +1,48 @@
+schemaVersion: 1.1.0
+templateId: template_runtime_synthetic
+revisionId: revision_runtime_synthetic_1
+names: {en: Synthetic sides and session additions}
+sections:
+  - sectionId: section_runtime
+    names: {en: Synthetic timed work}
+    blocks:
+      - blockId: block_sides
+        names: {en: Left then right}
+        kind: simple
+        occurrences:
+          - occurrenceId: occurrence_runtime_hip
+            exerciseId: exercise_bridge_band
+            sets:
+              - setId: set_left
+                variationId: hip_lift_level_1
+                repetitions: 2
+                side: left
+                resistance:
+                  weight: {value: 12.5, unit: kg}
+                  bands: [{equipmentId: band_yellow, count: 1, placement: knees}]
+                  notes: Synthetic fixed target
+                inSessionRepetition: {mode: appendToCurrentSet, resetMs: 4000}
+                phases: [{phaseId: phase_work, name: Hold, mode: timed, role: work, durationMs: 6000}]
+              - setId: set_long_hold
+                variationId: hip_lift_level_1
+                repetitions: 1
+                side: left
+                phases: [{phaseId: phase_long_hold, name: Longer hold, mode: timed, role: work, durationMs: 10000}]
+              - setId: set_right
+                variationId: hip_lift_level_1
+                repetitions: 2
+                side: right
+                resistance: {weight: {value: 12.5, unit: kg}}
+                inSessionRepetition: {mode: appendToCurrentSet, resetMs: 4000}
+                phases: [{phaseId: phase_work, name: Hold, mode: timed, role: work, durationMs: 6000}]
+        order:
+          - {stepId: step_left_1, kind: repetition, setId: set_left, repetitionIndex: 1}
+          - {stepId: step_reset_left_1, kind: rest, role: reset, resetForStepId: step_left_1, durationMs: 4000}
+          - {stepId: step_left_2, kind: repetition, setId: set_left, repetitionIndex: 2}
+          - {stepId: step_reset_left_2, kind: rest, role: reset, resetForStepId: step_left_2, durationMs: 4000}
+          - {stepId: step_long_hold, kind: repetition, setId: set_long_hold, repetitionIndex: 1}
+          - {stepId: step_side_change, kind: rest, role: transition, durationMs: 4000, label: {en: Change side}}
+          - {stepId: step_right_1, kind: repetition, setId: set_right, repetitionIndex: 1}
+          - {stepId: step_reset_right_1, kind: rest, role: reset, resetForStepId: step_right_1, durationMs: 4000}
+          - {stepId: step_right_2, kind: repetition, setId: set_right, repetitionIndex: 2}
+          - {stepId: step_final_rest, kind: rest, role: rest, durationMs: 30000, label: {en: Final rest}}
