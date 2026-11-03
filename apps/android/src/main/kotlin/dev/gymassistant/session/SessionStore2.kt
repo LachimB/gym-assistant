@@ -36,7 +36,7 @@ import kotlinx.serialization.encodeToString
     fun state(plan:Plan2):State2 {
         val active=activePhase2(plan,adjustedScheduledElapsedMs)
         check(adjustedScheduledElapsedMs in 0..plan.expectedDurationMs && active?.instanceId==activePhaseInstanceId)
-        check(phaseOffsetMs==if(active==null)0 else adjustedScheduledElapsedMs-active.startMs)
+        check(phaseOffsetMs==if(active==null)0L else adjustedScheduledElapsedMs-active.startMs)
         check(completedOrdinalRanges.all { it.first>=0 && it.last>=it.first && it.last<MAX_PHASES_2 })
         check(completedOrdinalRanges.zipWithNext().all { (a,b)->b.first>a.last+1 })
         val ordinals=completedOrdinalRanges.flatMap { (it.first..it.last).toList() }.toSet()

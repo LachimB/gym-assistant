@@ -128,3 +128,19 @@ Template still plans45m50 and no unfinished slot remains. This verifies local
 import/publication/addition/recovery, not a full real workout or M1 completion.
 This local acceptance sent no source/session content to Drive or a new AI operation. ADR-0007 is a separate proposed
 manual personal-delivery boundary and migration, awaiting explicit approval.
+
+
+## Natural completion regression
+
+A subsequent full virtual projection found an absent-phase offset comparison using
+an Int zero against the saved Long offset at plan end. Explicit0L preserves the
+existing contract and makes completed checkpoints readable/acknowledgeable. No
+migration. New public complete1.2 fixture plus JVM and real-SQLite reopen/recovery/
+finish tests cover this boundary; independent web reader validates original80s,
+adjusted90s and all12 phases. Counts now41 JVM/25 SQLite/web23/23 fixtures.
+
+The private full virtual shape (one added unit) also validates all476 phases and
+956 meaningful events independently in TypeScript, with1,219,806 UTF8 bytes and no
+network. Its private raw JSON is not committed or uploaded and is not physical
+full-workout acceptance. The v8 phone update and current-head CI must be recorded
+before declaring this regression closed on the installed build.

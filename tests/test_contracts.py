@@ -10,7 +10,7 @@ from copy import deepcopy
 class StarterContractsTest(unittest.TestCase):
     def test_all_fixtures_traceability(self):
         n, requirements = validate_all()
-        self.assertEqual(n, 22)
+        self.assertEqual(n, 23)
         self.assertGreaterEqual(requirements, 80)
 
     def test_expected_timing_and_order(self):
