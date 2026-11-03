@@ -1189,3 +1189,37 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   edge and root recording column applies safeDrawingPadding. Main controls remain
   above system bars; dialog waits remain explicit. Routine layout fix, no engine/
   schema/transport change. Official guidance: developer.android.com/develop/ui/compose/system/insets-ui.
+
+
+## GitHub runner billing gate; phone remains safely on Room3 — 2026-11-03
+
+- PR21 candidate500cf55989b54f25c73dbfb76c9302267c7cf1b0 includes system-bar-safe
+  recording layout and explicit confirmation-dialog waits. All49 local JVM and
+  API31 actual process recovery/import-publication/finalized-personal-preview
+  flows pass. Last28 SQLite/72 Python checks pass; no storage/transport code changed
+  in the layout/test follow-ups. Private v9 APK SHA256
+  331eeeff0fbaae0af743b3cb23156372eb0cd173aec6721de48a3ef580eaeba2;
+  metadata /private/tmp/gym-m1-private-v9-build-metadata.json. NOT installed.
+- Current standard41716578704 and Android41716578424 jobs all failed before
+  startup (2–3seconds). GitHub annotation: recent account payments failed OR
+  spending limit needs increase. This is not a test failure; exact account cause
+  is unverified. No payment/spending-limit/billing/resource change performed.
+  Owner asked to review the personal LachimB account and report Actions available;
+  no paid Actions authorization inferred. Do not rerun endlessly or enable spend.
+- Previous9389ba2 run41714097584 passedAPI31–34;35–37 stopped before the end
+  confirmation was observed. Layout/explicit-wait fix500cf55 has NOT yet run in
+  the full matrix because of the runner gate. Do not claim new-OS UI acceptance.
+- Phone still verified v8/Room3; no further backup/migration/install, live personal
+  folder or real upload. PR21 unmerged. User's discarded short test is retained;
+  published45m50 source unchanged. Full real workout remains open.
+- Prepared /private/tmp/gym-m1-install-personal9-phone.py refuses until exact PR
+  head has all10 successful checks, validates signer/private flags, creates a fresh
+  verified Room3/library/payload/setup backup, then install-r and exact11-table/
+  archive comparison with empty new table. Do NOT run until CI gate clears. It
+  records private progress/baseline and redacts subprocess failures; never repeat
+  installation or replace the baseline after a partial verification failure.
+- Before resuming: fetch/inspect current GitHub/worktrees, confirm approved ADR7
+  boundary, rerun current-head CI only once Actions is available. Then verified
+  backup/phone upgrade, owner full offline/interrupted workout and explicit
+  selected-session delivery/readback/retry/web review. Never auto-upload the
+  private virtual history or discarded smoke test.

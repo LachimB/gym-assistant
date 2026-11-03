@@ -165,5 +165,27 @@
       "allTenPassed": true,
       "mergedCommit": "c8c0f60"
     }
+  },
+  "personalDeliveryContinuation": {
+    "adr": "0007",
+    "ownerApproved": true,
+    "pr": 21,
+    "candidateAppSourceCommit": "500cf55989b54f25c73dbfb76c9302267c7cf1b0",
+    "candidateVersionCode": 9,
+    "candidateApkSha256": "331eeeff0fbaae0af743b3cb23156372eb0cd173aec6721de48a3ef580eaeba2",
+    "localJvmTests": 49,
+    "localSqliteTests": 28,
+    "localPythonTests": 72,
+    "localApi31AllThreeUiFlowsPassed": true,
+    "latestGithubStandardRun": 41716578704,
+    "latestGithubAndroidRun": 41716578424,
+    "latestGithubJobsStarted": false,
+    "githubBlock": "Account payment or spending-limit restriction reported before runner startup; exact cause requires owner review",
+    "phoneRemainsVersionCode": 8,
+    "phoneRemainsDatabaseVersion": 3,
+    "phoneRoom4MigrationPerformed": false,
+    "personalFolderCreated": false,
+    "realSessionUploaded": false,
+    "billingOrSpendingLimitChanged": false
   }
 }

@@ -53,3 +53,12 @@ upload has been performed merely by implementing the feature. Global reservation
 
 API contract references: [Drive folders](https://developers.google.com/workspace/drive/api/guides/folder)
 and [files.create](https://developers.google.com/workspace/drive/api/reference/rest/v3/files/create).
+
+
+Current continuation: candidate500cf55 passes49 JVM and all three API31 actual UI
+flows after system-bar spacing and dialog-wait fixes. The current full matrix did
+not start: GitHub blocked standard41716578704/Android41716578424 for account
+payment/spending-limit reasons. Exact cause requires owner review; no billing
+change authorized/performed. Phone remains v8/Room3; PR21 unmerged, no live
+personal folder/upload. Newer-OS layout acceptance and mandatory pre-installation
+checks remain open.
