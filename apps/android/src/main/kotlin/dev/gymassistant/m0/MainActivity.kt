@@ -40,6 +40,7 @@ import com.charleskorn.kaml.yamlScalar
 import dev.gymassistant.engine.SessionStatus
 import dev.gymassistant.engine.snapshot
 import dev.gymassistant.session.WorkoutModel
+import dev.gymassistant.drive.DriveDeliveryModel
 import dev.gymassistant.drive.DriveProbeModel
 import dev.gymassistant.drive.DRIVE_FILE_SCOPE
 import com.google.android.gms.auth.api.identity.AuthorizationRequest
@@ -51,21 +52,28 @@ import kotlin.math.ceil
 class MainActivity : ComponentActivity() {
     private val workout by viewModels<WorkoutModel>()
     private val driveProbe by viewModels<DriveProbeModel>()
+    private val driveDelivery by viewModels<DriveDeliveryModel>()
     private val authorization by lazy { Identity.getAuthorizationClient(this) }
     private val driveResolution = registerForActivityResult(ActivityResultContracts.StartIntentSenderForResult()) { result ->
-        if (result.resultCode != RESULT_OK || result.data == null) driveProbe.failed()
+        if (result.resultCode != RESULT_OK || result.data == null) failDriveAuthorization()
         else try { completeDriveAuthorization(authorization.getAuthorizationResultFromIntent(result.data)) }
-        catch (_: Exception) { driveProbe.failed() }
+        catch (_: Exception) { failDriveAuthorization() }
+    }
+
+    private fun failDriveAuthorization() {
+        if (driveDelivery.awaitingAuthorization()) driveDelivery.failed() else driveProbe.failed()
     }
 
     private fun completeDriveAuthorization(result: AuthorizationResult) {
-        if (result.hasResolution()) { driveProbe.failed(); return }
-        driveProbe.authorized(result.grantedScopes, result.accessToken)
+        if (result.hasResolution()) { failDriveAuthorization(); return }
+        if (driveDelivery.awaitingAuthorization()) driveDelivery.authorized(result.grantedScopes, result.accessToken)
+        else driveProbe.authorized(result.grantedScopes, result.accessToken)
     }
 
-    private fun testDriveConnection() {
+    private fun testDriveConnection(delivery: Boolean = false) {
+        if (driveProbe.busy.value || driveDelivery.busy.value) return
         val email = BuildConfig.SYNTHETIC_DRIVE_ACCOUNT
-        if (!driveProbe.begin(email)) return
+        if (delivery) { if (!driveDelivery.begin()) return } else if (!driveProbe.begin(email)) return
         try {
             val request = AuthorizationRequest.builder()
                 .setAccount(Account(email, "com.google"))
@@ -75,12 +83,12 @@ class MainActivity : ComponentActivity() {
             authorization.authorize(request).addOnSuccessListener { result ->
                 if (result.hasResolution()) {
                     val pending = result.pendingIntent
-                    if (pending == null) driveProbe.failed()
+                    if (pending == null) failDriveAuthorization()
                     else try { driveResolution.launch(IntentSenderRequest.Builder(pending.intentSender).build()) }
-                    catch (_: Exception) { driveProbe.failed() }
+                    catch (_: Exception) { failDriveAuthorization() }
                 } else completeDriveAuthorization(result)
-            }.addOnFailureListener { driveProbe.failed() }
-        } catch (_: Exception) { driveProbe.failed() }
+            }.addOnFailureListener { failDriveAuthorization() }
+        } catch (_: Exception) { failDriveAuthorization() }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -108,7 +116,7 @@ class MainActivity : ComponentActivity() {
                             ui.saved == null -> {
                                 Text("Training Template", style = MaterialTheme.typography.headlineMedium)
                                 Text("Synthetic alternating pyramid · 50 seconds")
-                                Text("Starts an ungrouped Workout Session. Saved on this phone; cloud sync is not connected.")
+                                Text("Starts an ungrouped Workout Session. Saved on this phone; real-workout cloud synchronization is not enabled.")
                                 WorkoutButton("Start Workout") { workout.command("start") }
                                 DriveTestControls()
                             }
@@ -144,7 +152,7 @@ class MainActivity : ComponentActivity() {
                                 if (saved.checkpoint.unknownGapCount > 0) {
                                     Text("${saved.checkpoint.unknownGapCount} interruption(s) with unknown duration. No exercise was inferred from them.")
                                 }
-                                Text("Sync pending · Drive is not connected")
+                                Text("Sync pending · this workout has not been uploaded")
                                 when {
                                     saved.checkpoint.outcome != "inProgress" ->
                                         WorkoutButton("New Workout") { workout.command("new") }
@@ -183,7 +191,7 @@ class MainActivity : ComponentActivity() {
                     if (showDriveTest) {
                         AlertDialog(onDismissRequest = { showDriveTest = false },
                             title = { Text("Drive connection test") },
-                            text = { Column(verticalArrangement = Arrangement.spacedBy(12.dp)) { DriveTestControls() } },
+                            text = { Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) { DriveTestControls() } },
                             confirmButton = { TextButton(onClick = { showDriveTest = false }) { Text("Close") } })
                     }
                     if (confirmation != null) {
@@ -209,10 +217,25 @@ class MainActivity : ComponentActivity() {
         OutlinedTextField(value = BuildConfig.SYNTHETIC_DRIVE_ACCOUNT, onValueChange = {},
             readOnly = true, label = { Text("Approved personal Google account") })
         Button(onClick = { testDriveConnection() },
-            enabled = !probeBusy && BuildConfig.SYNTHETIC_DRIVE_ACCOUNT.isNotBlank()) {
+            enabled = !probeBusy && !driveDelivery.busy.value && BuildConfig.SYNTHETIC_DRIVE_ACCOUNT.isNotBlank()) {
             Text(if (probeBusy) "Checking…" else "Test personal Drive connection")
         }
         Text(probeStatus)
+        val deliveryBusy by driveDelivery.busy.collectAsState()
+        val deliveryStatus by driveDelivery.status.collectAsState()
+        var preview by remember { mutableStateOf(false) }
+        TextButton(onClick = { preview = true }, enabled = !probeBusy && !deliveryBusy) { Text("Preview synthetic session delivery") }
+        Text(deliveryStatus)
+        if (preview) AlertDialog(onDismissRequest = { if (!deliveryBusy) preview = false },
+            title = { Text("Send generated synthetic example?") },
+            text = { Column(modifier = Modifier.verticalScroll(rememberScrollState()), verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                Text("Account: ${BuildConfig.SYNTHETIC_DRIVE_ACCOUNT}")
+                Text(driveDelivery.preview())
+                Text(deliveryStatus)
+            } },
+            confirmButton = { TextButton(onClick = { testDriveConnection(delivery = true) },
+                enabled = !deliveryBusy && !probeBusy && BuildConfig.SYNTHETIC_DELIVERY_BUDGET_RESERVED) { Text(if (deliveryBusy) "Sending…" else "Send or retry synthetic example") } },
+            dismissButton = { TextButton(onClick = { preview = false }, enabled = !deliveryBusy) { Text("Close") } })
     }
 }
 

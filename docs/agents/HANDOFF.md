@@ -625,3 +625,66 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   Active-session fencing/library sync/real-workout execution remain open requirements.
 - Web history PR15 and conditional-write PR16 are separate tested slices. Do not
   infer their merge/CI state from this note; inspect current GitHub checks.
+
+## ADR-0005 approved; delivery implementation in progress — 2026-11-03
+
+- Owner requested a plain-language explanation, then explicitly chose “Approve
+  ADR-0005”. The approved scope includes account-bound finalized synthetic delivery,
+  additive Room1→2 migration/tests and phone application only after verified private
+  backup. Real-workout upload remains excluded. ADR status updated locally.
+- Current branch codex/m1-account-bound-delivery includes proposed-doc branch and
+  latest PR16 merge of web history. PR15 merged1d8249a after all checks; PR16 current
+  head433a47a has web/engine/contracts passing, final Android jobs still pending at
+  last check. Inspect live GitHub status before merging; no failing-CI merge.
+- In-progress/uncommitted: additive connection/delivery tables and explicit migration;
+  immutable delivery store with deduplication and outbox acknowledgement transaction;
+  fail-closed synthetic sender with durable provider ID, exact read-back, bounded
+  transient retries/cancellation; fixed-host Google transport, no token persistence.
+  Existing main DB builder now registers migration. App build version5.
+- JVM tests including10 sender and7 HTTP-domain tests pass (34 total including17
+  prior). Migration instrumentation first run:14 pass,1 incorrect test expectation
+  (two actions expected as three); assertion corrected. Rerun15 currently running
+  on explicit emulator-5560. Fresh APK built. Physical install deliberately held
+  under the latest ADR5 tests+backup gate; no phone DB migration/backup yet.
+- Sender defaults to refusing all payloads unless exact synthetic eligibility is
+  supplied. No delivery UI/fixture factory wired yet; no actual delivery calls or
+  extra budget reservation. Prior global allocation57/500 remains unchanged.
+- Remaining implementation: exact generated synthetic fixture admission/predicate;
+  Compose preview/explicit consent-purpose auth and delivery status/retry; reserve
+  additional20 before any live tests; emulator crash/SQLite acceptance; verified
+  private phone backup before install/migration; phone synthetic live evidence; docs
+  and PR CI. Do not upload current phone history or touch unfinished slot for test.
+
+## Delivery local tests and preview wired — 2026-11-03
+
+- 36 JVM and16 actual SQLite emulator tests pass. Source-pinned generated sample
+  can be persisted/retried without changing the existing unfinished workout. Live
+  sender rejects all payloads unless exact generated canonical eligibility matches.
+  Preview/explicit send uses independent purpose routing through the existing
+  authorization client; status is recovered locally after restart, no auto-send.
+- Local process-recovery test passed541→948ms only after explicit resume; no clear or
+  auto-resume. Python67, validator19fixtures/80requirements, hygiene pass. No phone
+  build installed/migration run yet. Default budget flagfalse blocks sending.
+- Private backup helper/tests added; not run on phone. It refuses running work,
+  verifies source consistency/receipt prefix, retains raw bundle and standalone
+  verified copy outside active app, prints only counts/checksums/status. No contents
+  sent to AI/cloud. Actual backup path must be persistent/private, not just tmp.
+- Next: final emulator preview/crash checks, implementation PR/current-head CI,
+  separate20-request global reservation, private configured APK build, verified
+  phone backup then install-r/migration. User must complete phone synthetic send/
+  Google consent if prompted. No real workout upload. See operations/m1-session-delivery.md.
+- PR16's current-head API37 job failed only on truncated uiautomator XML after
+  SQLite12passed; one failed-job rerun is running. This implementation adds a bounded
+  observation-only re-dump with2 Python tests; do not weaken actual app assertions.
+
+## CI integration checkpoint — 2026-11-03
+
+- PR15 merged1d8249a; PR16 merged9307121 after current-head standard CI and all
+  seven Android recovery checks passed. The one API37 truncated-XML observation
+  rerun passed; bounded observation retry is included in this new delivery slice.
+- Current implementation local:36 JVM and16 SQLite tests pass, including local
+  synthetic status after reopen.67 Python tests pass. Default build's delivery
+  budget flag remainsfalse. No phone backup/install or new cloud API call yet.
+- Added a distinct one-time localhost20-request delivery reservation button. This
+  has not been pressed at this checkpoint; global allocation still57/500. Only
+  enable private build flag after verifying reservation; keep old native counters.

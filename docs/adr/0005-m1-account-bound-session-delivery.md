@@ -1,13 +1,13 @@
 # ADR-0005 — Account-bound delivery of finalized Workout Sessions
 
-- Status: **Proposed; owner review required before implementation**
+- Status: **Approved by owner in chat on 2026-11-03**
 - Date: 2026-11-03
 - Requirements: GA-DATA-004/005/010/011, GA-EXE-008/012, GA-WEB-004
 - Builds on approved ADR-0001/0003/0004. Does not replace their guarantees.
 
-## Decision requested, in plain language
+## Approved decision, in plain language
 
-Approve a first durable sync slice that sends a **specifically selected, finalized
+The owner approved a first durable sync slice that sends a **specifically selected, finalized
 Workout Session** to the connected personal Drive account. Save enough information
 on the phone that a lost connection or restarted app can retry the same delivery
 without producing another copy. Keep account selection and delivery bookkeeping
@@ -15,7 +15,7 @@ separate from human-readable session history. Never include quarter-second saves
 or recovery logs in the uploaded session.
 
 This requires an additive on-device database migration and a persistent binding
-between the chosen account, destination folder and delivery. Approval would cover
+between the chosen account, destination folder and delivery. Approval covers
 implementation, automated migration/retry tests and applying the tested migration
 to the phone **only after a verified private backup**. Cloud validation remains
 synthetic-only under the existing experiment; real-session upload requires a
