@@ -9,7 +9,7 @@
     "sqliteInstrumentationTests": 24,
     "webTests": 22,
     "typeScriptEngineTests": 34,
-    "pythonTests": 70,
+    "pythonTests": 71,
     "schemaValidatedFixtures": 22
   },
   "emulator": {
@@ -60,14 +60,22 @@
     "plannedDurationMs": 2750000,
     "phases": 474,
     "eligibleSetsChecked": 32,
-    "publishedOnPhone": false
+    "publishedOnPhone": false,
+    "localPhoneFilesCopiedAndReadBack": 8
   },
   "phone": {
-    "installedVersionCode": 5,
-    "databaseVersion": 2,
-    "room3MigrationApplied": false,
-    "newVerifiedBackupRequired": true,
-    "existingUnfinishedWorkout": "preserve paused format1"
+    "installedVersionCode": 6,
+    "databaseVersion": 3,
+    "room3MigrationApplied": true,
+    "newVerifiedBackupRequired": false,
+    "verifiedBackupStandaloneSha256": "8f721c29712de5ac08dcda1a62ff21b4c66d35272053ffb1e488d58daf825319",
+    "originalRecordsPreserved": 706,
+    "originalConnectionsAndDeliveriesPreserved": true,
+    "originalTimingAndProgressUnchanged": true,
+    "normalRecoveryRowsAdded": 1,
+    "ownerReportedPreviousWorkoutSavedPartial": true,
+    "uninstallOrClearPerformed": false,
+    "automaticRestorePerformed": false
   },
   "cloud": {
     "realWorkoutUploadAuthorized": false,
@@ -76,10 +84,22 @@
     "billingChanged": false
   },
   "remaining": [
-    "current-head seven-version CI",
-    "new verified physical Room2 and library-files backup",
-    "phone Room3 upgrade and integrity/preserved-row comparison",
+    "current-head CI including selected-import/publication UI on seven Android versions",
+    "install publication-footer UI update preserving Room3 records",
     "owner private Template review/publication and real local workout acceptance",
     "authorized real-workout cloud synchronization and full M1 acceptance"
-  ]
+  ],
+  "publicationFooter": {
+    "targetVersionCode": 7,
+    "visibleWithoutScrollingInActualEmulatorUi": true,
+    "existingWorkoutAndDeliveryRowsUnchanged": true,
+    "currentHeadCiPending": true
+  },
+  "apkSourceCi": {
+    "sourceCommit": "78b649ee9f00e7a6907ffa14942b7bac8b8004e5",
+    "standardRun": 41664633328,
+    "sevenVersionAndroidRun": 41664633400,
+    "allChecksPassed": true,
+    "installedMigrationApkSha256": "17e5d587a8133c741dbb8847717a4f6347e0d767e9c870e3371433d87dddfca3"
+  }
 }

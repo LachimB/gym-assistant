@@ -87,6 +87,8 @@ jobs:
         run: |
           adb -s emulator-5554 install -r apps/android/build/outputs/apk/debug/android-debug.apk
           python3 tools/test_android_process_recovery.py --serial emulator-5554
+      - name: Selected Template import and accessible review publication
+        run: python3 tools/test_android_template_review.py --serial emulator-5554
       - name: Stop disposable emulator
         if: always()
         run: adb -s emulator-5554 emu kill || true

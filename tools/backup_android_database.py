@@ -107,10 +107,10 @@ def main():
     def capture(directory):
         path=directory/'workouts-v1.db'
         for suffix in ('','-wal','-journal'):
-            content=adb('exec-out','run-as',PACKAGE,'cat','databases/workouts-v1.db'+suffix,optional=bool(suffix))
+            content=adb('shell','-T','run-as',PACKAGE,'cat','databases/workouts-v1.db'+suffix,optional=bool(suffix))
             if content is not None:
                 Path(str(path)+suffix).write_bytes(content)
-        latest=adb('exec-out','run-as',PACKAGE,'cat','databases/workouts-v1.db')
+        latest=adb('shell','-T','run-as',PACKAGE,'cat','databases/workouts-v1.db')
         if hashlib.sha256(latest).hexdigest() != digest(path):
             raise BackupError('Source checkpoint changed during capture')
         return path
@@ -125,8 +125,8 @@ def main():
     raw=args.output/'raw'; raw.mkdir(mode=0o700)
     source=capture(raw)
     def capture_library():
-        exists=adb('exec-out','run-as',PACKAGE,'ls','-d','files/training-library',optional=True)
-        return b'' if exists is None else adb('exec-out','run-as',PACKAGE,'tar','-cf','-','files/training-library')
+        exists=adb('shell','-T','run-as',PACKAGE,'test','-d','files/training-library',optional=True)
+        return b'' if exists is None else adb('shell','-T','run-as',PACKAGE,'tar','-cf','-','files/training-library')
     library=capture_library()
     library_evidence=validate_library_archive(library)
     (args.output/'training-library.tar').write_bytes(library)

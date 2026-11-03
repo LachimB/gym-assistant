@@ -238,7 +238,6 @@ class MainActivity : ComponentActivity() {
                                     plan.phases.forEachIndexed {index,phase->
                                         Text("${index+1}. ${phase.exerciseName?:phase.name} · ${phase.variationName.orEmpty()} · ${phase.side?:"—"} · ${phase.name} · ${formatMs(phase.endMs-phase.startMs)}${phase.repetitionIndex?.let {" · repetition $it"}.orEmpty()}\n${resistanceText2(phase.resistance)}${if(plan.policies.any {it.setId==phase.setId})" · +1 repetition supported" else ""}")
                                     }
-                                    Button(onClick={workout.publishCandidate(candidate.candidateId,checkNotNull(candidate.sourceHash),checkNotNull(candidate.compiledPlanHash))},enabled=!ui.libraryBusy && workout.canImport()) {Text("Publish this reviewed revision")}
                                 }
                                 ui.templates.forEach {row ->
                                     val plan=remember(row.compiledPlanHash){planJson2.decodeFromString<Plan2>(row.compiledPlanJson)}
@@ -246,7 +245,13 @@ class MainActivity : ComponentActivity() {
                                     Button(onClick={workout.startTemplate(row.templateId,row.revisionId);showLibrary=false},enabled=!ui.libraryBusy && (ui.saved2?.checkpoint?.outcome?:ui.saved?.checkpoint?.outcome)!="inProgress") {Text("Start ${plan.templateName}")}
                                 }
                                 if((ui.saved2?.checkpoint?.outcome?:ui.saved?.checkpoint?.outcome)=="inProgress")Text("Your unfinished workout is retained. Finish or discard it before starting another.")
-                            }},confirmButton={TextButton(onClick={showLibrary=false},enabled=!ui.libraryBusy){Text("Close")}})
+                            }},confirmButton={
+                                val candidate=ui.candidate?.takeIf {it.validationCode=="valid"}
+                                if(candidate!=null)Button(onClick={workout.publishCandidate(candidate.candidateId,checkNotNull(candidate.sourceHash),checkNotNull(candidate.compiledPlanHash))},enabled=!ui.libraryBusy && workout.canImport()) {Text("Publish reviewed revision")}
+                                else TextButton(onClick={showLibrary=false},enabled=!ui.libraryBusy){Text("Close")}
+                            },dismissButton={
+                                if(ui.candidate?.validationCode=="valid")TextButton(onClick={showLibrary=false},enabled=!ui.libraryBusy){Text("Close")}
+                            })
                     }
                     if (showDriveTest) {
                         AlertDialog(onDismissRequest = { showDriveTest = false },

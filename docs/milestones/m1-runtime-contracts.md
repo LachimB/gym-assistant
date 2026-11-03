@@ -87,7 +87,7 @@ set boundary records timing without adding to another set and reports the result
 The process-owned Room instance stays shared with the Drive adapters.
 
 Local checks so far: Kotlin9 runtime tests, TypeScript34, web22, Android40 JVM and
-24 real SQLite tests; Python70. Public Kotlin base/trace and human1.2 fixtures are
+24 real SQLite tests; Python71. Public Kotlin base/trace and human1.2 fixtures are
 independently verified by TS. SQLite checks cover populated1→2→3 and2→3 preserving
 all original rows, failed migrations/publication rollback, quarantine/stale review,
 source tampering, duplicate/failed additions, compact checkpoints, recovery,
@@ -95,9 +95,14 @@ late-tap boundary and legacy/new coexistence. Existing engine1 real process-stop
 acceptance passes. Seven-version CI, real format2 process/UI evidence, private
 preview conversion/comparison and physical acceptance remain required.
 
-No phone Room3 migration yet. The backup helper now verifies both the standalone
-SQLite database and a separate private library-file archive (no extraction or
-contents in output). Before any physical upgrade, complete automated gates and
-create/verify a fresh Room2/files backup; keep the prior Room1 backup. Never clear,
-uninstall, restore automatically, end or convert the paused phone workout.
+The physical Room2→3 migration is verified after successful APK-source CI and a
+fresh persistent private backup:706 prior actions/outbox, source/progress and
+Drive binding/delivery unchanged; only normal recovery appended. The owner then
+saved the old workout as a partial record. The backup helper verifies standalone
+SQLite and a separate private library archive without extraction/content output;
+its remote binary transport correctly distinguishes absent optional files. Keep
+all prior backups. No clear, uninstall, automatic restore or session conversion.
+The long-preview publication button is now in a fixed footer; a disposable-only
+selected-file UI regression is included in every supported Android CI version.
+The UI follow-up and owner real-template publication/execution remain open.
 Real-workout cloud uploads remain excluded by the existing exact-synthetic gate.
