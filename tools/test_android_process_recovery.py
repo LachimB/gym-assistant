@@ -172,6 +172,14 @@ def main():
     time.sleep(1.2)
     if counters(saved_checkpoint()) != first:
         raise AssertionError('Recovered workout advanced without explicit resume')
+    # Connection testing must be accessible without discarding the unfinished workout.
+    # Do not press authorization: this emulator test makes no Google requests.
+    click('Drive connection test')
+    wait_for('Test personal Drive connection')
+    if saved_checkpoint() != first_saved:
+        raise AssertionError('Opening Drive test changed the recovered workout')
+    click('Close')
+    wait_for('Resume saved workout')
     click('Resume saved workout')
     wait_for_progress(first[1])
     kill()
@@ -191,7 +199,7 @@ def main():
     wait_for('Start Workout')
     print(json.dumps({'result': 'PASS', 'firstRecoveredMs': first[1],
                       'secondRecoveredMs': second[1], 'automaticResume': False,
-                      'appDataCleared': False}))
+                      'appDataCleared': False, 'driveTestAccessibleDuringRecovery': True}))
 
 
 if __name__ == '__main__':
