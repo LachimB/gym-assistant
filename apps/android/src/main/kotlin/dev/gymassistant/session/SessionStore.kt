@@ -133,6 +133,7 @@ fun transition(workout: SavedWorkout, action: SessionAction): Transition {
 }
 
 interface SessionStore {
+    suspend fun history(sessionId: String): SessionHistory?
     suspend fun unfinished(): SavedWorkout?
     suspend fun load(sessionId: String): SavedWorkout?
     suspend fun start(snapshot: SessionStart, operationId: String): SavedWorkout
