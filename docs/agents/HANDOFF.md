@@ -555,3 +555,22 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   9f222946f0d0d7392e7fea864e78e098285ecfc5b86fc3c9b82a888c2e7cbd13 installed-r
   on confirmed phone, app opened, unfinished workout retained. Google test result
   pending owner action; do not infer a successful grant/ETag from installation.
+
+
+## Native personal Drive connection passed — 2026-11-03
+
+- Owner reported final native success: personal account verified, synthetic parent
+  and selected child metadata accessible, no ETag received, no workout uploaded.
+  No writes attempted; conditional updates remain unproven (not proof that every
+  Drive endpoint/client lacks ETags). No further connection-case repeats needed.
+- Independently read only two non-secret probe counters: four authorization
+  attempts and12 direct requests. Prior30 + native12 =42 counted direct/setup
+  attempts, with8 unused native requests still reserved inside50/500. No resets.
+  SDK internal traffic separately unmeasured. No phone session DB/history export.
+- Evidence: docs/milestones/m1-native-drive-probe.json; installed source227c17d,
+  APK version4 / SHA9f222946…e7cbd13. Owner's unfinished workout remained in
+  recovery; test required no resume/end/discard. Phone counter equality unmeasured;
+  emulator regression checks complete checkpoint/source equality across dialog.
+- PR14 final evidence/CI pending; code tested on phone does not provide durable
+  synchronization. Read-only web history work is independently saved on branch
+  codex/m1-web-history at d47e917 (19 web tests/build/audit pass; browser QA pending).
