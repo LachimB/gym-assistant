@@ -800,3 +800,98 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   should become ready/merge only after current combined head CI passes. Remaining
   M1: validated private template library/import, side/weight cues and one-click
   repetition changes, complete product template/history sync and real-workout gate.
+
+## Real-template/runtime proposal prepared — 2026-11-03
+
+- ADR-0006 proposed, not implemented: reviewed local Template publication, explicit
+  side/weight cues, one-click extras appended to current set before following
+  hold/rest/side. Proposed Template1.1/plan2/internal format2/history1.2 and additive
+  Room3 library/effective-plan records; legacy execution/history stays readable.
+  Existing unfinished workout not converted/ended/discarded. No real cloud upload.
+- Owner review/approval requested asynchronously under rule4. No response yet at
+  this checkpoint. Do not implement these new formats/migration before approval.
+- Proposal is on codex/m1-real-template-runtime-proposal stacked on PR17 head16444f0.
+  PR17 physical migration/delivery/retry/browser-download-web acceptance passed;
+  current combined head16444f0 passed standard CI and all seven Android jobs.
+  PR17 merged503a0b5 on2026-11-03; this proposal branch is brought onto that base.
+
+
+## Current review gate — ADR-0006
+
+- PR17 merged503a0b5 after39 JVM,16 SQLite local tests and successful current-head
+  CI:41627572090 standard /41627572133 seven Android versions. Native physical
+  backup/migration/delivery/retry and same-grant browser download/local-web review
+  evidence retained. No real workout uploaded; original work remains paused.
+- ADR-0006 review answer remains pending. It is proposed only; no Template1.1,
+  engine/plan2, saved format2, canonical1.2 or Room3 implementation/migration yet.
+  Do not infer approval from ADR5 approval or phone test success. Existing latest
+  private v5 APK/Room2 stays installed; private backup remains persistent.
+- Future author must fetch GitHub/check other worktrees and preserve this proposal.
+  If approved, implement contracts consistently with its explicit append-to-set
+  behavior, legacy coexistence, source immutability and backup gates. Private
+  approved workout preview stays outside Git; no new AI/private-cloud consent.
+
+## ADR-0006 approved; runtime core implementation started — 2026-11-03
+
+- After the plain-language/local-vs-cloud explanations the owner replied “approved”.
+  ADR6 status is approved. This supersedes the pending-review gate above. Real
+  workout cloud upload remains excluded. Current branch codex/m1-template-runtime-core
+  starts from the preserved proposal plus latest main503a0b5; worktrees/remotes/fetch
+  verified before implementation. No other worktree changed.
+- Added separate Kotlin engine2 source under packages/engine/src/jvmMain and new
+  TypeScript src/runtime2.ts. Engine1 untouched. Android includes this JVM source
+  alongside commonMain. Existing SnakeYAML-KMP3.1.1 dependency (already transitive
+  via Kaml0.73) explicitly pinned for bounded type-preserving safe parsing. No new
+  service. TS uses existing YAML plus Ajv8.20.0; npm audit0 vulnerabilities.
+- Template1.1 schema adds explicit phase/rest roles, resetForStepId and optional
+  inSessionRepetition mode appendToCurrentSet/resetMs. Old1.0 unchanged. New80s public
+  fixture timed-runtime-v2.yaml: left2 timed reps/reset4, separate longer hold10,
+  side transition4, right2/reset4 and finalrest30. Addition before hold uses existing
+  reset + extra work/reset; addition before long rest inserts reset/work. Neither
+  duplicates a hold/side/rest or changes active countdown. Source defaults immutable.
+- Core preserves block/occurrence/set/source-step, side, names, structured resistance
+  and stable SHA-derived phase/unit IDs. Stable ordinal is NOT array position and
+  remains unchanged on insertion; intended checkpoint compression uses ranges over
+  these immutable ordinals to avoid huge per-tick completion-ID arrays.
+- Eight Kotlin runtime tests and eight TS tests pass; TS full suite33. Full frozen
+  Kotlin plan in examples/expected/timed-runtime-v2.plan.json matches independently
+  compiled TS object. Source compiler checks explicit contiguous eligibility,
+  reset links, duplicate coverage, unsafe YAML, types, safe counters and ordering.
+  Normal timing delegates to existing deterministic mechanics but translates back
+  to stable phase identities; add returns a new effective plan. Repeated domain
+  adjustment ID is idempotent; conflicting reuse rejects.
+- Latest uncommitted additions bound compiled size conservatively (8MB estimate)
+  before serialization; tests need rerun after this small guard change. Template
+  root name capped4096bytes; no truncation. Python validator now registers20 fixtures
+  and dispatches Template1.1, but full Python check not yet run. Plan2 JSON schema/
+  canonical1.2 schema still to implement. ImportContracts2 loads trusted checked-in
+  schemas; Kotlin assertion subset covers only source template/exercise keywords.
+- No Room3/table/library/checkpoint2/session2/history1.2/UI implementation yet. No
+  debug APK assembled or installed since ADR6 approval; phone remains v5/Room2 with
+  original unfinished workout paused. Need preserved legacy dispatch, four additive
+  tables, staged private file importer+review/CAS publication, new session/driver,
+  compact checkpoints, meaningful canonical1.2 reader/web display, emulator matrix,
+  new private Room2/files backup BEFORE physical upgrade and owner local-template
+  acceptance. Keep exact synthetic-only cloud sender eligibility unchanged.
+- Private approved preview stays /private/tmp/gym-m1-source/preview outside Git.
+  Do not read its contents into AI for another operation or upload it. Any source
+  conversion can run locally and emit only validation/count/duration metadata;
+  owner must see publication preview. Never infer reset semantics in the compiler
+  from display names/durations; source1.1 explicitly annotates them.
+
+
+## ADR-0006 implementation status — 2026-11-03 (supersedes draft notes above)
+
+- Owner approval recorded; core compiler/runtime2, Template1.1 and compiled-plan2
+  schemas plus public base/trace goldens are implemented. Kotlin9 new runtime
+  tests and full TypeScript34 pass. Shared trace compares complete plans/events
+  across two adds, pause, skip, rewind, gap, explicit resume and completion.
+- Separate additive-library/session/UI/history work is present locally and being
+  validated for a following review commit/PR. Do not infer that an uncommitted
+  file is already on GitHub or that the phone has been upgraded. Local evidence
+  so far: Android40 JVM tests,24 real SQLite tests; Python70, web22, old actual
+  process-death/recovery test. These combined-worktree checks are not core-only CI.
+- Phone remains private v5/Room2. Hold physical installation until the new
+  verified Room2 + app-private library-file backup and complete automated gates.
+  Existing unfinished format1 workout must stay paused and never be converted.
+  No real-workout cloud upload; exact pinned synthetic sender gate unchanged.

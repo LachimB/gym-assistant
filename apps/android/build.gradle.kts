@@ -32,7 +32,8 @@ android {
     sourceSets.getByName("androidTest").assets.srcDir("schemas")
     sourceSets.getByName("main").apply {
         kotlin.srcDir("../../packages/engine/src/commonMain/kotlin")
-        assets.srcDirs("../../examples/templates", "../../examples/exercises")
+        kotlin.srcDir("../../packages/engine/src/jvmMain/kotlin")
+        assets.srcDirs("../../examples/templates", "../../examples/exercises", "../../schemas")
     }
 }
 
@@ -69,5 +70,6 @@ dependencies {
     implementation("androidx.core:core-ktx:1.15.0")
     implementation("org.jetbrains.kotlinx:kotlinx-serialization-json:1.8.0")
     implementation("com.charleskorn.kaml:kaml:0.73.0")
+    implementation("it.krzeminski:snakeyaml-engine-kmp:3.1.1")
     debugImplementation("androidx.compose.ui:ui-tooling")
 }

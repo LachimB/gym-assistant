@@ -27,6 +27,7 @@ kotlin {
                 implementation(kotlin("test"))
             }
         }
+        val jvmMain by getting { dependencies { implementation("it.krzeminski:snakeyaml-engine-kmp:3.1.1") } }
         val jvmTest by getting {
             dependencies {
                 implementation(kotlin("test"))
