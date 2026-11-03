@@ -81,5 +81,5 @@ internal fun runSyntheticDriveProbe(token: String, expectedEmail: String, transp
     }
     return "Personal account verified. Synthetic folder and selected file accessible. " +
         if (childResponse.etagPresent) "Native client can read an ETag; conditional writes remain untested. No workout uploaded."
-        else "No ETag received; conditional writes remain unproven. No workout uploaded."
+        else "No ETag received from this metadata endpoint. This read-only probe does not test conditional writes. No workout uploaded."
 }

@@ -24,6 +24,7 @@ The access token lives only in this page's memory. The request counter persists 
 <button id="pick-child" disabled>Select only the external synthetic child with Google Picker</button>
 <button id="move-child" disabled>Move the verified synthetic child to a test folder and back</button>
 <button id="conditional-content" disabled>Test v2 conditional content writes on the exact synthetic child</button>
+<button id="reserve-delivery">Reserve 20 requests for finalized synthetic session delivery</button>
 <button id="reserve-native">Reserve 20 requests for the one-phone Android synthetic probe</button>
 <pre id="status" role="status">Loading Google's authorization library…</pre>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
@@ -34,6 +35,16 @@ const byId = id => document.getElementById(id);
 const status = byId('status');
 let token = '', expiresAt = 0, busy = false;
 function report(message) { status.textContent += '\n' + message; }
+byId('reserve-delivery').onclick = () => {
+  if (busy) return;
+  try {
+    if (localStorage.getItem('gym-m1-session-delivery-reserved-v1') !== 'reserved') {
+      reserveBudget(localStorage, 20);
+      localStorage.setItem('gym-m1-session-delivery-reserved-v1', 'reserved');
+    }
+    report('20 finalized synthetic delivery requests reserved once; global allocation '+localStorage.getItem('gym-m1-drive-requests')+'/500. No token or API request. Do not reuse the old native read allowance.');
+  } catch (_) { report('Delivery request reservation failed; do not enable the private delivery build.'); }
+};
 byId('reserve-native').onclick = () => {
   if (busy) return;
   try {
