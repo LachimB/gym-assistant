@@ -53,7 +53,7 @@
     "networkUpload": false
   },
   "phone": {
-    "installedVersionCode": 6,
+    "installedVersionCode": 7,
     "databaseVersion": 3,
     "room3MigrationApplied": true,
     "newVerifiedBackupRequired": false,
@@ -63,7 +63,13 @@
     "originalTimingAndProgressUnchanged": true,
     "normalRecoveryRowsAdded": 1,
     "uninstallOrClearPerformed": false,
-    "automaticRestorePerformed": false
+    "automaticRestorePerformed": false,
+    "versionName": "0.1.5-m1-local-template",
+    "uiApkSourceCommit": "5ba555b17bb256b56b097d83c4c2366abfcee400",
+    "uiApkSha256": "6ddb16fbfd8bb30dc7ba38f07489c57c1a5577f10352463785d34f5e2fafcb0c",
+    "uiUpdateAllElevenTablesExactlyUnchanged": true,
+    "previousPartialRecordVerified": true,
+    "noUnfinishedWorkout": true
   },
   "cloud": {
     "realWorkoutUploadAuthorized": false,
@@ -72,8 +78,6 @@
     "billingChanged": false
   },
   "remaining": [
-    "current-head CI including selected-import/publication UI on seven Android versions",
-    "install publication-footer UI update preserving Room3 records",
     "owner private Template review/publication and real local workout acceptance",
     "authorized real-workout cloud synchronization and full M1 acceptance"
   ],
@@ -81,7 +85,8 @@
     "targetVersionCode": 7,
     "visibleWithoutScrollingInActualEmulatorUi": true,
     "existingWorkoutAndDeliveryRowsUnchanged": true,
-    "currentHeadCiPending": true
+    "installedOnPhone": true,
+    "ciChecksUrl": "https://github.com/LachimB/gym-assistant/pull/19/checks"
   },
   "apkSourceCi": {
     "sourceCommit": "78b649ee9f00e7a6907ffa14942b7bac8b8004e5",
@@ -89,5 +94,8 @@
     "sevenVersionAndroidRun": 41664633400,
     "allChecksPassed": true,
     "installedMigrationApkSha256": "17e5d587a8133c741dbb8847717a4f6347e0d767e9c870e3371433d87dddfca3"
-  }
+  },
+  "requiredForMerge": [
+    "all current PR19 checks including selected-import/publication UI on seven Android versions"
+  ]
 }
