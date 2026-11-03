@@ -14,6 +14,9 @@ import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.gymassistant.engine.SessionStatus
 import dev.gymassistant.engine.compileTemplate
 import java.util.UUID
+import dev.gymassistant.engine.v2.*
+import kotlinx.serialization.encodeToString
+import kotlinx.serialization.json.*
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.decodeFromString
 import org.junit.After
@@ -36,7 +39,7 @@ class RoomSessionStoreTest {
     }
 
     private fun reopen() {
-        database = Room.databaseBuilder(context, WorkoutDatabase::class.java, databaseName).addMigrations(DELIVERY_MIGRATION_1_2, LIBRARY_MIGRATION_2_3).build()
+        database = Room.databaseBuilder(context, WorkoutDatabase::class.java, databaseName).addMigrations(DELIVERY_MIGRATION_1_2, LIBRARY_MIGRATION_2_3,PERSONAL_DELIVERY_MIGRATION_3_4).build()
         store = RoomSessionStore(database)
     }
 
@@ -315,7 +318,7 @@ class RoomSessionStoreTest {
         context.deleteDatabase(databaseName)
         legacyHelper(before).use { assertEquals(1, it.writableDatabase.version) }
         reopen()
-        assertEquals(3, database.openHelper.writableDatabase.version)
+        assertEquals(4, database.openHelper.writableDatabase.version)
         assertEquals(before, originalRows())
         assertEquals(saved, store.unfinished())
         assertEquals(done, store.load(completed.sessionId))
@@ -341,7 +344,7 @@ class RoomSessionStoreTest {
                     DELIVERY_MIGRATION_1_2.migrate(db)
                     error("Injected migration failure")
                 }
-            }, LIBRARY_MIGRATION_2_3).build()
+            }, LIBRARY_MIGRATION_2_3,PERSONAL_DELIVERY_MIGRATION_3_4).build()
         var failed = false
         try { database.openHelper.writableDatabase } catch (_: Exception) { failed = true }
         assertTrue(failed)
@@ -425,7 +428,7 @@ class RoomSessionStoreTest {
         database.close();context.deleteDatabase(databaseName)
         legacyHelper(before,2).use { assertEquals(2,it.writableDatabase.version) }
         reopen()
-        assertEquals(3,database.openHelper.writableDatabase.version)
+        assertEquals(4,database.openHelper.writableDatabase.version)
         assertEquals(before,originalRows(tables))
         assertEquals(paused,store.unfinished())
         assertEquals(done,store.load(source.sessionId))
@@ -444,7 +447,7 @@ class RoomSessionStoreTest {
         var entered=false
         database=Room.databaseBuilder(context,WorkoutDatabase::class.java,databaseName).addMigrations(object:Migration(2,3) {
             override fun migrate(db:SupportSQLiteDatabase) {entered=true;LIBRARY_MIGRATION_2_3.migrate(db);error("Injected migration failure")}
-        }).build()
+        },PERSONAL_DELIVERY_MIGRATION_3_4).build()
         var failed=false;try {database.openHelper.writableDatabase}catch(_:Exception){failed=true}
         assertTrue(failed);assertTrue(entered);database.close()
         legacyHelper(before,2).use {helper->
@@ -460,4 +463,38 @@ class RoomSessionStoreTest {
         catch (_: IllegalArgumentException) { failed = true }
         assertTrue("Expected a rejected operation", failed)
     }
+    @Test fun versionThreeMigrationPreservesEveryTableAndFailureRollsBack()=runBlocking {
+        val source=snapshot();var done=store.start(source,"start");done=store.commit(source.sessionId,done.revision,"end",action("end",100))
+        val deliveries=RoomDeliveryStore(database)
+        val binding=deliveries.bind(DriveConnectionRow("room4-binding","googleDrive","id","fixture@example.test","root","synthetic",utc,utc))
+        val inline=deliveries.enqueue(binding.connectionId,source.sessionId,"old-inline")
+        fun asset(n:String)=context.assets.open(n).bufferedReader().use {it.readText()}
+        fun schema(n:String)=Json.parseToJsonElement(asset(n)).jsonObject
+        val contracts=ImportContracts2(mapOf("1.0.0" to schema("template.v1.schema.json"),"1.1.0" to schema("template.v1.1.schema.json")),schema("exercise.v1.schema.json"))
+        val privateRoot=java.io.File(context.cacheDir,"room4-migration-${UUID.randomUUID()}")
+        val library=TemplateLibrary3(database,LibraryFiles3(privateRoot),contracts)
+        val sources=TemplateSources3(asset("timed-runtime-v2.yaml"),listOf(asset("bridge-band-family.yaml")))
+        val candidate=library.stage(listOf(ImportFile3("template.yaml",sources.templateYaml.toByteArray()),ImportFile3("exercise.yaml",sources.exerciseYamls.single().toByteArray())),utc)
+        val published=library.publish(candidate.candidateId,checkNotNull(candidate.sourceHash),checkNotNull(candidate.compiledPlanHash),utc)
+        val plan=library.verify(published);val raw=sessionJson.encodeToString(sources);val encoded=planJson2.encodeToString(plan)
+        val modern=RoomSessionStore2(database,contracts)
+        val start2=SessionStart2("migration-modern",raw,hashUtf8_2(raw),encoded,hashUtf8_2(encoded),utc,"Europe/Berlin","2026-11-02")
+        var paused=modern.start(start2,"modern-start");paused=modern.commit(start2.sessionId,paused.revision,"modern-pause",SessionAction2("pause",100,utc))
+        val tables=listOf("session_starts","checkpoints","actions","unfinished_slot","outbox","drive_connections","session_deliveries","template_candidates","template_revisions","template_heads","execution_plan_revisions")
+        val before=originalRows(tables);database.close();context.deleteDatabase(databaseName)
+        legacyHelper(before,3).use {assertEquals(3,it.writableDatabase.version)}
+        var entered=false
+        database=Room.databaseBuilder(context,WorkoutDatabase::class.java,databaseName).addMigrations(object:Migration(3,4){
+            override fun migrate(db:SupportSQLiteDatabase){entered=true;PERSONAL_DELIVERY_MIGRATION_3_4.migrate(db);error("Injected migration failure")}
+        }).build()
+        var rejected=false;try{database.openHelper.writableDatabase}catch(_:Exception){rejected=true};assertTrue(entered && rejected);database.close()
+        legacyHelper(before,3).use {helper->assertEquals(3,helper.writableDatabase.version);assertEquals(0,helper.writableDatabase.query("SELECT COUNT(*) FROM sqlite_master WHERE name='personal_session_deliveries'").use {it.moveToFirst();it.getInt(0)})}
+        reopen();assertEquals(4,database.openHelper.writableDatabase.version);assertEquals(before,originalRows(tables))
+        assertEquals(inline,RoomDeliveryStore(database).load(inline.deliveryId).second)
+        assertEquals(paused,RoomSessionStore2(database,contracts).unfinished())
+        assertEquals(plan,TemplateLibrary3(database,LibraryFiles3(privateRoot),contracts).verify(published))
+        privateRoot.deleteRecursively()
+        assertEquals(0,database.openHelper.writableDatabase.query("SELECT COUNT(*) FROM personal_session_deliveries").use {it.moveToFirst();it.getInt(0)})
+    }
+
 }
