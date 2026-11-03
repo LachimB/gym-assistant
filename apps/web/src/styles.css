@@ -63,3 +63,22 @@ button {
 .cue {
   font-style: italic;
 }
+
+.page-navigation { max-width: 64rem; margin: 0 auto; padding: 1rem 1.5rem 0; display: flex; gap: .5rem; }
+.page-navigation button[aria-pressed="true"] { background: #1c1915; color: #fffdf8; }
+.history-page { max-width: 64rem; }
+.history-page h2 { font-size: 1.7rem; margin-bottom: .3rem; }
+.file-label { display: grid; gap: .5rem; margin: 1.2rem 0; font-weight: bold; }
+input[type="file"] { font: inherit; max-width: 100%; }
+.history-details { margin-top: 2rem; border-top: 1px solid #b8aea0; padding-top: 1rem; }
+.sample-label { display: inline-block; border: 1px solid #8a6a12; background: #fff4d6; border-radius: .5rem; padding: .5rem .75rem; }
+.timing-summary { display: grid; grid-template-columns: repeat(auto-fit,minmax(14rem,1fr)); gap: 1rem; }
+.timing-summary div { background: #fffdf8; padding: 1rem; border: 1px solid #d8cfc0; border-radius: .5rem; }
+.timing-summary dd { margin: .5rem 0 0; font-size: 1.5rem; font-variant-numeric: tabular-nums; }
+.history-table { overflow-x: auto; }
+.history-table table { border-collapse: collapse; width: 100%; text-align: left; margin-bottom: 1rem; }
+.history-table th, .history-table td { padding: .6rem; border-bottom: 1px solid #d8cfc0; vertical-align: top; }
+.history-table td:first-child { white-space: nowrap; font-size: .85rem; }
+details dd { overflow-wrap: anywhere; margin: .3rem 0 1rem; }
+button:focus-visible, input:focus-visible, summary:focus-visible { outline: 3px solid #6b559c; outline-offset: 3px; }
+@media (max-width: 480px) { main, .page-navigation { padding-left: 1rem; padding-right: 1rem; } .controls button { width: 100%; } }

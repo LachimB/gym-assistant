@@ -281,7 +281,8 @@
                         }
                       }
                     }
-                  ]
+                  ],
+                  "type": "object"
                 }
               }
             }
@@ -305,7 +306,8 @@
                 "detail": {
                   "required": [
                     "completionKind"
-                  ]
+                  ],
+                  "type": "object"
                 }
               }
             }
@@ -328,7 +330,8 @@
                         "partial"
                       ]
                     }
-                  }
+                  },
+                  "type": "object"
                 }
               }
             }
@@ -348,7 +351,8 @@
                     "completionKind": {
                       "const": "discarded"
                     }
-                  }
+                  },
+                  "type": "object"
                 }
               }
             }

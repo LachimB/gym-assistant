@@ -575,6 +575,25 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   synchronization. Read-only web history work is independently saved on branch
   codex/m1-web-history at d47e917 (19 web tests/build/audit pass; browser QA pending).
 
+## Local web history reader — 2026-11-03
+
+- Native probe PR14 merged after current-head contracts/web/engine and all seven
+  Android recovery jobs passed. The API37 emulator archive download failed before
+  tests on the first attempt; rerunning that failed job passed without code changes.
+  Personal phone connection success remains recorded in m1-native-drive-probe.json;
+  no ETag returned, conditional writes still unproven, no workout uploaded.
+- Web reads local canonical 1.0.0/1.1.0 files with schema/semantic validation and
+  exact frozen-plan hash checks for 1.1.0. Shows meaningful events, separate timing,
+  captured labels/context, recorded results/effort/quality, partial outcomes and
+  unknown interruptions. No raw ticks, invented per-set results or current-context
+  inference. Synthetic examples explicitly labelled. No Drive connection here yet.
+- 20 web tests, production build and dependency audit pass. Actual browser checked
+  partial example and a completed synthetic file selected through the file chooser.
+  See docs/milestones/m1-web-history.md. No private workout data committed.
+- Remaining M1: Drive conditional-write feasibility, durable auth/outbox/conflicts,
+  private template import/runtime side/weight/add-repetition support and real-workout
+  acceptance. ADR4 does not authorize DB migrations or real-history cloud upload.
+
 ## Synthetic Drive conditional content writes — 2026-11-03
 
 - Seven bounded browser requests with the existing approved drive.file grant
