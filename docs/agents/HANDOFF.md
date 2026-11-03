@@ -1039,3 +1039,35 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   exercise-1..7.yaml). Earlier screenshots were category/search views, not the
   physical Documents directory. Await the actual validation/publication result;
   do not claim import complete from folder discovery alone.
+
+
+## Local runtime merged and physical short test verified — 2026-11-03
+
+- PR19 merged57692f8 after all10 checks on1680546: standard41674024615 and seven
+  Android41674024398. New selected-import/footer/publish regression passed on every
+  supported version. Phone remains v7/source5ba555b, same app code as that CI head.
+- Owner confirmed45:50/474phases and published. After USB reconnection, local exact
+  comparison proves the published head, plan and all8 source definitions match
+  /private/tmp/gym-m1-source/runtime2.32 eligible sets; Template unchanged by adds.
+- Owner started a short test, paused and added once: adjusted46:00. Verified private
+  stopped Room3/files backup before real process termination/relaunch. First sample
+  was before the recovery commit (revision535/Paused); later verified536/
+  RecoveredPaused against the ORIGINAL baseline, not a replacement snapshot. No
+  automatic resume; source/effective plan rows, cursor/offset/completed identities,
+  observed/pause/known-gap counters exactly unchanged; unknown-gap count +1 only.
+  A second read after a wait is identical. No precise recovery latency claimed.
+- Private recovery evidence /private/tmp/gym-m1-private-runtime2-phone-recovery.json;
+  pre backup <private-path>
+  SHA2564733c03f2809afa9c2bf2c073df66c61f1cc35139f12d21b5c3dade51a221b71;
+  verified post <private-path>
+  Do not print private payloads/receipts or replace the original comparison baseline.
+- Owner confirmed discarding the short test. Verified outcome/last intent discarded,
+  all537 test actions retained, published source still45m50, unfinished slot empty.
+  Prior sessions, bindings/deliveries and source defaults unchanged. This was NOT
+  a completed real workout. Full-workout/offline/synchronization M1 gates stay open.
+- ADR-0007 proposed for the NEXT scope: selected finalized human1.2 session to the
+  same personal Drive account, separate PERSONAL folder, no automatic upload/AI,
+  at most50 additional direct attempts within500, immutable file-backed delivery
+  and additive Room3→4 only after tests + fresh backup. Exact fields/boundaries in
+  docs/adr/0007-m1-manual-personal-session-delivery.md. NOT APPROVED/IMPLEMENTED.
+  Current live sender remains exact-synthetic only. No new Drive resources/calls.
