@@ -1,0 +1,114 @@
+{
+  "milestone": "M1",
+  "overallAcceptance": "open",
+  "adr": "0006",
+  "coreMergedCommit": "bd5dc25",
+  "localIntegrationPr": 19,
+  "automatedLocal": {
+    "androidJvmTests": 40,
+    "sqliteInstrumentationTests": 24,
+    "webTests": 22,
+    "typeScriptEngineTests": 34,
+    "pythonTests": 71,
+    "schemaValidatedFixtures": 22
+  },
+  "emulator": {
+    "api": 31,
+    "versionCode": 6,
+    "sourceImplementationCommit": "914cfe9994236e77f4d29e6e6ee01667d7726d07",
+    "systemPickerImport": true,
+    "completeSyntheticPreviewPhasesReviewed": 10,
+    "explicitPublication": true,
+    "ungroupedStart": true,
+    "pausedAddition": {
+      "originalDurationMs": 80000,
+      "adjustedDurationMs": 90000,
+      "side": "left",
+      "sourceUnchanged": true
+    },
+    "processRecovery": {
+      "result": "PASS",
+      "formatVersion": 2,
+      "sourceAndEffectivePlansUnchanged": true,
+      "automaticResume": false,
+      "observedRunMs": 6745,
+      "adjustmentCount": 1,
+      "countersFrozenDuringRecovery": true,
+      "appDataCleared": false
+    },
+    "libraryBackupRehearsal": {
+      "schemaVersion": 3,
+      "integrity": "ok",
+      "foreignKeys": "ok",
+      "privateLibraryFiles": 4,
+      "appDataCleared": false,
+      "restorePerformed": false
+    }
+  },
+  "web": {
+    "browserVerified": true,
+    "humanAdditionShowsExerciseSideAndRepetition": true,
+    "originalAndAdjustedTimingDistinct": true,
+    "tickReceiptsVisible": false,
+    "networkUpload": false
+  },
+  "privateTemplate": {
+    "contentsCommitted": false,
+    "contentsPackagedInApk": false,
+    "newAiOperation": false,
+    "localIndependentPlansMatch": true,
+    "plannedDurationMs": 2750000,
+    "phases": 474,
+    "eligibleSetsChecked": 32,
+    "publishedOnPhone": false,
+    "localPhoneFilesCopiedAndReadBack": 8,
+    "ownerFoundLocalImportFolder": true
+  },
+  "phone": {
+    "installedVersionCode": 7,
+    "databaseVersion": 3,
+    "room3MigrationApplied": true,
+    "newVerifiedBackupRequired": false,
+    "verifiedBackupStandaloneSha256": "8f721c29712de5ac08dcda1a62ff21b4c66d35272053ffb1e488d58daf825319",
+    "originalRecordsPreserved": 706,
+    "originalConnectionsAndDeliveriesPreserved": true,
+    "originalTimingAndProgressUnchanged": true,
+    "normalRecoveryRowsAdded": 1,
+    "ownerReportedPreviousWorkoutSavedPartial": true,
+    "uninstallOrClearPerformed": false,
+    "automaticRestorePerformed": false,
+    "versionName": "0.1.5-m1-local-template",
+    "uiApkSourceCommit": "5ba555b17bb256b56b097d83c4c2366abfcee400",
+    "uiApkSha256": "6ddb16fbfd8bb30dc7ba38f07489c57c1a5577f10352463785d34f5e2fafcb0c",
+    "uiUpdateAllElevenTablesExactlyUnchanged": true,
+    "previousPartialRecordVerified": true,
+    "noUnfinishedWorkout": true
+  },
+  "cloud": {
+    "realWorkoutUploadAuthorized": false,
+    "exactSyntheticEligibilityGateChanged": false,
+    "newService": false,
+    "billingChanged": false
+  },
+  "remaining": [
+    "owner private Template review/publication and real local workout acceptance",
+    "authorized real-workout cloud synchronization and full M1 acceptance"
+  ],
+  "publicationFooter": {
+    "targetVersionCode": 7,
+    "visibleWithoutScrollingInActualEmulatorUi": true,
+    "existingWorkoutAndDeliveryRowsUnchanged": true,
+    "installedOnPhone": true,
+    "ciChecksUrl": "https://github.com/LachimB/gym-assistant/pull/19/checks"
+  },
+  "apkSourceCi": {
+    "sourceCommit": "78b649ee9f00e7a6907ffa14942b7bac8b8004e5",
+    "standardRun": 41664633328,
+    "sevenVersionAndroidRun": 41664633400,
+    "allChecksPassed": true,
+    "installedMigrationApkSha256": "17e5d587a8133c741dbb8847717a4f6347e0d767e9c870e3371433d87dddfca3"
+  },
+  "requiredForMerge": [
+    "all current PR19 checks including selected-import/publication UI on seven Android versions"
+  ]
+}
