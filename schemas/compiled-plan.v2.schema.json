@@ -1,0 +1,304 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "urn:gym-assistant:schema:compiled-plan:2.0.0",
+  "title": "Frozen timed execution plan2 \u2014 original or adjusted",
+  "type": "object",
+  "properties": {
+    "templateId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "revisionId": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+    },
+    "templateName": {
+      "type": "string",
+      "minLength": 1
+    },
+    "originalDurationMs": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "expectedDurationMs": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 9007199254740991
+    },
+    "phases": {
+      "type": "array",
+      "minItems": 1,
+      "maxItems": 10000,
+      "items": {
+        "$ref": "#/$defs/phase"
+      }
+    },
+    "policies": {
+      "type": "array",
+      "maxItems": 10000,
+      "items": {
+        "type": "object",
+        "properties": {
+          "setId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "blockId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "occurrenceId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "anchorInstanceId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "resetMs": {
+            "type": "integer",
+            "minimum": 0,
+            "maximum": 9007199254740991
+          },
+          "existingReset": {
+            "type": "boolean"
+          },
+          "core": {
+            "type": "array",
+            "minItems": 1,
+            "maxItems": 10000,
+            "items": {
+              "$ref": "#/$defs/phase"
+            }
+          }
+        },
+        "required": [
+          "setId",
+          "blockId",
+          "occurrenceId",
+          "anchorInstanceId",
+          "resetMs",
+          "existingReset",
+          "core"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "adjustments": {
+      "type": "array",
+      "maxItems": 1000,
+      "items": {
+        "type": "object",
+        "properties": {
+          "adjustmentId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "setId": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+          },
+          "recordedAt": {
+            "type": "string",
+            "format": "date-time"
+          }
+        },
+        "required": [
+          "adjustmentId",
+          "setId",
+          "recordedAt"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "planFormatVersion": {
+      "const": "2.0.0"
+    }
+  },
+  "required": [
+    "templateId",
+    "revisionId",
+    "templateName",
+    "originalDurationMs",
+    "expectedDurationMs",
+    "phases",
+    "policies",
+    "adjustments",
+    "planFormatVersion"
+  ],
+  "additionalProperties": false,
+  "$defs": {
+    "phase": {
+      "type": "object",
+      "properties": {
+        "instanceId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "ordinal": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9999
+        },
+        "unitId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "sourceStepId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "blockId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "occurrenceId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "setId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "phaseId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "repetitionIndex": {
+          "type": "integer",
+          "minimum": 1
+        },
+        "exerciseId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "variationId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        },
+        "side": {
+          "enum": [
+            "left",
+            "right",
+            "bilateral"
+          ]
+        },
+        "exerciseName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "variationName": {
+          "type": "string",
+          "minLength": 1
+        },
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "role": {
+          "enum": [
+            "unclassified",
+            "work",
+            "prepare",
+            "reset",
+            "rest",
+            "transition"
+          ]
+        },
+        "startMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "endMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "baseStartMs": {
+          "type": "integer",
+          "minimum": 0,
+          "maximum": 9007199254740991
+        },
+        "resistance": {
+          "type": "object",
+          "properties": {
+            "weight": {
+              "type": "object",
+              "properties": {
+                "value": {
+                  "type": "number",
+                  "minimum": 0,
+                  "maximum": 9007199254740991
+                },
+                "unit": {
+                  "enum": [
+                    "kg",
+                    "lb"
+                  ]
+                }
+              },
+              "required": [
+                "value",
+                "unit"
+              ],
+              "additionalProperties": false
+            },
+            "bands": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "equipmentId": {
+                    "type": "string",
+                    "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+                  },
+                  "count": {
+                    "type": "integer",
+                    "minimum": 1,
+                    "maximum": 2147483647
+                  },
+                  "placement": {
+                    "type": "string",
+                    "minLength": 1
+                  }
+                },
+                "required": [
+                  "equipmentId",
+                  "count",
+                  "placement"
+                ],
+                "additionalProperties": false
+              }
+            },
+            "notes": {
+              "type": "string",
+              "minLength": 1
+            }
+          },
+          "required": [
+            "bands"
+          ],
+          "additionalProperties": false
+        },
+        "adjustmentId": {
+          "type": "string",
+          "pattern": "^[a-zA-Z0-9][a-zA-Z0-9_-]{2,127}$"
+        }
+      },
+      "required": [
+        "instanceId",
+        "ordinal",
+        "unitId",
+        "sourceStepId",
+        "blockId",
+        "name",
+        "role",
+        "startMs",
+        "endMs"
+      ],
+      "additionalProperties": false
+    }
+  }
+}
