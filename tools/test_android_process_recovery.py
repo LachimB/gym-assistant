@@ -190,6 +190,14 @@ def main():
     wait_for('Test personal Drive connection')
     if saved_checkpoint() != first_saved:
         raise AssertionError('Opening Drive test changed the recovered workout')
+    click('Preview synthetic session delivery')
+    wait_for('Send generated synthetic example?')
+    wait_for('This sample contains no activity recorded from you.')
+    if saved_checkpoint() != first_saved:
+        raise AssertionError('Previewing synthetic delivery changed the recovered workout')
+    # Preview only: never press send/authorization in automated emulator acceptance.
+    click('Close')
+    wait_for('Test personal Drive connection')
     click('Close')
     wait_for('Resume saved workout')
     click('Resume saved workout')
@@ -211,7 +219,7 @@ def main():
     wait_for('Start Workout')
     print(json.dumps({'result': 'PASS', 'firstRecoveredMs': first[1],
                       'secondRecoveredMs': second[1], 'automaticResume': False,
-                      'appDataCleared': False, 'driveTestAccessibleDuringRecovery': True}))
+                      'appDataCleared': False, 'driveTestAccessibleDuringRecovery': True, 'syntheticDeliveryPreviewPreservesWorkout': True}))
 
 
 if __name__ == '__main__':

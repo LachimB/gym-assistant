@@ -67,7 +67,7 @@ read a migrated version2 DB; no automatic downgrade/restore is authorized.
   of the generated sample, migration success/failure and immutable intent dedup.
 - Local Android12 process-recovery script passes with no automatic resume/data clear;
   observed541→948ms only after explicit resumes. Not drift/clock-accuracy evidence.
-- 67 Python tests pass, including backup rejection/verification and bounded retries
+- 68 Python tests pass, including backup rejection/verification and bounded retries
   for truncated UI XML; validator19 fixtures/80requirements and repository hygiene pass.
 - The emulator's uiautomator transport once returned truncated XML in separate PR16
   CI after its12 SQLite tests passed. Observation now re-dumps at most3 times for
@@ -75,3 +75,21 @@ read a migrated version2 DB; no automatic downgrade/restore is authorized.
 - Phone backup/install/migration/live delivery and supported-version CI for this
   implementation are pending. No delivery-stage Google request or additional budget
   reservation has occurred yet. Previous synthetic global allocation remains57/500.
+
+## Updated pre-phone evidence
+
+The private configured version5 APK passes36 JVM tests; certificate matches the
+approved Android client. Emulator recovery+synthetic preview passed447→530ms only
+following explicit resume, with exact checkpoint/source unchanged by both dialogs.
+The preview was inspected without pressing send; no Google API traffic.
+
+Backup rehearsal on that emulator succeeded with schema2: integrity/foreign keys
+ok and matching logical/standalone evidence. Copied hot journals can require
+SQLite recovery; validation now permits that only in the disposable host copy,
+never in the active database or retained raw bundle. Four backup unit tests cover
+validation, rejection and WAL-backed snapshot preservation. No phone backup yet.
+
+The dedicated20-request delivery reservation was performed once in the localhost
+page: global allocation **77/500**, including old native unused8 and new unused20.
+Counted direct/setup attempts remain49; no delivery-stage request yet. Private
+build flag is enabled only in the locally configured APK, not source/default CI.

@@ -688,3 +688,26 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
 - Added a distinct one-time localhost20-request delivery reservation button. This
   has not been pressed at this checkpoint; global allocation still57/500. Only
   enable private build flag after verifying reservation; keep old native counters.
+
+
+## Delivery build ready for CI/phone backup — 2026-11-03
+
+- PR17 draft opened with implementation. Current code has36 JVM/16 SQLite tests;
+  new emulator script also opens/closes synthetic preview and verifies exact saved
+  source/checkpoint unchanged. Private configured v5 APK built with reserved flag;
+  SHA2560d2881e4f151db81e3a5ea193980469df28cbe25458bdfe5a6fd89b64fde3344,
+  signingSHA1CE:DE:EC:BE:F3:A8:92:F2:45:D2:83:EC:48:31:A0:07:57:79:12:BD.
+- The20-request delivery reservation was pressed once:77/500 allocated.49 counted
+  setup/direct attempts remain; unused native8 + delivery20. No delivery API request
+  yet. Private build has account pin and syntheticDeliveryBudgetReserved=true; CI
+  defaultfalse. No phone install/migration or backup yet; do not silently apply it.
+- Emulator recovery/preview check passed447→530ms, no auto-resume/clear and no change
+  from preview. Backup rehearsal then exposed copied hot-journal recovery: corrected
+  validation to recover only a disposable working copy. Rehearsal now passes with
+  raw retained bundle untouched.4 backup unit tests, full Python now68 expected.
+  Emulator backup at /private/tmp/gym-m1-delivery-emulator-backup-v4 (public synthetic).
+- Next: push new helper/preview checks, await current-head seven-version CI; verify
+  one authorized physical phone and make persistent private version1 backup using
+  tools/backup_android_database.py (no content output). Only then install verified
+  v5 APK via install-r and launch for preserved paused recovery/migration. Send UI
+  steps to owner for synthetic delivery/Google confirmation, not real workout.
