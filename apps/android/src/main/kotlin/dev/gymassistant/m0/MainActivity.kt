@@ -286,6 +286,7 @@ class MainActivity : ComponentActivity() {
         val choices by personalDelivery.choices.collectAsState()
         val busy by personalDelivery.busy.collectAsState()
         val status by personalDelivery.status.collectAsState()
+        val reviewNote by personalDelivery.reviewNote.collectAsState()
         val otherBusy by driveDelivery.busy.collectAsState()
         val probeBusy by driveProbe.busy.collectAsState()
         TextButton(onClick={show=true;selected=null;personalDelivery.refresh()},enabled=!busy && !otherBusy && !probeBusy) {Text("Send a finished session to personal Drive…")}
@@ -295,7 +296,7 @@ class MainActivity : ComponentActivity() {
                 Text("Destination: Gym Assistant — PERSONAL M1 DEV. Created privately on the first send. No automatic uploads.")
                 if(selected==null)choices.forEach {choice->TextButton(onClick={selected=choice;personalDelivery.select(choice)}) {Text(choice.label)}}
                 selected?.let {choice->
-                    Text(choice.label);Text(choice.deliveryNote);Text("${choice.bytes} bytes. Includes frozen workout instructions, meaningful events, dates and timing. Internal ticks and the original PDF stay off Drive.")
+                    Text(choice.label);Text(reviewNote);Text("${choice.bytes} bytes. Includes frozen workout instructions, meaningful events, dates and timing. Internal ticks and the original PDF stay off Drive.")
                     Text("Send freezes this exact recording. Retry uses the same file; conflicts stop without overwriting.")
                     TextButton(onClick={selected=null},enabled=!busy){Text("Choose another session")}
                 }
