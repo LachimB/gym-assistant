@@ -84,6 +84,7 @@ data class Transition2(val plan:Plan2,val checkpoint:Checkpoint2,val payload:Act
 fun transition2(saved:SavedWorkout2,action:SessionAction2):Transition2 {
     check(saved.checkpoint.outcome=="inProgress")
     var plan=saved.plan;var state=saved.state
+    check(action.kind!="recover" || action.gapMs==null || state.status in setOf(SessionStatus.Running,SessionStatus.Paused)) { "Known gaps require an observed running/paused interval" }
     if(action.kind !in setOf("recover","discard"))state=reduce2(plan,state,EngineCommand.Advance(action.elapsedMs))
     var structural=saved.checkpoint.structuralRevision
     when(action.kind) {

@@ -1,0 +1,75 @@
+{
+  "milestone": "M1",
+  "overallAcceptance": "open",
+  "adr": "0006",
+  "coreMergedCommit": "bd5dc25",
+  "localIntegrationPr": 19,
+  "automatedLocal": {
+    "androidJvmTests": 40,
+    "sqliteInstrumentationTests": 24,
+    "webTests": 22,
+    "typeScriptEngineTests": 34,
+    "pythonTests": 70,
+    "schemaValidatedFixtures": 22
+  },
+  "emulator": {
+    "api": 31,
+    "versionCode": 6,
+    "sourceImplementationCommit": "914cfe9994236e77f4d29e6e6ee01667d7726d07",
+    "systemPickerImport": true,
+    "completeSyntheticPreviewPhasesReviewed": 10,
+    "explicitPublication": true,
+    "ungroupedStart": true,
+    "pausedAddition": {
+      "originalDurationMs": 80000,
+      "adjustedDurationMs": 90000,
+      "side": "left",
+      "sourceUnchanged": true
+    },
+    "processRecovery": {
+      "result": "PASS",
+      "formatVersion": 2,
+      "sourceAndEffectivePlansUnchanged": true,
+      "automaticResume": false,
+      "observedRunMs": 6745,
+      "adjustmentCount": 1,
+      "countersFrozenDuringRecovery": true,
+      "appDataCleared": false
+    },
+    "libraryBackupRehearsal": {
+      "schemaVersion": 3,
+      "integrity": "ok",
+      "foreignKeys": "ok",
+      "privateLibraryFiles": 4,
+      "appDataCleared": false,
+      "restorePerformed": false
+    }
+  },
+  "web": {
+    "browserVerified": true,
+    "humanAdditionShowsExerciseSideAndRepetition": true,
+    "originalAndAdjustedTimingDistinct": true,
+    "tickReceiptsVisible": false,
+    "networkUpload": false
+  },
+  "phone": {
+    "installedVersionCode": 5,
+    "databaseVersion": 2,
+    "room3MigrationApplied": false,
+    "newVerifiedBackupRequired": true,
+    "existingUnfinishedWorkout": "preserve paused format1"
+  },
+  "cloud": {
+    "realWorkoutUploadAuthorized": false,
+    "exactSyntheticEligibilityGateChanged": false,
+    "newService": false,
+    "billingChanged": false
+  },
+  "remaining": [
+    "current-head seven-version CI",
+    "new verified physical Room2 and library-files backup",
+    "phone Room3 upgrade and integrity/preserved-row comparison",
+    "owner private Template review/publication and real local workout acceptance",
+    "authorized real-workout cloud synchronization and full M1 acceptance"
+  ]
+}

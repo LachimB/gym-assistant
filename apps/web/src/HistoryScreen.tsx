@@ -29,11 +29,11 @@ export function HistoryDetails({ history, sample = false }: { history: ReadHisto
   const { record, phases, labels, title } = history;
   const modern = record.schemaVersion !== "1.0.0";
   const timing = record.timing ?? {};
-  const phaseFor = (event: HistoryEvent) => phases.find(p => event.phaseInstanceId ? p.instanceId === event.phaseInstanceId : p.stepId === event.planStepId && (!event.phaseId || p.phaseId === event.phaseId));
+  const phaseFor = (event: HistoryEvent) => phases.find(p => event.adjustmentId ? p.adjustmentId === event.adjustmentId && p.role === "work" : event.phaseInstanceId ? p.instanceId === event.phaseInstanceId : p.stepId === event.planStepId && (!event.phaseId || p.phaseId === event.phaseId));
   const phaseLabel = (event: HistoryEvent) => {
     const phase = phaseFor(event);
     if (!phase) return event.planStepId ? "Recorded phase" : "Whole workout";
-    return [labels[`family/${phase.exerciseId}`], labels[`variation/${phase.exerciseId}/${phase.variationId}`], phase.side, phase.name].filter(Boolean).join(" · ");
+    return [labels[`family/${phase.exerciseId}`], labels[`variation/${phase.exerciseId}/${phase.variationId}`], phase.side, phase.name, record.schemaVersion === "1.2.0" && phase.repetitionIndex ? `repetition ${phase.repetitionIndex}` : undefined].filter(Boolean).join(" · ");
   };
   return <section aria-label="Workout details" className="history-details">
     {sample && <p className="sample-label">Synthetic example · not your workout history</p>}

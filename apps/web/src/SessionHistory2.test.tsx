@@ -10,7 +10,7 @@ it('independently recompiles and reads the Kotlin 1.2 history without network or
     const value=fixture(),result=await readHistory(JSON.stringify(value));
     expect(result.record).toEqual(value);expect(result.phases).toHaveLength(12);
     const html=renderToStaticMarkup(<HistoryDetails history={result}/>);
-    for(const text of ['Adjusted planned duration','90 s','Within an added repetition','Extra repetition added','left','duration unknown','Ended early'])expect(html).toContain(text);
+    for(const text of ['Adjusted planned duration','90 s','Within an added repetition','Extra repetition added','repetition 3','left','duration unknown','Ended early'])expect(html).toContain(text);
     expect(html).not.toContain('Earlier recording format');expect(html).not.toContain('private_operation');expect(fetch).not.toHaveBeenCalled();
   }finally {fetch.mockRestore()}
 });
@@ -24,5 +24,6 @@ it('rejects corrupt source, effective bytes, adjustment identities and invented 
     (v:any)=>{v.events.at(-1).observedRunMs=0},
     (v:any)=>{v.events[1].phaseInstanceId='phase_missing'},
     (v:any)=>{v.recording={actions:[]}},
+    (v:any)=>{v.timing.unknownGapCount=3;v.events.at(-1).unknownGapCount=3},
   ]) {const value=fixture();change(value);await expect(readHistory(JSON.stringify(value))).rejects.toThrow()}
 });

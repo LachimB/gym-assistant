@@ -32,12 +32,18 @@ export async function readRuntimeHistory(record:HumanHistory):Promise<ReadHistor
   for(const [key,n] of Object.entries(timing))fact(n===null&&key==='scheduledElapsedMs'||safe(n));
   const counters=['observedRunMs','pauseMs','unobservedGapMs','unknownGapCount'] as const;
   const previous:Record<string,number>=Object.fromEntries(counters.map(k=>[k,0]));
+  let knownGapMs=0,unknownGaps=0;
   let added=0;const adjustments=record.adjustments!;const counts:Record<string,number>={};
   for(const [index,event] of record.events.entries()) {
     fact(event.eventId===await identity2('event',record.sessionId,'history-2',String(index)));
     counts[event.type]=(counts[event.type]??0)+1;
     fact(safe(event.adjustedScheduledElapsedMs)&&event.adjustedScheduledElapsedMs<=plan.expectedDurationMs);
     for(const key of counters) {const n=event[key];fact(safe(n)&&n>=previous[key]&&n<=timing[key]!);previous[key]=n;}
+    if(event.type==='interruption') {
+      if(event.detail?.gapDurationKnown) {fact(safe(event.detail.gapDurationMs));knownGapMs+=event.detail.gapDurationMs;fact(safe(knownGapMs));}
+      else unknownGaps++;
+    }
+    fact(event.unobservedGapMs===knownGapMs&&event.unknownGapCount===unknownGaps);
     if(event.type==='repetitionAdded') {
       const adjustment=adjustments[added++];fact(adjustment&&adjustment.adjustmentId===event.adjustmentId&&adjustment.setId===event.setId&&adjustment.recordedAt===event.recordedAt);
       const state:State2={status:'running',cursorMs:event.adjustedScheduledElapsedMs,observedRunMs:event.observedRunMs!,pauseMs:event.pauseMs!,unobservedGapMs:event.unobservedGapMs!,completedInstanceIds:[],completionAcknowledged:false,events:[]};
@@ -52,6 +58,7 @@ export async function readRuntimeHistory(record:HumanHistory):Promise<ReadHistor
     fact((base??null)===event.scheduledElapsedMs);
     if(event.type==='planEndReached')fact(event.adjustedScheduledElapsedMs===plan.expectedDurationMs);
   }
+  fact(timing.unobservedGapMs===knownGapMs&&timing.unknownGapCount===unknownGaps);
   fact(added===adjustments.length&&normalized(plan)===normalized(finalPlan)&&normalized(plan.adjustments)===normalized(adjustments));
   fact(timing.plannedDurationMs===plan.originalDurationMs&&timing.adjustedPlannedDurationMs===plan.expectedDurationMs);
   fact(safe(timing.adjustedScheduledElapsedMs)&&timing.adjustedScheduledElapsedMs<=plan.expectedDurationMs&&(baseCursor2(plan,timing.adjustedScheduledElapsedMs)??null)===timing.scheduledElapsedMs);
