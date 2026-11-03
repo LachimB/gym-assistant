@@ -18,6 +18,18 @@ PACKAGE = 'dev.gymassistant.m0.debug'
 COMPONENT = PACKAGE + '/dev.gymassistant.m0.MainActivity'
 
 
+def read_complete_ui_tree(dump, read, attempts=3):
+    """Retry only incomplete observation transport; never accept a partial UI tree."""
+    for attempt in range(attempts):
+        dump()
+        try:
+            return list(ET.fromstring(read()).iter('node'))
+        except ET.ParseError:
+            if attempt == attempts - 1:
+                raise AssertionError('Emulator UI transport returned incomplete XML three times') from None
+    raise AssertionError('Invalid observation attempt bound')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--serial', required=True)
@@ -32,9 +44,9 @@ def main():
 
     def nodes():
         for attempt in range(4):
-            adb('shell', 'uiautomator', 'dump', '/data/local/tmp/gym-recovery-ui.xml')
-            raw = adb('exec-out', 'cat', '/data/local/tmp/gym-recovery-ui.xml')
-            result = list(ET.fromstring(raw).iter('node'))
+            result = read_complete_ui_tree(
+                lambda: adb('shell', 'uiautomator', 'dump', '/data/local/tmp/gym-recovery-ui.xml'),
+                lambda: adb('exec-out', 'cat', '/data/local/tmp/gym-recovery-ui.xml'))
             # Some cold CI images overlay a launcher ANR after database tests.
             # Dismiss only that known system UI/launcher; never hide our app's ANR.
             launcher_anr = any(node.get('text') in
@@ -178,6 +190,14 @@ def main():
     wait_for('Test personal Drive connection')
     if saved_checkpoint() != first_saved:
         raise AssertionError('Opening Drive test changed the recovered workout')
+    click('Preview synthetic session delivery')
+    wait_for('Send generated synthetic example?')
+    wait_for('This sample contains no activity recorded from you.')
+    if saved_checkpoint() != first_saved:
+        raise AssertionError('Previewing synthetic delivery changed the recovered workout')
+    # Preview only: never press send/authorization in automated emulator acceptance.
+    click('Close')
+    wait_for('Test personal Drive connection')
     click('Close')
     wait_for('Resume saved workout')
     click('Resume saved workout')
@@ -199,7 +219,7 @@ def main():
     wait_for('Start Workout')
     print(json.dumps({'result': 'PASS', 'firstRecoveredMs': first[1],
                       'secondRecoveredMs': second[1], 'automaticResume': False,
-                      'appDataCleared': False, 'driveTestAccessibleDuringRecovery': True}))
+                      'appDataCleared': False, 'driveTestAccessibleDuringRecovery': True, 'syntheticDeliveryPreviewPreservesWorkout': True}))
 
 
 if __name__ == '__main__':

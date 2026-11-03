@@ -4,7 +4,6 @@ import android.app.Application
 import android.os.SystemClock
 import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.viewModelScope
-import androidx.room.Room
 import dev.gymassistant.engine.CompiledPlan
 import dev.gymassistant.engine.compileTemplate
 import java.time.Instant
@@ -29,7 +28,7 @@ data class WorkoutUi(
 )
 
 class WorkoutModel(application: Application) : AndroidViewModel(application) {
-    private val database = Room.databaseBuilder(application, WorkoutDatabase::class.java, "workouts-v1.db").build()
+    private val database = WorkoutDatabases.open(application)
     private val driver = SessionDriver(RoomSessionStore(database), SystemClock::elapsedRealtime)
     private val gate = Mutex()
     private val mutableUi = MutableStateFlow(WorkoutUi())
