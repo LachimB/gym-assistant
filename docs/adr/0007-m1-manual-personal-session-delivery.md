@@ -17,7 +17,7 @@ meaningful events, added/skipped work, dates/time zone, outcome, observed time,
 pauses and known/unknown gaps. Quarter-second receipts, checkpoints, outbox rows,
 credentials stay on the phone; this feature does not upload original PDF bytes.
 References already present in the reviewed YAML remain part of that exact frozen
-source. No AI provider receives this data.
+source. This operation stores the recording in Drive; it does not send it for AI analysis.
 
 This changes the existing **synthetic-only** live-data boundary. Approval is
 needed before enabling or testing real uploads, even though Google Drive itself

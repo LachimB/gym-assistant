@@ -155,6 +155,21 @@
       "networkCalls": 0
     },
     "localJvmAndSqliteTestsPassed": true,
-    "phoneUpdateVerified": false
+    "phoneUpdateVerified": true,
+    "phoneUpdate": {
+      "installedVersionCode": 8,
+      "versionName": "0.1.6-m1-completion-fix",
+      "sourceCommit": "6977599428ed32e11f5202e6d6ae2b653aba0505",
+      "apkSha256": "1d3e3d6244982c083461eadf1d5f8c59968973e106fa8563d2f0e1b3cab08d0d",
+      "databaseVersionBefore": 3,
+      "databaseVersionAfter": 3,
+      "newMigrationApplied": false,
+      "allElevenTablesExactlyUnchanged": true,
+      "noUnfinishedWorkout": true,
+      "privateImportFilesReadBackExactly": 8,
+      "backupStandaloneSha256": "1d792a9e76ee27230cefce9d848dfda9143fd1694d4e579a2faaaaf0cfebc1e5",
+      "uninstallOrClearPerformed": false,
+      "cloudUpload": false
+    }
   }
 }
