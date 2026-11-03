@@ -1164,3 +1164,8 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   private source or network. Personal flow now reports preparation/account-root/
   durable-intent/readback stages instead of falsely remaining “waiting for
   authorization” during this work. Final-head CI remains required.
+
+- Personal preview status is live after send instead of retaining its pre-send
+  Not sent note. A generation guard prevents an older list refresh from replacing
+  a selection/send status. No SQL/network policy or payload changes. Final source
+  checks must cover this status correction before migration.
