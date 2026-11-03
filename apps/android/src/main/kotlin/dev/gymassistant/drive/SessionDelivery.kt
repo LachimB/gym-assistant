@@ -41,7 +41,9 @@ internal class SessionDeliverySender(
     suspend fun send(id: String): String = mutex.withLock {
         var (_, job) = local.load(id)
         if (job.state in setOf("delivered", "conflict")) return@withLock job.state
-        if (job.nextAttemptAt?.let { Instant.parse(it).isAfter(now()) } == true) return@withLock job.state
+        val retryDelay=job.nextAttemptAt?.let { java.time.Duration.between(now(),Instant.parse(it)).toMillis() }
+        // A clock correction must not defer an explicit foreground retry for days/years.
+        if (retryDelay != null && retryDelay in 1..30000) return@withLock job.state
         var transientFailures = 0
         while (true) {
             var (connection, current) = local.load(id)

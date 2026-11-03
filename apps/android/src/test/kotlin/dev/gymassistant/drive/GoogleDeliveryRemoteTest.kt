@@ -66,6 +66,19 @@ class GoogleDeliveryRemoteTest {
         assertFailsWith<IllegalStateException> { http.request(DeliveryHttpRequest("GET",ACCOUNT_PATH)) }
         assertEquals(0,reserved)
     }
+    @Test fun retryAfterSupportsBothSecondsAndHttpDatesWithinTheBatchBound() {
+        val now=java.time.Instant.parse("2026-11-03T10:00:00Z")
+        assertEquals(12000L,retryAfterDelayMs("12",now))
+        assertEquals(15000L,retryAfterDelayMs("Tue, 03 Nov 2026 10:00:15 GMT",now))
+        assertEquals(30000L,retryAfterDelayMs("999999",now))
+        assertEquals(0L,retryAfterDelayMs("Tue, 03 Nov 2026 09:00:00 GMT",now))
+        assertNull(retryAfterDelayMs("-1",now));assertNull(retryAfterDelayMs("invalid",now))
+    }
+    @Test fun failedRequestReservationPreventsAnyNetworkTransmission() {
+        val http=GoogleDeliveryHttp("synthetic-token") { throw DeliveryFailure("budget") }
+        val failure=assertFailsWith<DeliveryFailure> { http.request(DeliveryHttpRequest("GET",ACCOUNT_PATH)) }
+        assertEquals("budget",failure.reason);http.close()
+    }
     @Test fun providerFailureBodyNeverAppearsInReportedError() = runBlocking {
         val remote = GoogleDeliveryRemote { DeliveryHttpResponse(401,"credential-looking-provider-error".toByteArray()) }
         try { remote.identity(); fail("Expected authorization error") }
