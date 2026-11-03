@@ -5,7 +5,8 @@ import schema11 from "../../../schemas/session.v1.1.schema.json?raw";
 import { isMap, isScalar, isSeq, parseDocument } from "yaml";
 
 export const MAX_HISTORY_BYTES = 8 * 1024 * 1024;
-const ajv = new Ajv2020({ allErrors: false, strict: true, strictRequired: false });
+const ajv = new Ajv2020({ allErrors: false, strict: true, strictRequired: false,
+  coerceTypes: false, useDefaults: false, removeAdditional: false });
 addFormats(ajv);
 // Only repository schemas are compiled, never schemas supplied by the imported file.
 const validators = new Map([
@@ -28,6 +29,10 @@ export interface HumanHistory {
   events: HistoryEvent[];
   organizationContext?: { season?: { name: string }; program?: { name: string } };
   overallRpe?: number | null; personalQualityRating?: number | null; journalSummary?: string; notes?: string;
+  performanceBySet?: { blockId: string; occurrenceId: string; setId: string; variationId: string;
+    completedRepetitions?: number; holdDurationMs?: number; rpe?: number; notes?: string;
+    resistanceActual?: { weight?: { value: number; unit: string }; bands?: { equipmentId: string; count: number; placement: string }[]; notes?: string };
+  }[];
 }
 export interface HistoryPhase {
   index: number; stepId: string; phaseId?: string; setId?: string; name: string; startMs: number; endMs: number;
@@ -83,6 +88,11 @@ export async function readHistory(text: string): Promise<ReadHistory> {
   requireFact(validate, "This session format is not supported by this viewer.");
   requireFact(validate(value), "This session file is invalid or incomplete. The file has not been changed.");
   const record = value as HumanHistory;
+  for (const set of record.performanceBySet ?? []) {
+    for (const count of [set.completedRepetitions, set.holdDurationMs, ...(set.resistanceActual?.bands ?? []).map(band => band.count)]) {
+      requireFact(count === undefined || safeTime(count), "A set result is outside the supported range.");
+    }
+  }
   requireFact(record.events.length <= 10000, "This session has more events than this viewer supports. The file has not been changed.");
   const ids = record.events.map(event => event.eventId);
   requireFact(ids.length === new Set(ids).size, "The session repeats an event identifier.");

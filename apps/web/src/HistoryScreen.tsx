@@ -3,10 +3,10 @@ import partialSample from "../../../examples/sessions/synthetic-human-partial-se
 import completedSample from "../../../examples/sessions/synthetic-human-completed-session.json?raw";
 import { MAX_HISTORY_BYTES, readHistory, type ReadHistory, type HistoryEvent } from "./SessionHistory";
 
-export const duration = (ms?: number) => ms === undefined ? "Not recorded" : `${(ms / 1000).toLocaleString(undefined, { maximumFractionDigits: 3 })} s`;
+export const duration = (ms?: number) => ms === undefined ? "Not recorded" : `${(ms / 1000).toLocaleString("en", { maximumFractionDigits: 3 })} s`;
 const eventNames: Record<string, string> = {
   sessionStarted: "Workout started", phaseStarted: "Phase started", phaseCompleted: "Phase completed",
-  pause: "Paused", resume: "Resumed", skip: "Skipped ahead", rewind: "Moved back", interruption: "Interruption",
+  pause: "Paused", resume: "Resumed", skip: "Skipped ahead to", rewind: "Moved back to", interruption: "Interruption",
   planEndReached: "Reached end of plan", sessionEnded: "Workout ended", sessionDiscarded: "Workout discarded",
   sessionCompleted: "Workout completed", manualRepCompleted: "Repetition completed", setActualUpdated: "Set results updated",
   blockInserted: "Block added", blockReordered: "Block order changed", noteAdded: "Note added",
@@ -58,6 +58,22 @@ export function HistoryDetails({ history, sample = false }: { history: ReadHisto
     {record.personalQualityRating != null && <p>Session quality: {record.personalQualityRating}/5</p>}
     {record.journalSummary && <p>Journal: {record.journalSummary}</p>}
     {record.notes && <p>Notes: {record.notes}</p>}
+    {record.performanceBySet && record.performanceBySet.length > 0 && <section aria-label="Recorded set results">
+      <h3>Recorded set results</h3>
+      <div className="history-table"><table><thead><tr><th scope="col">Set</th><th scope="col">Completed repetitions</th><th scope="col">Hold duration</th><th scope="col">Actual resistance</th><th scope="col">Effort</th><th scope="col">Notes</th></tr></thead>
+        <tbody>{record.performanceBySet.map((set, index) => {
+          const phase = phases.find(p => p.setId === set.setId);
+          const name = phase && labels[`family/${phase.exerciseId}`];
+          const resistance = set.resistanceActual;
+          const parts = [resistance?.weight ? `${resistance.weight.value} ${resistance.weight.unit}` : "",
+            ...(resistance?.bands ?? []).map(band => `${band.equipmentId} × ${band.count} · ${band.placement}`), resistance?.notes ?? ""].filter(Boolean);
+          return <tr key={`${set.blockId}/${set.occurrenceId}/${set.setId}/${index}`}>
+            <td>{name ?? set.setId}</td><td>{set.completedRepetitions ?? "Not recorded"}</td><td>{duration(set.holdDurationMs)}</td>
+            <td>{parts.join("; ") || "Not recorded"}</td><td>{set.rpe === undefined ? "Not recorded" : `${set.rpe}/10`}</td><td>{set.notes ?? "—"}</td>
+          </tr>;
+        })}</tbody></table></div>
+      <p className="meta">If an exercise label was not captured, its original set reference is shown. Missing results are not inferred from phase counts.</p>
+    </section>}
     <h3>Workout events</h3>
     <p className="meta">Times show when events were recorded. Timer saves are not listed as workout events.</p>
     <div className="history-table"><table><thead><tr><th scope="col">Recorded at</th><th scope="col">Event</th><th scope="col">Phase</th><th scope="col">{modern ? "Observed running time" : "Recorded actual elapsed time"}</th></tr></thead>
