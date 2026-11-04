@@ -23,10 +23,20 @@ def digest(data):
     return hashlib.sha256(data).hexdigest()
 
 
-def git(repo, *args, data=None):
+def git_environment(index=False):
+    # Git hooks export GIT_DIR/GIT_INDEX_FILE and push -c config. Never let
+    # those redirect scratch operations back into the developer's repository.
+    env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
+    env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
+    if index and 'GIT_INDEX_FILE' in os.environ:
+        env['GIT_INDEX_FILE'] = os.environ['GIT_INDEX_FILE']
+    return env
+
+
+def git(repo, *args, data=None, index=False):
     return subprocess.run(['git', '-c', 'core.hooksPath=/dev/null', '-C', str(repo), *args],
                           input=data, stdout=subprocess.PIPE, stderr=subprocess.DEVNULL,
-                          check=True, timeout=120).stdout
+                          check=True, timeout=120, env=git_environment(index)).stdout
 
 
 def load_policy(path):
@@ -48,7 +58,7 @@ class Scanner:
         self.policy, self.config, self.executable = policy, Path(config).resolve(), executable
         # Ignore user config, inline allow directives, ignore files and PR configs.
         self.environment = {k: v for k, v in os.environ.items()
-                            if not k.startswith(('GITLEAKS_', 'GITHUB_', 'GH_'))}
+                            if not k.startswith(('GITLEAKS_', 'GITHUB_', 'GH_', 'GIT_'))}
         self.cache = {}
         self.total = 0
         version = subprocess.run([executable, 'version'], capture_output=True, timeout=15,
@@ -225,7 +235,7 @@ def scan_range(repo, base, head, scanner, metadata=()):
             names = b''.join(n.encode() + b'\0' for n in entries)
             result = subprocess.run(['git', '-C', tmp, '-c', 'core.excludesFile=/dev/null',
                                      'check-ignore', '--no-index', '-z', '--stdin'], input=names,
-                                    capture_output=True, timeout=30)
+                                    capture_output=True, timeout=30, env=git_environment())
             if result.returncode not in (0, 1):
                 raise RuntimeError('ignore inspection incomplete')
             if result.stdout:
@@ -237,7 +247,7 @@ def scan_range(repo, base, head, scanner, metadata=()):
                       'private-config/settings.json', 'crash.dmp', 'debug.log']
             result = subprocess.run(['git', '-C', tmp, '-c', 'core.excludesFile=/dev/null',
                                      'check-ignore', '--no-index', '-z', '--stdin'],
-                                    input=b''.join(p.encode() + b'\0' for p in probes), capture_output=True, timeout=30)
+                                    input=b''.join(p.encode() + b'\0' for p in probes), capture_output=True, timeout=30, env=git_environment())
             if result.returncode not in (0, 1):
                 raise RuntimeError('ignore coverage unavailable')
             if set(result.stdout.split(b'\0')) - {b''} != {p.encode() for p in probes}:

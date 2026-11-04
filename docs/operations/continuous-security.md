@@ -33,7 +33,9 @@ required statuses on fork heads and metadata events. Unlike the preferred ordina
 pull-requests:read and statuses:write; it cannot modify repository files, settings
 or PR discussions. Authentication is supplied only to the GitHub API client and
 removed before scanner/Git subprocesses. Repository secrets are never referenced.
-Checkout credentials are not persisted. Actions are pinned to full commit SHAs;
+Checkout credentials are not persisted. Git subprocesses isolate hook-exported
+repository/configuration variables so scratch operations cannot target a developer
+checkout; the local index scan explicitly retains partial-commit index selection. Actions are pinned to full commit SHAs;
 Gitleaks 8.30.1 uses the existing verified release archive checksum.
 
 The controller handles PR events, conversation comment creation/edit/deletion,

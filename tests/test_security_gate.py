@@ -255,6 +255,34 @@ class SecurityTests(unittest.TestCase):
         self.assertEqual(first.returncode, 1)
         self.assertEqual(first.stdout, second.stdout)
 
+    def test_hook_environment_cannot_redirect_scratch_git_operations(self):
+        self.repo.write('source.py', 'count = 1')
+        head = self.repo.commit()
+        command = [sys.executable, str(HERE / 'tools/security_gate.py'), '--repo', str(self.repo.root),
+                   '--base', self.repo.base, '--head', head]
+        clean = subprocess.run(command, capture_output=True)
+        dirty = subprocess.run(command, capture_output=True, env=dict(os.environ,
+            GIT_DIR=str(self.repo.root / '.git'), GIT_WORK_TREE=str(self.repo.root),
+            GIT_CONFIG_COUNT='1', GIT_CONFIG_KEY_0='core.worktree', GIT_CONFIG_VALUE_0='/does-not-exist'))
+        self.assertEqual(clean.returncode, 0)
+        self.assertEqual(dirty.returncode, 0)
+        self.assertEqual(clean.stdout, dirty.stdout)
+
+    def test_local_scan_preserves_partial_commit_index(self):
+        self.repo.write('source.py', 'count = 1')
+        self.repo.commit()
+        alternative = self.repo.root / 'alternate-index'
+        subprocess.run(['git', '-C', str(self.repo.root), 'read-tree', 'HEAD'],
+                       env=dict(os.environ, GIT_INDEX_FILE=str(alternative)), check=True, capture_output=True)
+        self.repo.write('source.py', 'token="' + fake_token() + '"')
+        subprocess.run(['git', '-C', str(self.repo.root), 'add', 'source.py'],
+                       env=dict(os.environ, GIT_INDEX_FILE=str(alternative)), check=True, capture_output=True)
+        self.repo.write('source.py', 'count = 2')
+        result = subprocess.run([sys.executable, str(HERE / 'tools/security_local.py')],
+            cwd=self.repo.root, env=dict(os.environ, GIT_INDEX_FILE=str(alternative)), capture_output=True)
+        self.assertEqual(result.returncode, 1)
+        self.assertNotIn(fake_token().encode(), result.stdout + result.stderr)
+
     def test_unquoted_sensitive_assignment_and_certificate(self):
         value = 'password=' + hashlib.sha256(b'synthetic password').hexdigest()
         self.assertTrue(self.scanner.secret(value.encode()))

@@ -9,11 +9,11 @@ def main():
     try:
         repo = Path(git('.', 'rev-parse', '--show-toplevel').decode().strip())
         scanner = Scanner(load_policy(HERE / 'security/policy.json'), HERE / '.gitleaks.toml')
-        names = git(repo, 'diff', '--cached', '--name-only', '--diff-filter=ACMRT', '-z').split(b'\0')
+        names = git(repo, 'diff', '--cached', '--name-only', '--diff-filter=ACMRT', '-z', index=True).split(b'\0')
         blocked = review = 0
         for raw_name in filter(None, names):
             name = raw_name.decode()
-            data = git(repo, 'show', ':' + name)
+            data = git(repo, 'show', ':' + name, index=True)
             # Inspect actual staged bytes, never worktree replacements.
             findings = scanner.inspect(name, data)
             blocked += sum(f['status'] == 'blocked' for f in findings)
