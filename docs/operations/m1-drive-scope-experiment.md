@@ -325,3 +325,21 @@ Current allocation82/500 =65 counted direct/setup attempts +17 unused reservatio
 unmeasured. Page credentials forgotten after readback. Public synthetic source
 only; no personal workout, source PDF or raw recovery log uploaded. See
 `../milestones/m1-native-session-delivery.json` and `m1-session-delivery.md`.
+
+## Approved personal delivery boundary — 2026-11-03
+
+The owner approved ADR-0007 after its explanation. This explicitly expands the
+existing personal project's synthetic-only data boundary for manual selected
+finalized human1.2 sessions. Exactly drive.file, same personal account/client,
+one private PERSONAL M1 DEV folder; billing remains disabled. No AI analysis,
+automatic uploads, history backfill or sharing change. Implementation and tests
+are in progress; no live personal folder/upload has occurred yet.
+
+Reserve50 additional direct attempts once: previous82 → **132/500 allocated**.
+Old native counters/reservations are not reset/refunded. The new personal path has
+its own persistent50-request/4-authorization allowance; private build activation
+requires personalDeliveryBudgetReserved=true after verified source CI. SDK
+internal traffic remains unmeasured. Tests use generated synthetic data and fake
+transports; the final live test requires owner-selected real session + exact
+readback + one explicit retry. Room3→4 installation requires a fresh verified
+private database, library, payload and setup-files backup after successful checks.
