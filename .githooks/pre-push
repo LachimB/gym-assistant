@@ -9,11 +9,7 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     # Scan only commits absent from all fetched origin refs; pre-existing public
     # history is handled by the separately approved historical cleanup.
     while read -r sha; do
-      if git rev-parse "$sha^" >/dev/null 2>&1; then
-        python3 tools/check_repo_hygiene.py --commits "$sha^..$sha"
-      else
-        python3 tools/check_repo_hygiene.py --commits "$sha"
-      fi
+      python3 tools/check_repo_hygiene.py --commit "$sha"
     done < <(git rev-list "$local_sha" --not --remotes=origin)
   else
     python3 tools/check_repo_hygiene.py --commits "$remote_sha..$local_sha"
