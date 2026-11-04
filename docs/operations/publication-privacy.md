@@ -102,8 +102,16 @@ review record pins dependency inputs and declared licenses; review and update
 upstream notices before accepting a changed record. Binary release remains
 uncleared until the separate release review is completed.
 
-PR title/body edits also rerun privacy CI. Merge-commit attribution must use the
-same confirmed noreply identity: after personal preflight and all checks pass,
-use `gh pr merge --merge --author-email 17935459+LachimB@users.noreply.github.com
---match-head-commit <reviewed-head> <PR-number>`. Never use administrator bypass.
-Web merges require the owner's email privacy settings to be verified first.
+PR title/body edits also rerun privacy CI. Local commits remain pinned to the
+confirmed numeric noreply identity. GitHub-generated merge commits for this
+account use the legacy public alias `LachimB@users.noreply.github.com`; the content
+and commit gates accept exactly these two account-specific public aliases, never
+a blanket noreply-domain exception. Other accounts and personal contact addresses
+still fail. The personal login/remote/local-identity preflight remains strict.
+
+For server merges, first verify the owner's GitHub email privacy settings and all
+required checks, then use `gh pr merge --merge --match-head-commit <reviewed-head>
+<PR-number>` without `--author-email`: GitHub rejects its numeric noreply alias as
+an explicit GraphQL authorEmail even though local Git commits can use it. Verify
+the resulting merge metadata uses the known public owner alias and GitHub service
+committer. Never use administrator bypass or substitute a personal address.
