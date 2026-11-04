@@ -18,10 +18,12 @@
   Recorded local baseline:49 JVM,28 SQLite,73 Python checks and23 schema fixtures.
   API31 recovery/import/publication/preview passed. Full current-head seven-version
   CI remains required; do not infer newer-OS acceptance from local results.
-- Last recorded physical installation: version8/Room3. No Room4 migration or live
-  personal delivery accepted. Before any installation, verify current state and
-  all required CI checks, then make a fresh verified private backup. Preserve all
-  existing records; no clear, uninstall, automatic restore or baseline replacement.
+- Newer verified development evidence (`d48acc4`): PR21 head `74bc0392` passed
+  all10 checks, including seven-version Android coverage. Physical version9/Room4
+  upgrade was verified with prior application records/archives preserved. No
+  personal destination or live upload created. Do not repeat the migration or
+  operate/restart/update the phone during the current external acceptance gate.
+  Detailed source characteristics, personal state and private backups stay outside Git.
 - Direct API budget allocations and SDK-internal request accounting remain
   separate; preserve the existing reservations. No spending increase authorized.
 
@@ -64,3 +66,9 @@
   No Drive permissions, shares, grants or credentials changed.
 - Historical cleanup plan: `docs/operations/history-privacy-cleanup.md`. No rewrite,
   force-push, ref deletion or garbage collection performed.
+
+The standalone privacy PR targets main without importing PR21 implementation.
+The development-branch companion preserves newer accepted technical evidence.
+
+The standalone privacy PR targets main without importing PR21 implementation.
+The development-branch companion preserves newer accepted technical evidence.

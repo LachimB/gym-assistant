@@ -62,3 +62,13 @@ payment/spending-limit reasons. Exact cause requires owner review; no billing
 change authorized/performed. Phone remains v8/Room3; PR21 unmerged, no live
 personal folder/upload. Newer-OS layout acceptance and mandatory pre-installation
 checks remain open.
+
+
+Owner confirmed public repository visibility on2026-11-04. PR21 head74bc039
+passed all10 checks (standard41767116394 / Android41767116465). The configured
+v9 was then installed after a fresh verified private Room3/library/payload/setup
+backup. Exact before/after comparison preserves all11 old tables and archives;
+Room4's personal table starts empty. Eight external source files match exactly.
+No clear/restore, personal folder or real upload. The normal offline/interrupted
+phone workout, selected-session delivery/readback/retry and web review remain
+owner acceptance gates. See structured evidence's physicalRoom4Upgrade.
