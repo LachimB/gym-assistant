@@ -101,3 +101,9 @@ Run `python3 tools/check_license_inventory.py` after dependency changes. The
 review record pins dependency inputs and declared licenses; review and update
 upstream notices before accepting a changed record. Binary release remains
 uncleared until the separate release review is completed.
+
+PR title/body edits also rerun privacy CI. Merge-commit attribution must use the
+same confirmed noreply identity: after personal preflight and all checks pass,
+use `gh pr merge --merge --author-email 17935459+LachimB@users.noreply.github.com
+--match-head-commit <reviewed-head> <PR-number>`. Never use administrator bypass.
+Web merges require the owner's email privacy settings to be verified first.
