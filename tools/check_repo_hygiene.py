@@ -8,6 +8,8 @@ import sys
 import io
 
 NOREPLY = '17935459+LachimB@users.noreply.github.com'
+# GitHub-generated merges for this confirmed account use its legacy public alias.
+OWNER_NOREPLY_ALIASES = {NOREPLY, 'LachimB@users.noreply.github.com'}
 PRIVATE_DIRS = {'personal-data', 'private-data', 'private-evidence', 'private-config',
                 'private-backups', 'private-exports', 'raw-imports', 'original-pdfs'}
 PRIVATE_SUFFIXES = {'.pdf', '.xlsx', '.xls', '.csv', '.db', '.sqlite', '.sqlite3',
@@ -58,7 +60,7 @@ def inspect_content(name, data):
         for match in EMAIL.finditer(line):
             address = match.group()
             domain = address.rsplit('@', 1)[1].lower()
-            if address != NOREPLY and domain not in {'example.test', 'example.invalid', 'example.com', 'github.com'}:
+            if address not in OWNER_NOREPLY_ALIASES and domain not in {'example.test', 'example.invalid', 'example.com', 'github.com'}:
                 issues.append((number, 'non-synthetic contact address'))
         for reason, pattern in RULES:
             if reason == 'probable provider resource ID' and name.endswith(('package-lock.json', 'yarn.lock')) and re.match(r'\s*(?:"integrity"\s*:|integrity\s)', line):
@@ -148,7 +150,7 @@ def main():
             records = git(root, 'log', '--format=%H%x09%ae%x09%ce', *options, args.commit or args.commits).decode().splitlines()
             for record in records:
                 sha, author, committer = record.split('\t')
-                if author != NOREPLY or committer not in {NOREPLY, 'noreply@github.com'}:
+                if author not in OWNER_NOREPLY_ALIASES or committer not in {NOREPLY, 'noreply@github.com'}:
                     failures.append(('commit ' + sha[:12], 1, 'new commit must use confirmed noreply author and committer'))
                 failures.extend(inspect_revision(root, sha))
                 failures.extend(('commit ' + sha[:12] + '/message', line, reason) for line, reason in inspect_content('commit-message', git(root, 'log', '-1', '--format=%B', sha)))
