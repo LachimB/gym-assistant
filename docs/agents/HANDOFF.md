@@ -351,3 +351,18 @@ PR31 head `06470a3` passed all technical checks, including all seven supported
 Android versions after the fixture-loader correction. Integrating current main
 requires new-head CI and an exact fresh receipt before merging. All earlier
 private-backup/physical-installation and exact Drive-inventory gates remain.
+
+## Lossless YAML candidate adapter
+
+The next approved ADR-0009 slice maps validated YAML scalar fields using declared
+stable source IDs. It preserves all three original branches, patches only explicit
+resolved values/new revision identity and compiles the complete candidate again.
+No library head or active session is changed. Source comments, Unicode positions,
+CRLF and block-header comments are retained. Comment/layout differences and arrays
+without declared stable identities remain structural conflicts for source review;
+existing BOM-prefixed import rejection is preserved rather than normalized.
+
+Local Android65 JVM checks pass, including8 new lossless-merge regressions; Android
+SQLite instrumentation still compiles. No dependency, schema, phone or Drive change.
+Full candidate-review UI, durable remote execution and background scheduling remain
+pending. Final CI and a fresh exact owner receipt precede this slice's merge.

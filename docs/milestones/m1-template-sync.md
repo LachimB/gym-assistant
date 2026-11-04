@@ -12,8 +12,13 @@ it does not enable a live connection or establish background/device acceptance.
   the existing public format2 source snapshot; no private source was copied.
 - Three-way scalar merge model with stable ancestor/property references. All
   conflicting fields need explicit choices and a fresh revision ID; a complete
-  candidate validator must succeed. Structural changes block. The lossless YAML
-  field adapter and final source-review UI are still required before adoption.
+  candidate validator must succeed. Structural changes block. The YAML adapter
+  now maps declared section/block/occurrence/set/phase/step/variation IDs and
+  replaces only resolved scalar tokens, retaining raw base/phone/Drive branches.
+  It preserves Unicode coordinates, CRLF, unchanged source bytes and comments,
+  including block-header comments. Comments/layout or unkeyed-array changes are
+  conservative structural conflicts requiring source review. Existing BOM import
+  rejection is preserved. Final source-review UI is still required before adoption.
 - Guarded per-file protocol: require a verified durable intent/current lease;
   verify namespace; compare prior tag/hash; require conditional replacement or a
   reserved-ID create; inspect the same ID after interruption; verify full bytes,
@@ -32,7 +37,7 @@ it does not enable a live connection or establish background/device acceptance.
 
 ## Local validation and required gates
 
-Android57 JVM, adapter20 JVM and122 Python tests pass. Engine JVM tests pass.
+Android65 JVM, adapter20 JVM and122 Python tests pass. Engine JVM tests pass.
 Android migration instrumentation compiles; SQLite execution and the supported
 API31–36/37.0 matrix must pass in CI. No local emulator was configured for this
 check. Migration tests seed all12 old tables, inject4→5 failure, verify rollback,
@@ -47,7 +52,7 @@ inventory still requires owner review before any live consolidation.
 
 ## Remaining implementation and acceptance
 
-Wire durable queue/progress reconciliation, lossless YAML field mapping, verified
+Wire durable queue/progress reconciliation, verified
 Drive hierarchy/conditional endpoints, immutable history/head publication and
 external-candidate review. Add the separately reviewed WorkManager dependency and
 bounded authorization/budget integration, then implement UI and compatible
