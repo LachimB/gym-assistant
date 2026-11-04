@@ -51,10 +51,17 @@
 
 ## Next work
 
-1. Complete protected CI and merge clean implementation PR26.
+1. PR26 merged at `25a8c23` after all11 checks passed on `2e3ae59`, including
+   all seven Android versions. PR21 is closed; its branch/history is retained.
+   The clean checkout matches verified main. No history rewrite or ref deletion.
 2. Retain old refs; historical erasure requires separate reviewed approval.
 3. Complete full offline/interruption/synchronization/web acceptance without
    publishing personal inputs, characteristics or outcomes.
+4. ADR-0008 was approved after explanation for explicit read-only web access to a selected personal Drive
+   recording. Implementation is in progress; private connection and budget settings stay
+   outside Git. No database/session schema change; no live operation by drafting it.
+   Detailed current acceptance evidence remains outside Git. Manual-file web
+   reading does not prove direct Drive integration or Template synchronization.
 
 ## Privacy validation — 2026-11-04
 
@@ -88,3 +95,40 @@ address was exposed. The initial gate rejected that alias as a false positive.
 The follow-up accepts only the two known public aliases of the confirmed owner;
 local commit identity remains pinned to the numeric alias. Merge instructions
 avoid the GraphQL authorEmail field and require post-merge metadata verification.
+
+## Approved direct web reader continuation
+
+ADR-0008 is approved. The candidate adds an isolated GET-only personal reader,
+explicit owner-driven Google authorization/Picker, bounded streaming and existing
+independent history validation. A loopback-only helper serves private connection
+settings and durably increments approved allowance counters before transmission;
+it receives no tokens or recording content. Public defaults stay disconnected.
+Local checks:38 web tests,2 loopback security/budget tests, production build and
+privacy/license checks pass. Full current-head CI and actual browser/live selection
+remain required. No Android build, phone migration or live read by implementation.
+See `docs/operations/m1-web-personal-drive-reader.md`; detailed inputs/results stay
+outside Git. Deferred timing-format styling is not changed.
+
+## Direct reader continuation — browser fetch receiver fix
+
+PR27 is open; its published head is `bbeb18b`. Do not merge that head as accepted:
+a browser-native fetch receiver problem was reproduced with local-only HTTP
+(native fetch as an instance method throws TypeError; correct global receiver
+returns200). Injected transport tests had hidden this browser calling convention.
+The local adapter now invokes fetch through the global receiver, has a dedicated
+regression, uses base AbortController cancellation, and distinguishes transport
+failure from malformed metadata.38 web tests and the production build pass.
+The follow-up fixes are retained on this branch; require all current-head checks
+and the private acceptance evidence before protected merge.
+
+Synthetic browser HTTP validation and public-default disabled-access checks pass.
+The approved loopback4173 origins and matching Picker referrers were saved and
+verified with prior restrictions retained. Private connection/budget inputs live
+outside Git; never recreate/reset them. The identified old project preview was
+replaced by the loopback helper. Do not restart/update the phone for this web task.
+
+Normal approval review is available again. Private configuration and durable
+allowances remain intact. Never reset them or infer unmeasured SDK calls from
+the direct-request counters. Inspect only non-content status during live checks;
+real source/event text needs separate per-operation AI consent. Keep detailed
+acceptance evidence outside Git. Full M1 and Template synchronization remain open.
