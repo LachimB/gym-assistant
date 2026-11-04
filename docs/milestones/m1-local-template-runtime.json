@@ -52,40 +52,6 @@
     "tickReceiptsVisible": false,
     "networkUpload": false
   },
-  "privateTemplate": {
-    "contentsCommitted": false,
-    "contentsPackagedInApk": false,
-    "newAiOperation": false,
-    "localIndependentPlansMatch": true,
-    "plannedDurationMs": 2750000,
-    "phases": 474,
-    "eligibleSetsChecked": 32,
-    "publishedOnPhone": true,
-    "localPhoneFilesCopiedAndReadBack": 8,
-    "ownerFoundLocalImportFolder": true,
-    "publishedHeadMatchesPreparedPlan": true,
-    "sourceFilesMatchExactly": 8
-  },
-  "phone": {
-    "installedVersionCode": 7,
-    "databaseVersion": 3,
-    "room3MigrationApplied": true,
-    "newVerifiedBackupRequired": false,
-    "verifiedBackupStandaloneSha256": "8f721c29712de5ac08dcda1a62ff21b4c66d35272053ffb1e488d58daf825319",
-    "originalRecordsPreserved": 706,
-    "originalConnectionsAndDeliveriesPreserved": true,
-    "originalTimingAndProgressUnchanged": true,
-    "normalRecoveryRowsAdded": 1,
-    "ownerReportedPreviousWorkoutSavedPartial": true,
-    "uninstallOrClearPerformed": false,
-    "automaticRestorePerformed": false,
-    "versionName": "0.1.5-m1-local-template",
-    "uiApkSourceCommit": "5ba555b17bb256b56b097d83c4c2366abfcee400",
-    "uiApkSha256": "6ddb16fbfd8bb30dc7ba38f07489c57c1a5577f10352463785d34f5e2fafcb0c",
-    "uiUpdateAllElevenTablesExactlyUnchanged": true,
-    "previousPartialRecordVerified": true,
-    "noUnfinishedWorkout": true
-  },
   "cloud": {
     "realWorkoutUploadAuthorized": false,
     "exactSyntheticEligibilityGateChanged": false,
@@ -121,39 +87,11 @@
     "allTenChecksPassed": true,
     "selectedImportAndFooterUiIncluded": true
   },
-  "physicalRuntimeShortTest": {
-    "result": "PASS",
-    "appVersionCode": 7,
-    "originalPlannedDurationMs": 2750000,
-    "adjustedPlannedDurationMs": 2760000,
-    "extraRepetitionsRetained": 1,
-    "activeCountdownAndCompletedProgressUnchanged": true,
-    "frozenSourceAndEffectivePlansUnchanged": true,
-    "allPriorActionsAndOutboxPreserved": true,
-    "otherSessionsAndLibraryUnchanged": true,
-    "normalUnknownRecoveryGapAdded": 1,
-    "automaticResume": false,
-    "countersFrozenAfterRecovery": true,
-    "appDataCleared": false,
-    "cloudUpload": false,
-    "fullWorkoutAcceptance": "not performed by this short test",
-    "testRecordRetainedAsDiscarded": true,
-    "publishedTemplateStillUnchanged": true,
-    "noUnfinishedWorkout": true
-  },
   "completionRegression": {
     "issue": "natural plan end had no active phase; mixed numeric zero type failed checkpoint validation",
     "fix": "Long zero in absent-phase offset check",
     "targetVersionCode": 8,
     "publicCompletedHistoryFixture": "examples/sessions/synthetic-runtime-v2-completed-session.json",
-    "fullVirtualPrivateShape": {
-      "physicalWorkoutEvidence": false,
-      "adjustedPhases": 476,
-      "meaningfulEvents": 956,
-      "canonicalUtf8Bytes": 1219806,
-      "independentWebReaderPassed": true,
-      "networkCalls": 0
-    },
     "localJvmAndSqliteTestsPassed": true,
     "phoneUpdateVerified": true,
     "phoneUpdate": {
@@ -165,11 +103,16 @@
       "databaseVersionAfter": 3,
       "newMigrationApplied": false,
       "allElevenTablesExactlyUnchanged": true,
-      "noUnfinishedWorkout": true,
-      "privateImportFilesReadBackExactly": 8,
-      "backupStandaloneSha256": "1d792a9e76ee27230cefce9d848dfda9143fd1694d4e579a2faaaaf0cfebc1e5",
       "uninstallOrClearPerformed": false,
       "cloudUpload": false
     }
+  },
+  "physicalRuntimeVerification": {
+    "result": "PASS",
+    "sourceEffectivePlanStateAndCountersPreserved": true,
+    "automaticResume": false,
+    "cloudUpload": false,
+    "fullWorkoutAcceptance": "open",
+    "detailedEvidence": "retained outside Git"
   }
 }

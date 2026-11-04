@@ -1,0 +1,22 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+python3 tools/check_repo_hygiene.py
+command -v gitleaks >/dev/null || { echo 'Push rejected: install Gitleaks before pushing.' >&2; exit 1; }
+while read -r local_ref local_sha remote_ref remote_sha; do
+  [[ "$local_sha" =~ ^0+$ ]] && continue
+  if [[ "$remote_sha" =~ ^0+$ ]]; then
+    # Scan only commits absent from all fetched origin refs; pre-existing public
+    # history is handled by the separately approved historical cleanup.
+    while read -r sha; do
+      if git rev-parse "$sha^" >/dev/null 2>&1; then
+        python3 tools/check_repo_hygiene.py --commits "$sha^..$sha"
+      else
+        python3 tools/check_repo_hygiene.py --commits "$sha"
+      fi
+    done < <(git rev-list "$local_sha" --not --remotes=origin)
+  else
+    python3 tools/check_repo_hygiene.py --commits "$remote_sha..$local_sha"
+  fi
+done
+gitleaks git . --log-opts='--all --full-history' --redact=100 --ignore-gitleaks-allow --no-banner

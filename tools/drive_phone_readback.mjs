@@ -1,12 +1,12 @@
 // One approved synthetic acceptance artifact only; never a general Drive browser.
 import {FIXTURE} from './drive_conditional_probe.mjs';
-export const PHONE_DELIVERY = Object.freeze({
-  id:'1PpkSmoA4pjgM8mFvhzDLc8ffVV68KLnV',
+export let PHONE_DELIVERY = Object.freeze({
+  id:'synthetic_fixture_delivery',
   name:'SYNTHETIC-session-synthetic_delivery_sample_v1.json',
   sha256:'07c722af74d1ff2939ba65b2711e39c8ca1e4e0e8ebb29e29cd2dd4a46098b3b',
 });
 export async function readPhoneSyntheticDelivery(client, expectedEmail, report) {
-  if (!expectedEmail?.endsWith('@gmail.com')) throw new Error('Approved personal account required');
+  if (!/^\S+@[^\s@]+\.[^\s@]+$/.test(expectedEmail || '')) throw new Error('Approved personal account required');
   async function get(label,path) {
     const response=await client.request(path);
     report(`${label}: HTTP ${response.status}`);
@@ -38,4 +38,10 @@ export async function readPhoneSyntheticDelivery(client, expectedEmail, report) 
   if(session.schemaVersion!=='1.1.0' || session.sessionId!=='synthetic_delivery_sample_v1' || session.templateId!=='template_composite_demo' || session.status!=='completed' || session.completionKind!=='plannedEnd' || session.timing?.observedRunMs!==50000) throw new Error('Unexpected synthetic session contract');
   report('PASS: browser grant reads the exact phone-delivered canonical bytes. One matching file visible in the test folder; no duplicate from retry observed. Download is synthetic only.');
   return text;
+}
+
+export function configurePrivateDelivery(id) {
+  if (typeof id !== 'string' || !/^[-A-Za-z0-9_]{1,160}$/.test(id) || id.startsWith('synthetic_fixture_')) throw new Error('Private synthetic delivery ID required');
+  if (!PHONE_DELIVERY.id.startsWith('synthetic_fixture_')) throw new Error('Delivery already pinned; reload before changing configuration');
+  PHONE_DELIVERY = Object.freeze({...PHONE_DELIVERY, id});
 }
