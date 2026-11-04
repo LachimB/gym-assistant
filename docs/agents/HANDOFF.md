@@ -53,7 +53,7 @@
 
 ## Privacy validation — 2026-11-04
 
-- Python79 tests, Node19 transport/configuration tests,23 schema fixtures and
+- Python80 tests, Node19 transport/configuration tests,23 schema fixtures and
   deterministic golden trace pass. Android50 JVM tests pass; no APK assembled or
   phone installation performed by this privacy task.
 - Worktree and all-ref Gitleaks scans pass with full redaction. The content guard
@@ -72,3 +72,6 @@ The development-branch companion preserves newer accepted technical evidence.
 
 The standalone privacy PR targets main without importing PR21 implementation.
 The development-branch companion preserves newer accepted technical evidence.
+
+Dependency/license inventory drift now fails privacy CI until a review record
+is updated. This does not grant binary-release clearance.

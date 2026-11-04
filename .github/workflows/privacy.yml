@@ -19,7 +19,9 @@ jobs:
       - name: Inspect public files and privacy regression cases
         run: |
           python tools/check_repo_hygiene.py
+          python tools/check_license_inventory.py
           python -m unittest discover -s tests -p test_repo_privacy.py -v
+          python -m unittest discover -s tests -p test_license_inventory.py -v
       - name: Inspect every newly introduced commit
         env:
           EVENT_NAME: ${{ github.event_name }}
