@@ -47,7 +47,8 @@ class PrivacyGateTests(unittest.TestCase):
             git('config', 'user.email', NOREPLY)
             target = root / 'notes.md'
             target.write_text('person' + '@' + 'mail.invalid')
-            git('add', 'notes.md')
+            (root / '.gitattributes').write_text('notes.md export-ignore\n')
+            git('add', 'notes.md', '.gitattributes')
             target.write_text('safe synthetic summary')
             self.assertEqual(scan(root), [])
             self.assertTrue(scan(root, staged=True))
