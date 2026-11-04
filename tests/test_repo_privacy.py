@@ -4,7 +4,7 @@ import os
 import subprocess
 import tempfile
 import unittest
-from tools.check_repo_hygiene import NOREPLY, filename_issue, inspect_content, inspect_revision, scan
+from tools.check_repo_hygiene import NOREPLY, OWNER_NOREPLY_ALIASES, filename_issue, inspect_content, inspect_revision, scan
 
 
 class PrivacyGateTests(unittest.TestCase):
@@ -35,6 +35,10 @@ class PrivacyGateTests(unittest.TestCase):
     def test_reserved_examples_noreply_and_hashes_pass(self):
         text = 'fixture@example.test other@example.invalid\n' + NOREPLY + '\n' + '1a' * 32
         self.assertEqual(inspect_content('examples/synthetic.txt', text.encode()), [])
+        for alias in OWNER_NOREPLY_ALIASES:
+            self.assertEqual(inspect_content('attribution.md', alias.encode()), [])
+        other = 'other-owner' + '@users.noreply.github.com'
+        self.assertTrue(inspect_content('attribution.md', other.encode()))
         self.assertTrue(inspect_content('unknown.bin', b'\x00private'))
 
     def test_index_and_history_cannot_hide_content_with_clean_worktree(self):
@@ -67,6 +71,16 @@ class PrivacyGateTests(unittest.TestCase):
             result = subprocess.run([os.sys.executable, str(script), '--commit', sha], cwd=root, capture_output=True, text=True)
             self.assertNotEqual(result.returncode, 0)
             self.assertNotIn('person' + '@' + 'mail.invalid', result.stdout + result.stderr)
+            # Exercise the actual server-merge attribution pair, not a blanket
+            # exception for arbitrary addresses on the public noreply domain.
+            legacy = next(alias for alias in OWNER_NOREPLY_ALIASES if alias != NOREPLY)
+            environment = dict(os.environ, GIT_AUTHOR_NAME='LachimB', GIT_AUTHOR_EMAIL=legacy,
+                               GIT_COMMITTER_NAME='GitHub', GIT_COMMITTER_EMAIL='noreply@github.com')
+            subprocess.run(['git', '-C', str(root), '-c', 'core.hooksPath=/dev/null',
+                            'commit', '--allow-empty', '-qm', 'Synthetic server merge attribution'],
+                           env=environment, check=True, capture_output=True)
+            result = subprocess.run([os.sys.executable, str(script), '--commit', 'HEAD'], cwd=root, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
 
     def test_gitignore_covers_private_operational_file_families(self):
         root = Path(__file__).resolve().parent.parent
