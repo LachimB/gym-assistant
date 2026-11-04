@@ -37,6 +37,7 @@ def validate_database(path, expected_version, require_paused=True):
             raise BackupError('Unexpected source schema version')
         tables = TABLES + (['drive_connections','session_deliveries'] if expected_version >= 2 else [])
         if expected_version >= 3: tables += ['template_candidates','template_revisions','template_heads','execution_plan_revisions']
+        if expected_version >= 4: tables += ['personal_session_deliveries']
         counts = {table:db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0] for table in tables}
         if db.execute('SELECT sessionId FROM actions GROUP BY sessionId HAVING MIN(sequence)!=1 OR MAX(sequence)!=COUNT(*)').fetchone():
             raise BackupError('Incomplete committed receipt prefix')
@@ -69,7 +70,7 @@ def make_verified_snapshot(source, destination, expected_version):
     os.chmod(destination,0o600)
     return {**after,'standaloneSha256':digest(destination),'integrity':'ok','foreignKeys':'ok'}
 
-def validate_library_archive(content):
+def validate_library_archive(content, folder="training-library"):
     """Inspect privately without extracting paths or printing source names/contents."""
     if not content:
         return {'present':False,'fileCount':0,'archiveSha256':hashlib.sha256(content).hexdigest()}
@@ -78,7 +79,7 @@ def validate_library_archive(content):
         with tarfile.open(fileobj=io.BytesIO(content),mode='r:') as archive:
             for member in archive:
                 path=PurePosixPath(member.name)
-                if path.is_absolute() or '..' in path.parts or tuple(path.parts[:2]) != ('files','training-library'):
+                if path.is_absolute() or '..' in path.parts or tuple(path.parts[:2]) != ('files',folder):
                     raise BackupError('Library backup contains an unexpected path')
                 if member.isdir():continue
                 if not member.isfile() or path.as_posix() in files:
@@ -96,7 +97,7 @@ def main():
     parser.add_argument('--adb',default='adb')
     parser.add_argument('--serial',required=True)
     parser.add_argument('--output',required=True,type=Path)
-    parser.add_argument('--schema-version',type=int,choices=[1,2,3],default=1)
+    parser.add_argument('--schema-version',type=int,choices=[1,2,3,4],default=1)
     args=parser.parse_args()
     os.umask(0o077)
     def adb(*command, optional=False):
@@ -132,6 +133,16 @@ def main():
     (args.output/'training-library.tar').write_bytes(library)
     repeated=capture_library()
     if validate_library_archive(repeated) != library_evidence:raise BackupError('Library files changed during capture')
+    personal_files={}
+    for folder in ('delivery-payloads','personal-drive'):
+        def capture_personal():
+            exists=adb('shell','-T','run-as',PACKAGE,'test','-d','files/'+folder,optional=True)
+            return b'' if exists is None else adb('shell','-T','run-as',PACKAGE,'tar','-cf','-','files/'+folder)
+        content=capture_personal()
+        verified=validate_library_archive(content,folder)
+        (args.output/(folder+'.tar')).write_bytes(content)
+        if validate_library_archive(capture_personal(),folder)!=verified:raise BackupError('Personal delivery files changed during capture')
+        personal_files[folder]=verified
     raw_hashes={p.name:digest(p) for p in raw.iterdir() if p.is_file()}
     # Verify in a disposable copy so SQLite cannot modify the retained raw bundle.
     with tempfile.TemporaryDirectory(prefix='gym-backup-verify-') as temp:
@@ -142,7 +153,7 @@ def main():
         raise BackupError('Raw backup changed during verification')
     evidence.update({'capturedAt':datetime.now(timezone.utc).isoformat(),'package':PACKAGE,
                      'rawFileSha256':raw_hashes,'backupDirectory':str(args.output),'deviceStopped':True,
-                     'libraryFiles':library_evidence,'contentsPrinted':False,'cloudUpload':False,'restorePerformed':False})
+                     'libraryFiles':library_evidence,'personalDeliveryFiles':personal_files,'contentsPrinted':False,'cloudUpload':False,'restorePerformed':False})
     (args.output/'manifest.json').write_text(json.dumps(evidence,indent=2)+'\n')
     print(json.dumps(evidence,indent=2))
 

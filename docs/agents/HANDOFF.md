@@ -6,7 +6,9 @@
   author: `LachimB <17935459+LachimB@users.noreply.github.com>`.
 - Privacy PR22 merged into main at `e2ef498b`; companion PR23 merged into the
   development branch at `d0790bb6`. Both reviewed heads passed all11 checks.
-  PR21 remains separate milestone work; this privacy task does not merge it.
+  PR26 on the clean implementation branch starts from sanitized main and preserves the
+  reviewed companion tree. It supersedes PR21 without rewriting existing refs.
+  Older unmerged PR21 commits fail the new per-commit publication gate.
 - M0 accepted. M1 remains incomplete. Decisions #1–#97 and ADRs remain binding.
 - ADR-0006 provides local reviewed Template publication and format2/history1.2.
   PR19 and PR20 merged after their required checks. Natural-completion regression
@@ -49,15 +51,15 @@
 
 ## Next work
 
-1. Historical erasure requires a separately approved coordinated cleanup.
-2. Review current GitHub checks and outstanding PR21 gates before milestone work.
+1. Complete protected CI and merge clean implementation PR26.
+2. Retain old refs; historical erasure requires separate reviewed approval.
 3. Complete full offline/interruption/synchronization/web acceptance without
    publishing personal inputs, characteristics or outcomes.
 
 ## Privacy validation — 2026-11-04
 
-- Main privacy branch: Python79 tests, Node19 transport/configuration tests,23 schema fixtures and
-  deterministic golden trace pass. Android42 JVM tests pass on the standalone main branch; no APK assembled or
+- Python80 tests, Node19 transport/configuration tests,23 schema fixtures and
+  deterministic golden trace pass. Android50 JVM tests pass; no APK assembled or
   phone installation performed by this privacy task.
 - Worktree and all-ref Gitleaks scans pass with full redaction. The content guard
   passes; negative tests cover index/worktree mismatch and historical disclosures.
@@ -71,7 +73,9 @@
 - Historical cleanup plan: `docs/operations/history-privacy-cleanup.md`. No rewrite,
   force-push, ref deletion or garbage collection performed.
 
-
+The standalone privacy PR did not import the delivery implementation. The
+clean replacement preserves the reviewed implementation and private evidence
+boundaries; its new commit range passes the publication gate.
 
 Dependency/license inventory drift now fails privacy CI until a review record
 is updated. This does not grant binary-release clearance.
