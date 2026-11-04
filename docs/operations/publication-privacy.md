@@ -88,7 +88,9 @@ permission metadata for the explicitly approved experiment artifacts. Verify
 General access is Restricted, inspect direct/link grants, and avoid opening file
 contents. Record only pass/fail and outstanding concerns publicly. Do not change
 permissions, invite people, revoke grants or rotate credentials merely because
-resource IDs were published. This remediation does not prove remote permissions.
+resource IDs were published. The owner manually verified Restricted access for the approved synthetic folder
+and all descendant folders/files on2026-11-04. This is owner-reported verification;
+independent UI access and a direct-grant inventory were not available.
 
 Main branch protection was explicitly approved and applied on2026-11-04: pull
 requests and the privacy check are required, branches must be up to date,
