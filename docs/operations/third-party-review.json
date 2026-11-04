@@ -3,7 +3,7 @@
   "reviewScope": "Source/declared-license metadata only; original code all rights reserved; upstream terms retained",
   "binaryReleaseCleared": false,
   "dependencyInputs": {
-    "apps/android/build.gradle.kts": "0f26b317868c796bd105d7336703f123a8d12dd04eee2456dc7a90e211d50043",
+    "apps/android/build.gradle.kts": "8da6d5825f9e6c52f072cd9297b5c62f67828bf04b05eac1ed02c9a1d6d483bb",
     "apps/web/package-lock.json": "60d4b4def0c0ccffcc3c684387276c180aa50a694bf2535a4ff53a065156fba0",
     "apps/web/package.json": "38ad44bdcf3394d119a97e11d2d70aecf93320f8caef28c37ad49b39078d48db",
     "build.gradle.kts": "93b6a9428fba5a3463e59833faaf05273fe35be7d86639265c92750f31fa69dd",
@@ -11,7 +11,7 @@
     "gradle/wrapper/gradle-wrapper.properties": "d7010368a34c1c06df2bae1a85d8b24c39b2499c74ac892fc7e66d005dbd7b8a",
     "gradle.properties": "016152bdc5be932df56f73bec3b9eee7807a07cd7cd5e7d689a93c7e1b282a64",
     "kotlin-js-store/yarn.lock": "39f353d998595d6fafebcb0d738f81d3ec407faaa2c34665087c8ab081a9d8af",
-    "packages/cloud-adapters/build.gradle.kts": "1f28b0349fd56472b5ae361033732ccd698b121257ad7e7149a98eb4d7b9a1c9",
+    "packages/cloud-adapters/build.gradle.kts": "ce201bc47c0ce911ec28b2fbb5d0e71200e18ed6f8eb607eb6738ab2a6836c1e",
     "packages/engine/build.gradle.kts": "8dad236856608e497efd030d9f4cb141792937f1f8fc8535f75e0196c474ce7f",
     "packages/engine-ts/package-lock.json": "803ecabe188a28eece9fb5e95662f01b0a3a3e3b248b3ad3ccee915a56a87c03",
     "packages/engine-ts/package.json": "a9db7039182d4bb1e94ece27f596d79d855a9e73ac77c1784cd3e09884337f61",

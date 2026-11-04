@@ -39,7 +39,7 @@ class RoomSessionStoreTest {
     }
 
     private fun reopen() {
-        database = Room.databaseBuilder(context, WorkoutDatabase::class.java, databaseName).addMigrations(DELIVERY_MIGRATION_1_2, LIBRARY_MIGRATION_2_3,PERSONAL_DELIVERY_MIGRATION_3_4).build()
+        database = Room.databaseBuilder(context, WorkoutDatabase::class.java, databaseName).addMigrations(DELIVERY_MIGRATION_1_2, LIBRARY_MIGRATION_2_3,PERSONAL_DELIVERY_MIGRATION_3_4,TEMPLATE_SYNC_MIGRATION_4_5).build()
         store = RoomSessionStore(database)
     }
 
@@ -318,7 +318,7 @@ class RoomSessionStoreTest {
         context.deleteDatabase(databaseName)
         legacyHelper(before).use { assertEquals(1, it.writableDatabase.version) }
         reopen()
-        assertEquals(4, database.openHelper.writableDatabase.version)
+        assertEquals(5, database.openHelper.writableDatabase.version)
         assertEquals(before, originalRows())
         assertEquals(saved, store.unfinished())
         assertEquals(done, store.load(completed.sessionId))
@@ -344,7 +344,7 @@ class RoomSessionStoreTest {
                     DELIVERY_MIGRATION_1_2.migrate(db)
                     error("Injected migration failure")
                 }
-            }, LIBRARY_MIGRATION_2_3,PERSONAL_DELIVERY_MIGRATION_3_4).build()
+            }, LIBRARY_MIGRATION_2_3,PERSONAL_DELIVERY_MIGRATION_3_4,TEMPLATE_SYNC_MIGRATION_4_5).build()
         var failed = false
         try { database.openHelper.writableDatabase } catch (_: Exception) { failed = true }
         assertTrue(failed)
@@ -428,7 +428,7 @@ class RoomSessionStoreTest {
         database.close();context.deleteDatabase(databaseName)
         legacyHelper(before,2).use { assertEquals(2,it.writableDatabase.version) }
         reopen()
-        assertEquals(4,database.openHelper.writableDatabase.version)
+        assertEquals(5,database.openHelper.writableDatabase.version)
         assertEquals(before,originalRows(tables))
         assertEquals(paused,store.unfinished())
         assertEquals(done,store.load(source.sessionId))
@@ -447,7 +447,7 @@ class RoomSessionStoreTest {
         var entered=false
         database=Room.databaseBuilder(context,WorkoutDatabase::class.java,databaseName).addMigrations(object:Migration(2,3) {
             override fun migrate(db:SupportSQLiteDatabase) {entered=true;LIBRARY_MIGRATION_2_3.migrate(db);error("Injected migration failure")}
-        },PERSONAL_DELIVERY_MIGRATION_3_4).build()
+        },PERSONAL_DELIVERY_MIGRATION_3_4,TEMPLATE_SYNC_MIGRATION_4_5).build()
         var failed=false;try {database.openHelper.writableDatabase}catch(_:Exception){failed=true}
         assertTrue(failed);assertTrue(entered);database.close()
         legacyHelper(before,2).use {helper->
@@ -486,10 +486,10 @@ class RoomSessionStoreTest {
         var entered=false
         database=Room.databaseBuilder(context,WorkoutDatabase::class.java,databaseName).addMigrations(object:Migration(3,4){
             override fun migrate(db:SupportSQLiteDatabase){entered=true;PERSONAL_DELIVERY_MIGRATION_3_4.migrate(db);error("Injected migration failure")}
-        }).build()
+        },TEMPLATE_SYNC_MIGRATION_4_5).build()
         var rejected=false;try{database.openHelper.writableDatabase}catch(_:Exception){rejected=true};assertTrue(entered && rejected);database.close()
         legacyHelper(before,3).use {helper->assertEquals(3,helper.writableDatabase.version);assertEquals(0,helper.writableDatabase.query("SELECT COUNT(*) FROM sqlite_master WHERE name='personal_session_deliveries'").use {it.moveToFirst();it.getInt(0)})}
-        reopen();assertEquals(4,database.openHelper.writableDatabase.version);assertEquals(before,originalRows(tables))
+        reopen();assertEquals(5,database.openHelper.writableDatabase.version);assertEquals(before,originalRows(tables))
         assertEquals(inline,RoomDeliveryStore(database).load(inline.deliveryId).second)
         assertEquals(paused,RoomSessionStore2(database,contracts).unfinished())
         assertEquals(plan,TemplateLibrary3(database,LibraryFiles3(privateRoot),contracts).verify(published))

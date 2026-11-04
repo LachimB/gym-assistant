@@ -60,13 +60,14 @@ interface WorkoutDao {
     @Query("DELETE FROM unfinished_slot WHERE slot = 1 AND sessionId = :id") suspend fun releaseSlot(id: String)
 }
 
-@Database(entities = [StartRow::class, CheckpointRow::class, ActionRow::class, UnfinishedRow::class, OutboxRow::class, DriveConnectionRow::class, SessionDeliveryRow::class, TemplateCandidateRow::class, TemplateRevisionRow::class, TemplateHeadRow::class, ExecutionPlanRow::class, PersonalDeliveryRow4::class],
-    version = 4, exportSchema = true)
+@Database(entities = [StartRow::class, CheckpointRow::class, ActionRow::class, UnfinishedRow::class, OutboxRow::class, DriveConnectionRow::class, SessionDeliveryRow::class, TemplateCandidateRow::class, TemplateRevisionRow::class, TemplateHeadRow::class, ExecutionPlanRow::class, PersonalDeliveryRow4::class, ProjectStorageRoot5::class, TemplateSyncBinding5::class, TemplateSyncJob5::class, TemplateSyncObservation5::class],
+    version = 5, exportSchema = true)
 abstract class WorkoutDatabase : RoomDatabase() {
     abstract fun workouts(): WorkoutDao
     abstract fun deliveries(): DeliveryDao
     abstract fun library(): LibraryDao
     abstract fun personalDeliveries(): PersonalDeliveryDao4
+    abstract fun templateSync(): TemplateSyncDao5
 }
 
 class RoomSessionStore(
@@ -157,6 +158,6 @@ internal object WorkoutDatabases {
     @Volatile private var instance: WorkoutDatabase? = null
     fun open(context: android.content.Context): WorkoutDatabase = instance ?: synchronized(this) {
         instance ?: androidx.room.Room.databaseBuilder(context.applicationContext, WorkoutDatabase::class.java, "workouts-v1.db")
-            .addMigrations(DELIVERY_MIGRATION_1_2, LIBRARY_MIGRATION_2_3, PERSONAL_DELIVERY_MIGRATION_3_4).build().also { instance = it }
+            .addMigrations(DELIVERY_MIGRATION_1_2, LIBRARY_MIGRATION_2_3, PERSONAL_DELIVERY_MIGRATION_3_4, TEMPLATE_SYNC_MIGRATION_4_5).build().also { instance = it }
     }
 }

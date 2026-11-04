@@ -20,7 +20,7 @@ class TemplateRuntime3Test {
     private val context:Context=ApplicationProvider.getApplicationContext()
     private val name="library-test-${UUID.randomUUID()}.db"
     private val root=File(context.cacheDir,"library-${UUID.randomUUID()}")
-    private var db=Room.databaseBuilder(context,WorkoutDatabase::class.java,name).addMigrations(DELIVERY_MIGRATION_1_2,LIBRARY_MIGRATION_2_3,PERSONAL_DELIVERY_MIGRATION_3_4).build()
+    private var db=Room.databaseBuilder(context,WorkoutDatabase::class.java,name).addMigrations(DELIVERY_MIGRATION_1_2,LIBRARY_MIGRATION_2_3,PERSONAL_DELIVERY_MIGRATION_3_4,TEMPLATE_SYNC_MIGRATION_4_5).build()
     private val files=LibraryFiles3(root)
     private fun asset(name:String)=context.assets.open(name).bufferedReader().use { it.readText() }
     private val contracts=ImportContracts2(mapOf("1.0.0" to Json.parseToJsonElement(asset("template.v1.schema.json")).jsonObject,

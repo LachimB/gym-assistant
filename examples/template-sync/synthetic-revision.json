@@ -1,0 +1,25 @@
+{
+  "schemaVersion": "1.0.0",
+  "templateId": "template_runtime_synthetic",
+  "revisionId": "revision_runtime_synthetic_1",
+  "previousRevisionId": null,
+  "sourceHash": "58653e6a1e5f34d61e951a44233a1b6945a7375d913ba811f1e4dd94448a1222",
+  "compiledPlanHash": "50ea8bbb94051fc8db428bf6289aabe8ff3356d478774bc6fb51af386f0390bd",
+  "engineVersion": "kotlin-timed-2",
+  "files": [
+    {
+      "role": "template",
+      "relativeName": "template.yaml",
+      "objectId": "synthetic-template-object",
+      "sha256": "0841fd2c1b3526c82832392d6fd5a94a7bd253df051e72d645bdea370e201cde",
+      "byteCount": 2657
+    },
+    {
+      "role": "exercise",
+      "relativeName": "exercise-0.yaml",
+      "objectId": "synthetic-exercise-object-0",
+      "sha256": "960656cfa62df00aa195184df3709542672aa8ccbe25bd884d15039b1deb7d75",
+      "byteCount": 649
+    }
+  ]
+}

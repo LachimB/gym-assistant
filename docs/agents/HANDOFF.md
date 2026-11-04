@@ -230,3 +230,74 @@ recovery. The existing owner-only reviewer list cannot self-approve flagged
 owner-authored changes; a separate consenting trusted reviewer remains necessary.
 Final configuration and smoke-test evidence belong in the PR28 rollout record;
 never treat this pre-activation handoff as proof that remote settings are active.
+
+## Resumed ADR-0009 review
+
+The recovered checkout was verified clean against live main at `68c1007` before
+resuming review. The owner confirmed both Wi-Fi and mobile data for Template YAML
+and sync metadata, including background/screen-off transfers. Media policy remains
+separate. This resolves the earlier pending network-policy question; the earlier
+pause checkpoint is historical. ADR-0009 remains proposed as a whole. No scheduler,
+schema, phone update or cloud operation has been implemented by this review.
+
+The owner confirmed field-by-field conflict resolution for ADR-0009. Preserve the
+common base and both original branches, show each conflicting phone/Drive value,
+validate the complete resolved candidate and require final review before adoption.
+Structural ambiguity remains blocked rather than choosing a whole-version winner.
+Whole-ADR implementation/live-operation approval remains pending.
+
+The additive migration approach in ADR-0009 is confirmed: required tests and a
+fresh verified private backup precede phone installation, followed by preservation
+checks. No uninstall/clear. This is a design-review decision; whole-ADR approval
+and pre-installation gates remain pending. Continue with the bounded live-test
+allowance and concrete common-root consolidation review.
+
+The ADR-0009 live-test allowance is confirmed: up to200 additional direct Drive
+attempts within the existing500 allowance and6 explicit authorization launches,
+without counter resets, billing changes or consumption by the review itself.
+The proposed consolidation sequence is now written for review: compatible clients
+first; a private exact-ID/source-parent/sharing inventory and owner preview; one
+verified Gym Assistant common root; parent moves retaining existing area names,
+IDs, markers and contents; then hierarchy, sharing and existing-client verification.
+Templates are nested below the retained personal area. No legacy rename/copy/delete
+is proposed. Whole-ADR approval and private inventory review still precede live
+creation/relocation; no such operation was performed by writing this plan.
+
+The owner confirmed the consolidation plan as the intended approach. All walked-
+through design choices are recorded; final whole-ADR approval remains pending.
+The exact private folder inventory still needs owner review before live relocation.
+The revised proposal makes periodic discovery explicit at15 minutes (Android may
+defer it), with checks on opening/Sync now and one-off approved local publications.
+Next: request whole-ADR approval for implementation/testing under the reviewed
+scope, retaining required CI/private-backup and exact-inventory gates. No code,
+phone, Drive, budget or scheduler change occurred during this documentation review.
+
+## ADR-0009 approved implementation continuation
+
+The owner approved ADR-0009 as a whole after the walkthrough. This supersedes the
+older proposed/pause entries for this work. Implementation starts on the recovered
+repository, freshly verified at `68c1007`, preserving the accumulated review edits.
+Keep exact private folder inventory review before live relocation, and successful
+CI plus a fresh verified backup before any phone database update. No allowance is
+reset or consumed by approval. Begin with provider-neutral immutable contracts and
+field-level conflict resolution; durable Room5 jobs, guarded Drive operations,
+background scheduling/UI and full acceptance follow. Whole M1 remains incomplete.
+
+## ADR-0009 contracts and persistence foundation
+
+The initial implementation adds revision/head1.0 contracts and synthetic fixtures,
+strict source/compiled-hash verification, stable-field three-way merge primitives,
+guarded per-file transfer protocol, immutable private intents/before-images and
+additive Room5 persistence with serialized lease generations. Existing12 tables
+and delivery meanings remain unchanged. Backup tooling includes all16 tables and
+sync files. No worker or UI enables live synchronization yet.
+
+Local validation:57 Android JVM,20 adapter JVM and119 Python tests pass; engine
+JVM checks pass and Android SQLite test sources compile. No local AVD is configured;
+current-head seven-version CI remains required. Privacy/Gitleaks/manual review
+precede publication. No phone installation, live Drive call, folder relocation,
+authorization acquisition or allowance reservation occurred. See
+`docs/milestones/m1-template-sync.md` for implemented scope and outstanding gates.
+Continue with durable execution, lossless source mapping, provider integration,
+WorkManager/auth/budget reconciliation, source review UI and full device evidence.
+Preserve the exact-inventory and CI/fresh-verified-backup gates.

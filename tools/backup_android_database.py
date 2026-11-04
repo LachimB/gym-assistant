@@ -38,6 +38,7 @@ def validate_database(path, expected_version, require_paused=True):
         tables = TABLES + (['drive_connections','session_deliveries'] if expected_version >= 2 else [])
         if expected_version >= 3: tables += ['template_candidates','template_revisions','template_heads','execution_plan_revisions']
         if expected_version >= 4: tables += ['personal_session_deliveries']
+        if expected_version >= 5: tables += ['project_storage_roots','template_sync_bindings','template_sync_jobs','template_sync_observations']
         counts = {table:db.execute(f'SELECT COUNT(*) FROM {table}').fetchone()[0] for table in tables}
         if db.execute('SELECT sessionId FROM actions GROUP BY sessionId HAVING MIN(sequence)!=1 OR MAX(sequence)!=COUNT(*)').fetchone():
             raise BackupError('Incomplete committed receipt prefix')
@@ -97,7 +98,7 @@ def main():
     parser.add_argument('--adb',default='adb')
     parser.add_argument('--serial',required=True)
     parser.add_argument('--output',required=True,type=Path)
-    parser.add_argument('--schema-version',type=int,choices=[1,2,3,4],default=1)
+    parser.add_argument('--schema-version',type=int,choices=[1,2,3,4,5],default=1)
     args=parser.parse_args()
     os.umask(0o077)
     def adb(*command, optional=False):
@@ -134,7 +135,7 @@ def main():
     repeated=capture_library()
     if validate_library_archive(repeated) != library_evidence:raise BackupError('Library files changed during capture')
     personal_files={}
-    for folder in ('delivery-payloads','personal-drive'):
+    for folder in ('delivery-payloads','personal-drive','template-sync'):
         def capture_personal():
             exists=adb('shell','-T','run-as',PACKAGE,'test','-d','files/'+folder,optional=True)
             return b'' if exists is None else adb('shell','-T','run-as',PACKAGE,'tar','-cf','-','files/'+folder)
