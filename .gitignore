@@ -79,3 +79,13 @@ client_secret*.json
 *.jpeg
 *.heic
 *.mp4
+
+# Machine-specific caches, temporary files and captures.
+Thumbs.db
+.vscode/
+*.swp
+*.tmp
+*.temp
+*~
+*.crash
+*.gz

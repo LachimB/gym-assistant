@@ -1,63 +1,41 @@
 name: Publication privacy
 on:
   pull_request:
-    types: [opened, synchronize, reopened, edited]
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+  pull_request_review:
+    types: [submitted, edited, dismissed]
+  pull_request_review_comment:
+    types: [created, edited, deleted]
   push:
-    branches: [main]
+    branches: [main, 'release/**']
 permissions:
   contents: read
+  pull-requests: read
 jobs:
+  # Preserve this existing required job name. This read-only job can test PR
+  # implementations, but cannot publish the authoritative Security / statuses.
   privacy:
     runs-on: ubuntu-24.04
+    timeout-minutes: 20
     steps:
-      - uses: actions/checkout@v7.0.1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           fetch-depth: 0
           persist-credentials: false
-      - uses: actions/setup-python@v7.1.0
+      - uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
         with:
           python-version: '3.12'
-      - name: Inspect public files and privacy regression cases
+      - name: Install checksum-pinned scanner
+        run: bash tools/install_gitleaks.sh
+      - name: Inspect current tree and regression tests
         run: |
           python tools/check_repo_hygiene.py
           python tools/check_license_inventory.py
-          python -m unittest discover -s tests -p test_repo_privacy.py -v
+          python -m unittest discover -s tests -p 'test*privacy.py' -v
+          python -m unittest discover -s tests -p test_security_gate.py -v
           python -m unittest discover -s tests -p test_license_inventory.py -v
-      - name: Inspect every newly introduced commit
+      - name: Scan every new commit (complete changed files and their preimages)
         env:
-          EVENT_NAME: ${{ github.event_name }}
           BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
           HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
-        run: |
-          if [ -z "$BASE_SHA" ] || ! git cat-file -e "$BASE_SHA^{commit}"; then
-            echo 'Cannot establish review baseline; stop for manual privacy review.'
-            exit 1
-          fi
-          python tools/check_repo_hygiene.py --commits "$BASE_SHA..$HEAD_SHA"
-      - name: Install checksum-pinned local secret scanner
-        run: |
-          curl --proto '=https' --tlsv1.2 -fsSL --retry 2 -o "$RUNNER_TEMP/gitleaks.tar.gz" https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
-          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum -c -
-          mkdir "$RUNNER_TEMP/gitleaks-bin"
-          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP/gitleaks-bin" gitleaks
-          echo "$RUNNER_TEMP/gitleaks-bin" >> "$GITHUB_PATH"
-      - name: Scan worktree and all fetched history without uploading content
-        run: |
-          gitleaks dir . --redact=100 --ignore-gitleaks-allow --no-banner
-          gitleaks git . --log-opts='--all --full-history' --redact=100 --ignore-gitleaks-allow --no-banner
-      - name: Inspect proposed public PR text without logging its contents
-        if: github.event_name == 'pull_request'
-        env:
-          PR_TEXT: ${{ github.event.pull_request.title }}
-
-            ${{ github.event.pull_request.body }}
-        run: |
-          python - <<'PYCODE'
-          import os, sys
-          from tools.check_repo_hygiene import inspect_content
-          issues = inspect_content('pull-request', os.environ.get('PR_TEXT', '').encode())
-          for line, reason in issues:
-              print(f'pull-request:{line}: {reason}; values withheld')
-          sys.exit(bool(issues))
-          PYCODE
-          printf '%s' "$PR_TEXT" | gitleaks stdin --redact=100 --ignore-gitleaks-allow --no-banner
+        run: python tools/security_gate.py --base "$BASE_SHA" --head "$HEAD_SHA" --automated-only --event-file "$GITHUB_EVENT_PATH"

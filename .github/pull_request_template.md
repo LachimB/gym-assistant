@@ -21,3 +21,17 @@ Web preview and test or why not applicable:
 - [ ] Privacy content guard and redacted Gitleaks checks pass; manual diff reviewed.
 - [ ] New commit author uses the confirmed GitHub noreply address.
 - [ ] Dependency licenses/notices reviewed; no private configured build uploaded.
+
+## Security and contextual privacy review
+
+- [ ] Every introduced commit (including later deletions), PR text, comments and
+      linked material contains no credentials, private records or restricted material.
+- [ ] New fixtures/sample datasets are synthetic or specifically approved public
+      data; public provenance and redistribution rights are documented.
+- [ ] I reviewed combinations of identifiers, health/activity data, locations,
+      correspondence and captures, beyond the automated secret scan.
+- [ ] Any flagged contextual concern has an independent trusted review tied to
+      this exact head and assessment digest (see the security run summary).
+
+Contributor checkboxes do not resolve findings. Do not paste suspect values into
+PRs or review receipts. See `docs/operations/continuous-security.md`.

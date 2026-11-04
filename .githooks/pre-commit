@@ -9,3 +9,6 @@ done
 python3 tools/check_repo_hygiene.py --staged
 command -v gitleaks >/dev/null || { echo 'Commit rejected: install Gitleaks before committing.' >&2; exit 1; }
 gitleaks git . --pre-commit --staged --redact=100 --ignore-gitleaks-allow --no-banner
+
+# Scan complete staged file contents with the shared secret/privacy policy.
+python3 tools/security_local.py

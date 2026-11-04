@@ -132,3 +132,30 @@ allowances remain intact. Never reset them or infer unmeasured SDK calls from
 the direct-request counters. Inspect only non-content status during live checks;
 real source/event text needs separate per-operation AI consent. Keep detailed
 acceptance evidence outside Git. Full M1 and Template synchronization remain open.
+
+## Continuous security gate implementation — 2026-11-04
+
+- Isolated branch `codex/continuous-security-gate` starts from freshly fetched
+  `origin/main` at `adac6c2`. Other worktrees and their uncommitted acceptance work
+  remain untouched. This change affects publication controls only.
+- Adds trusted default-branch Git-object scanning and stable separate secret,
+  contextual privacy and hygiene statuses; preserves the existing `privacy` job,
+  strict public attribution/content policy and license inventory check.
+- New scans cover all introduced commits, full changed contents and every parent
+  preimage. Gitleaks is version/checksum pinned. PR overrides have no authority.
+- Metadata controller scans paginated PR text/comments/reviews, never executes PR
+  code, and requires exact independent review receipts for contextual findings.
+  Unsupported linked/binary materials and platform timing limits are documented.
+- Prepared CODEOWNERS, narrow reviewed exceptions, local checks and a ruleset
+  example. No remote rules/settings, resources, billing or permissions changed.
+- Activation and independent reviewer setup remain administrator/reviewer actions;
+  see `docs/operations/continuous-security.md`. Current owner-only reviewer policy
+  cannot self-approve owner-authored flagged changes. Initial rollout needs review.
+- Local validation:111 Python tests (31 new security regressions),23 schema
+  fixtures and deterministic golden trace; privacy/license guards and redacted
+  Gitleaks pass. Checksum-verified actionlint validates both security workflows;
+  shell syntax passes. All15 requested security test categories are covered.
+- Read-only GitHub verification found baseline main green on all11 checks, no
+  open PRs, and existing strict `privacy` protection with administrators included,
+  force-push/deletion disabled. Approvals/code-owner enforcement still need rollout.
+  Live fork/events/required-merge behavior remains unverified until activation.

@@ -1,0 +1,77 @@
+{
+  "version": 1,
+  "gitleaks_version": "8.30.1",
+  "max_file_bytes": 2097152,
+  "max_objects": 10000,
+  "max_total_bytes": 104857600,
+  "reviewers": [
+    "LachimB"
+  ],
+  "binary_sha256": {
+    "gradle/wrapper/gradle-wrapper.jar": "2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046"
+  },
+  "protected_paths": [
+    ".github/",
+    ".githooks/",
+    "security/",
+    "tools/security_gate.py",
+    "tools/security_controller.py",
+    "tools/check_repo_hygiene.py",
+    "tools/install_gitleaks.sh",
+    "tests/test_security_gate.py",
+    "tests/test_repo_privacy.py",
+    ".gitignore",
+    ".gitleaks.toml",
+    "AGENTS.md",
+    "docs/operations/continuous-security.md",
+    "tools/security_local.py",
+    "tools/personal_git_push.sh",
+    "tools/preflight_personal_github.sh",
+    ".gitleaksignore",
+    ".pre-commit-config.yaml"
+  ],
+  "review_paths": [
+    "examples/",
+    "fixtures/",
+    "tests/fixtures/",
+    "docs/"
+  ],
+  "rules": [
+    {
+      "id": "phone",
+      "pattern": "(?<![\\w])\\+\\d[\\d ()-]{8,}\\d",
+      "reason": "possible personal telephone number"
+    },
+    {
+      "id": "address",
+      "pattern": "(?i)\\b\\d{1,5}\\s+[A-Za-z][A-Za-z ]{1,35}\\s+(?:street|road|avenue|lane|drive|st\\.|rd\\.)\\b",
+      "reason": "possible residential address"
+    },
+    {
+      "id": "precise-location",
+      "pattern": "(?i)(?:latitude|longitude|gps|home_address|date_of_birth|patient_id|account_number|iban)\\s*[\"']?\\s*[:=]",
+      "reason": "location, identity, health or financial record field"
+    },
+    {
+      "id": "private-record",
+      "pattern": "(?i)\\b(?:diagnosis|medical history|bank statement|social security|passport number|dear (?:mom|dad)|confidential|internal only|do not distribute|proprietary document)\\b",
+      "reason": "possible private record, correspondence or restricted material"
+    },
+    {
+      "id": "internal-endpoint",
+      "pattern": "(?i)https?://(?:[^/\\s]*\\.(?:internal|corp|local)(?:[/:\\s]|$)|(?:10|127)\\.\\d+\\.\\d+\\.\\d+|192\\.168\\.\\d+\\.\\d+|172\\.(?:1[6-9]|2\\d|3[01])\\.\\d+\\.\\d+)",
+      "reason": "possible private infrastructure endpoint"
+    },
+    {
+      "id": "user-health",
+      "pattern": "(?i)(?:real|personal|user|patient)[_ -]?(?:weight|heart.?rate|workout|fitness|health|record|dataset|session|activity)",
+      "reason": "possible identifiable health or activity information"
+    },
+    {
+      "id": "certificate-material",
+      "pattern": "-----BEGIN (?:CERTIFICATE|PKCS7)-----",
+      "reason": "certificate identity or signing material requires provenance review"
+    }
+  ],
+  "exceptions": []
+}
