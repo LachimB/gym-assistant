@@ -7,7 +7,7 @@
 ## Mandatory rules
 
 1. Preserve all binding requirements; propose a documented change and request approval rather than silently weakening one.
-2. Never use company credentials/resources or leak personal history, original PDFs or secrets. Run credential preflight before GitHub write actions. The confirmed personal GitHub owner is `LachimB` and must match `gh api user` exactly. The starter package's `michal-buzek` assumption is also withdrawn. Repository-local author remains `LachimB <michal.buzek@gmail.com>`. Do not change global Git config.
+2. Never use company credentials/resources or leak personal history, original PDFs or secrets. Run credential preflight before GitHub write actions. The confirmed personal GitHub owner is `LachimB` and must match `gh api user` exactly. The starter package's `michal-buzek` assumption is also withdrawn. Repository-local author remains `LachimB <michal.buzek@gmail.com>`. Do not change global Git config. The owner intentionally made `LachimB/gym-assistant` public on 2026-11-04 to unblock Actions; the preflight now pins PUBLIC visibility for this exact repository. This does not authorize publishing private source documents, real session payloads or credentials.
 3. Require prior user approval for **each** new external service. **Every billable resource requires a separate explicit confirmation** before creation, activation or billing enablement.
 4. Require approval for major architecture changes, destructive operations, schema/data migrations and security-sensitive changes. Routine changes within an approved milestone may proceed with CI and PR discipline.
 5. Create small PRs, run tests, maintain acceptance traceability and concise ADRs, and update shared handoff documentation on every substantive change.

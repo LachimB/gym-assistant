@@ -63,6 +63,8 @@ if [[ "$remote" == git@* ]]; then
  exit 1
 fi
 visibility="$(gh repo view "${EXPECTED_GITHUB_OWNER}/gym-assistant" --json visibility --jq .visibility 2>/dev/null)" || { echo 'STOP: cannot check remote repo ownership/visibility'; exit 1; }
-if [[ "$visibility" != PRIVATE ]]; then echo "STOP: expected PRIVATE repo, found $visibility" >&2; exit 1; fi
-printf 'PASS: verified gh owner %s, repo-local author %s <%s>, private origin %s\n' "$login" "$actual_name" "$actual_email" "$remote"
+# Owner explicitly made this exact repository public on 2026-11-04 to unblock Actions.
+CONFIRMED_REPO_VISIBILITY='PUBLIC'
+if [[ "$visibility" != "$CONFIRMED_REPO_VISIBILITY" ]]; then echo "STOP: expected $CONFIRMED_REPO_VISIBILITY repo, found $visibility" >&2; exit 1; fi
+printf 'PASS: verified gh owner %s, repo-local author %s <%s>, public origin %s\n' "$login" "$actual_name" "$actual_email" "$remote"
 echo 'NOTE: For git push use tools/personal_git_push.sh (forces gh credentials); do not use an unverified global credential helper.'
