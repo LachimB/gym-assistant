@@ -309,3 +309,11 @@ An independent maintainer must be nominated before preparing a reviewed policy/
 access change; no collaborator invitation or protection/policy change is authorized
 by the ADR approval. Do not merge or install the migration while this gate is open.
 Complete current-head CI and fix technical failures while awaiting that decision.
+
+
+CI exposed an optional-schema-field assumption in the new populated migration
+fixture loader: Room omits indices for unindexed tables. The fixture now accepts
+that omission; actual migration SQL is unchanged. Rerun the complete seven-version
+matrix on the fix. Separately, the owner explicitly requested an owner-only
+self-review exception; its policy/activation plan is on the separate
+`codex/owner-self-review-policy` branch. No live ruleset change is applied.
