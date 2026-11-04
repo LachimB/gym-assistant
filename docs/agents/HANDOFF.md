@@ -4,8 +4,11 @@
 
 - Repository: `LachimB/gym-assistant`, intentionally public. Confirmed personal
   author: `LachimB <17935459+LachimB@users.noreply.github.com>`.
-- GitHub main: `c8c0f603`; PR21 head at privacy-work startup: `74bc0392`.
-  PR21 remains unmerged. Privacy changes start from that development head.
+- Privacy PR22 merged into main at `e2ef498b`; companion PR23 merged into the
+  development branch at `d0790bb6`. Both reviewed heads passed all11 checks.
+  The clean implementation branch starts from sanitized main and preserves the
+  reviewed companion tree. It supersedes PR21 without rewriting existing refs.
+  Older unmerged PR21 commits fail the new per-commit publication gate.
 - M0 accepted. M1 remains incomplete. Decisions #1–#97 and ADRs remain binding.
 - ADR-0006 provides local reviewed Template publication and format2/history1.2.
   PR19 and PR20 merged after their required checks. Natural-completion regression
@@ -46,8 +49,8 @@
 
 ## Next work
 
-1. Complete privacy verification and record exact results below.
-2. Review current GitHub checks and outstanding PR21 gates before milestone work.
+1. Complete protected CI and merge the clean implementation replacement.
+2. Retain old refs; historical erasure requires separate reviewed approval.
 3. Complete full offline/interruption/synchronization/web acceptance without
    publishing personal inputs, characteristics or outcomes.
 
@@ -68,11 +71,9 @@
 - Historical cleanup plan: `docs/operations/history-privacy-cleanup.md`. No rewrite,
   force-push, ref deletion or garbage collection performed.
 
-The standalone privacy PR targets main without importing PR21 implementation.
-The development-branch companion preserves newer accepted technical evidence.
-
-The standalone privacy PR targets main without importing PR21 implementation.
-The development-branch companion preserves newer accepted technical evidence.
+The standalone privacy PR did not import the delivery implementation. The
+clean replacement preserves the reviewed implementation and private evidence
+boundaries; its new commit range passes the publication gate.
 
 Dependency/license inventory drift now fails privacy CI until a review record
 is updated. This does not grant binary-release clearance.
