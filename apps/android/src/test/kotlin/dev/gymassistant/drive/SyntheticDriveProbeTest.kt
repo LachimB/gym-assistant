@@ -65,4 +65,11 @@ class SyntheticDriveProbeTest {
         }
         assertEquals(0, reserved)
     }
+    @Test fun publicPlaceholderConfigurationCannotConsumeALiveRequest() {
+        if (syntheticResourcesConfigured()) return // Private builds use separate owner-reviewed pins.
+        var reserved = 0
+        val transport = GoogleProbeTransport { reserved++ }
+        assertFails { transport.get("fake-token", ACCOUNT_PATH) }
+        assertEquals(0, reserved)
+    }
 }

@@ -16,3 +16,8 @@ Web preview and test or why not applicable:
 - [ ] Approval obtained for architecture/security/destructive changes where applicable.
 - [ ] Agent handoff/ADRs/docs updated.
 - [ ] Data migration/rollback impacts assessed.
+- [ ] No personal contact details, live provider IDs/links, private paths, owner-linked
+      fitness details or conversation history in files, commit messages or this PR.
+- [ ] Privacy content guard and redacted Gitleaks checks pass; manual diff reviewed.
+- [ ] New commit author uses the confirmed GitHub noreply address.
+- [ ] Dependency licenses/notices reviewed; no private configured build uploaded.

@@ -47,7 +47,7 @@ class DriveDeliveryModel(application: Application) : AndroidViewModel(applicatio
     fun awaitingAuthorization() = mutableBusy.value && !sending
     fun begin(): Boolean {
         if (mutableBusy.value) return false
-        if (BuildConfig.SYNTHETIC_DRIVE_ACCOUNT.isBlank() || !BuildConfig.SYNTHETIC_DELIVERY_BUDGET_RESERVED) {
+        if (!syntheticResourcesConfigured() || BuildConfig.SYNTHETIC_DRIVE_ACCOUNT.isBlank() || !BuildConfig.SYNTHETIC_DELIVERY_BUDGET_RESERVED) {
             mutableStatus.value="Synthetic delivery is disabled until its dedicated request allowance is reserved."; return false
         }
         if (runCatching { sample }.isFailure) { mutableStatus.value="Synthetic example could not be verified. Nothing sent."; return false }
@@ -82,7 +82,7 @@ class DriveDeliveryModel(application: Application) : AndroidViewModel(applicatio
                         val identity=remote.identity()
                         if (!identity.email.equals(BuildConfig.SYNTHETIC_DRIVE_ACCOUNT,ignoreCase=true) || identity.permissionId.isBlank()) throw DeliveryFailure("accountMismatch")
                         val folder=remote.folder(SYNTHETIC_PARENT)
-                        val marker="c1d2a450-f45f-43c5-846e-df40845bd21e"
+                        val marker=SYNTHETIC_MARKER
                         if (folder.marker != marker || folder.name != "Gym Assistant — SYNTHETIC M1 TEST — $marker" ||
                             folder.mimeType != "application/vnd.google-apps.folder") throw DeliveryFailure("missingRoot")
                         val local=RoomDeliveryStore(WorkoutDatabases.open(getApplication()))
