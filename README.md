@@ -68,3 +68,10 @@ Original code is **all rights reserved**; public visibility does not constitute 
 open-source release. MIT may be considered later with explicit owner approval.
 Third-party components retain their own terms; see [LICENSE](LICENSE) and
 [third-party notices](THIRD_PARTY_NOTICES.md).
+
+Before contributing, read the [continuous security and privacy gate](docs/operations/continuous-security.md).
+Every PR commit and accessible PR discussion is assessed. Use synthetic fixtures,
+run `python3 tools/security_gate.py --base "$BASE_SHA" --head "$HEAD_SHA"` locally,
+and obtain independent review for contextual findings. Local hooks supplement the
+required GitHub checks. Administrator activation instructions and platform limits
+are documented in that guide.

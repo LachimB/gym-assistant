@@ -1,0 +1,39 @@
+name: Trusted security gate
+on:
+  # Exception to the pull_request preference: ONLY default-branch code executes.
+  # Required head statuses and fork metadata need statuses:write. No PR checkout.
+  pull_request_target:
+    types: [opened, synchronize, reopened, edited, ready_for_review]
+  issue_comment:
+    types: [created, edited, deleted]
+  workflow_run:
+    workflows: [Publication privacy]
+    types: [completed]
+  schedule:
+    - cron: '17,47 * * * *'
+  workflow_dispatch:
+permissions:
+  contents: read
+  pull-requests: read
+  statuses: write
+# Serialize publishers (including polling/comment events); no stale run races.
+concurrency:
+  group: trusted-security-controller
+  cancel-in-progress: false
+jobs:
+  assess:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    steps:
+      - name: Check out trusted default branch ONLY
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.repository.default_branch }}
+          persist-credentials: false
+          fetch-depth: 1
+      - name: Install checksum-pinned scanner
+        run: bash tools/install_gitleaks.sh
+      - name: Assess PR data and publish required statuses
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: python3 tools/security_controller.py
