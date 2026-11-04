@@ -4,6 +4,8 @@ import extraRepetitionSample from "../../../examples/sessions/synthetic-runtime-
 import completedSample from "../../../examples/sessions/synthetic-human-completed-session.json?raw";
 import { MAX_HISTORY_BYTES, readHistory, type ReadHistory, type HistoryEvent } from "./SessionHistory";
 
+import { DriveOpen, type DriveOpenHandle } from "./DriveOpen";
+
 export const duration = (ms?: number | null) => ms == null ? "Not recorded" : `${(ms / 1000).toLocaleString("en", { maximumFractionDigits: 3 })} s`;
 const eventNames: Record<string, string> = {
   repetitionAdded: "Extra repetition added",
@@ -99,8 +101,12 @@ export function HistoryScreen() {
   const [error, setError] = useState("");
   const [busy, setBusy] = useState(false);
   const generation = useRef(0);
+  const drive = useRef<DriveOpenHandle | undefined>(undefined);
+  const [driveAccount, setDriveAccount] = useState("");
+  function clear() { ++generation.current; setHistory(null); setDriveAccount(""); setError(""); setBusy(false); }
   async function open(text: string, isSample: boolean, request = ++generation.current) {
     if (request !== generation.current) return;
+    drive.current?.cancel(); setDriveAccount("");
     setHistory(null); setError(""); setBusy(true);
     try {
       const result = await readHistory(text);
@@ -112,10 +118,14 @@ export function HistoryScreen() {
   return <main className="history-page">
     <h1>Workout history</h1>
     <p>Open a saved session to review its meaningful events and timing. Files stay in this browser tab; this view does not upload, edit or record workouts.</p>
+    <DriveOpen register={handle => {drive.current = handle;}} onClear={clear}
+      onStart={() => {clear(); return generation.current;}}
+      onOpen={(result, account, request) => {if (request === generation.current) {setHistory(result); setSample(false); setDriveAccount(account);}}}/>
     <label className="file-label">Open a session JSON file
       <input type="file" accept="application/json,.json" onChange={async event => {
         const file = event.currentTarget.files?.[0]; event.currentTarget.value = "";
         if (!file) return;
+        drive.current?.cancel(); setDriveAccount("");
         if (file.size > MAX_HISTORY_BYTES) { ++generation.current; setHistory(null); setBusy(false); setError("This viewer accepts session files up to 8 MB."); return; }
         const request = ++generation.current;
         setHistory(null); setError(""); setBusy(true);
@@ -128,10 +138,11 @@ export function HistoryScreen() {
       <button type="button" onClick={() => void open(partialSample, true)}>View synthetic partial example</button>
       <button type="button" onClick={() => void open(completedSample, true)}>View synthetic completed example</button>
       <button type="button" onClick={() => void open(extraRepetitionSample, true)}>View synthetic extra-repetition example</button>
-      <button type="button" onClick={() => { ++generation.current; setHistory(null); setError(""); setBusy(false); }}>Clear view</button>
+      <button type="button" onClick={() => { drive.current?.cancel(); clear(); }}>Clear view</button>
     </div>
     {busy && <p role="status">Checking the saved session…</p>}
     {error && <p role="alert" className="warning">{error}</p>}
-    {history ? <HistoryDetails history={history} sample={sample}/> : !busy && !error ? <p>No session is open. Drive synchronization is not connected to this view yet.</p> : null}
+    {history && driveAccount && <p>Verified personal Drive recording · {driveAccount}</p>}
+    {history ? <HistoryDetails history={history} sample={sample}/> : !busy && !error ? <p>No session is open. Choose a local file or explicitly connect to personal Drive.</p> : null}
   </main>;
 }

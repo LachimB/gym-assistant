@@ -51,10 +51,17 @@
 
 ## Next work
 
-1. Complete protected CI and merge clean implementation PR26.
+1. PR26 merged at `25a8c23` after all11 checks passed on `2e3ae59`, including
+   all seven Android versions. PR21 is closed; its branch/history is retained.
+   The clean checkout matches verified main. No history rewrite or ref deletion.
 2. Retain old refs; historical erasure requires separate reviewed approval.
 3. Complete full offline/interruption/synchronization/web acceptance without
    publishing personal inputs, characteristics or outcomes.
+4. ADR-0008 was approved after explanation for explicit read-only web access to a selected personal Drive
+   recording. Implementation is in progress; private connection and budget settings stay
+   outside Git. No database/session schema change; no live operation by drafting it.
+   Detailed current acceptance evidence remains outside Git. Manual-file web
+   reading does not prove direct Drive integration or Template synchronization.
 
 ## Privacy validation — 2026-11-04
 
@@ -88,3 +95,16 @@ address was exposed. The initial gate rejected that alias as a false positive.
 The follow-up accepts only the two known public aliases of the confirmed owner;
 local commit identity remains pinned to the numeric alias. Merge instructions
 avoid the GraphQL authorEmail field and require post-merge metadata verification.
+
+## Approved direct web reader continuation
+
+ADR-0008 is approved. The candidate adds an isolated GET-only personal reader,
+explicit owner-driven Google authorization/Picker, bounded streaming and existing
+independent history validation. A loopback-only helper serves private connection
+settings and durably increments approved allowance counters before transmission;
+it receives no tokens or recording content. Public defaults stay disconnected.
+Local checks:34 web tests,2 loopback security/budget tests, production build and
+privacy/license checks pass. Full current-head CI and actual browser/live selection
+remain required. No Android build, phone migration or live read by implementation.
+See `docs/operations/m1-web-personal-drive-reader.md`; detailed inputs/results stay
+outside Git. Deferred timing-format styling is not changed.
