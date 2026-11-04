@@ -74,7 +74,7 @@ This list preserves the requirements interview and final review. Where a decisio
 | 68 | Short parallel cutover with real workouts; verify Sheets, migration, offline, recovery, performance; legacy sheet read-only after migration. |
 | 69 | Private open-source-ready monorepo; real PDFs/records/secrets outside Git, synthetic fixtures, license before public. |
 | 70 | Full ZIP starter: specs, bootstrap, initial agent prompt, schemas, fixtures, tests and checklist; macOS/Cursor personal GitHub, blank repo. |
-| 71 | Automated personal GitHub preflight, repo-scoped Git identity, owner/remote/token checks, abort; `/Users/michal/repos/private/gym-assistant`; `mobile-data-switch` only setup reference. |
+| 71 | Automated personal GitHub preflight, repo-scoped Git identity, owner/remote/token checks, abort; `<repository-root>`; do not copy another project’s credentials. |
 | 72 | Working name Gym Assistant; temporary configurable branding; distinct dev/prod app IDs and OAuth; defer domain. |
 | 73 | Configurable default Drive folder and relocation; personal vs imported data separated, backups outside active directory, stage/prod separation and least privilege. |
 | 74 | Google Sheets one file per year, monthly tabs, current tab default, comments protected, selective rebuild, session links, optional overview. |

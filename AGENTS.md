@@ -7,7 +7,7 @@
 ## Mandatory rules
 
 1. Preserve all binding requirements; propose a documented change and request approval rather than silently weakening one.
-2. Never use company credentials/resources or leak personal history, original PDFs or secrets. Run credential preflight before GitHub write actions. The confirmed personal GitHub owner is `LachimB` and must match `gh api user` exactly. The starter package's `michal-buzek` assumption is also withdrawn. Repository-local author remains `LachimB <michal.buzek@gmail.com>`. Do not change global Git config. The owner intentionally made `LachimB/gym-assistant` public on 2026-11-04 to unblock Actions; the preflight now pins PUBLIC visibility for this exact repository. This does not authorize publishing private source documents, real session payloads or credentials.
+2. Never use company credentials/resources or leak personal history, original PDFs or secrets. Run credential preflight before GitHub write actions. The confirmed personal GitHub owner is `LachimB` and must match `gh api user` exactly. Repository-local author remains `LachimB <17935459+LachimB@users.noreply.github.com>`. Do not change global Git config. The owner intentionally made `LachimB/gym-assistant` public on 2026-11-04 to unblock Actions; the preflight now pins PUBLIC visibility for this exact repository. This does not authorize publishing private source documents, real session payloads or credentials.
 3. Require prior user approval for **each** new external service. **Every billable resource requires a separate explicit confirmation** before creation, activation or billing enablement.
 4. Require approval for major architecture changes, destructive operations, schema/data migrations and security-sensitive changes. Routine changes within an approved milestone may proceed with CI and PR discipline.
 5. Create small PRs, run tests, maintain acceptance traceability and concise ADRs, and update shared handoff documentation on every substantive change.
@@ -44,3 +44,22 @@ marks the turn ending without claiming that the overall task is complete.
 Read requirements → read open gap/ADR decisions → select approved issue/milestone → implement smallest viable slice → tests and CI → document changes → verify actual device/web behavior → update `docs/agents/HANDOFF.md` → open small PR → obtain approvals where necessary.
 
 See `docs/agents/working-agreement.md` for detailed review gates.
+
+## Mandatory public-record privacy gate
+
+Read `docs/operations/publication-privacy.md` before every change or external write.
+Never publish personal account addresses, real provider IDs/links/markers, private
+paths/project names, private Template characteristics, personal outcomes, device
+nicknames, raw logs/screenshots or conversation transcripts, including in handoff,
+PR/issue text, commit messages and CI/release output. Keep exact operational inputs
+and detailed acceptance evidence outside Git. Public records contain only
+synthetic inputs and technical pass/fail evidence with honest limits.
+Run the content guard and Gitleaks before staging/pushing; CI must independently
+pass. Do not bypass or weaken a privacy gate to unblock a commit. Review context
+manually: automation cannot guarantee complete detection. Use only the confirmed
+GitHub noreply identity. Preserve third-party licenses/notices; original code is
+all rights reserved until the owner explicitly approves another license.
+History rewriting, force-pushing, destructive cleanup and external permission
+changes require a concrete reviewed plan and explicit approval. Sanitizing HEAD
+alone does not remove historical exposure. Never restore private archived details
+into public handoff records.

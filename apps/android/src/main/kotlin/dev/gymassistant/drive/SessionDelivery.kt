@@ -78,7 +78,7 @@ internal class SessionDeliverySender(
                 val personal=personalTarget
                 if (expectedPersonalEmail.isBlank() || if(personal!=null) !personal.permits(connection,job) else
                     connection.provider != "googleDrive" || connection.rootFolderId != SYNTHETIC_PARENT ||
-                    connection.namespaceMarker != "c1d2a450-f45f-43c5-846e-df40845bd21e" || !allowSynthetic(job)) throw DeliveryFailure("contract")
+                    connection.namespaceMarker != SYNTHETIC_MARKER || !allowSynthetic(job)) throw DeliveryFailure("contract")
                 val identity = request { remote.identity() }
                 if (identity.permissionId != connection.permissionId ||
                     !identity.email.equals(expectedPersonalEmail, ignoreCase = true)) throw DeliveryFailure("accountMismatch")

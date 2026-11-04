@@ -8,7 +8,7 @@ import kotlin.test.*
 
 class SessionDeliveryTest {
     private val at = "2026-11-03T10:00:00Z"
-    private val marker = "c1d2a450-f45f-43c5-846e-df40845bd21e"
+    private val marker = SYNTHETIC_MARKER
     private inner class Fixture : DeliveryPersistence, DeliveryRemote {
         var connection = DriveConnectionRow("binding", "googleDrive", "personal-id", "personal@example.test", SYNTHETIC_PARENT, marker, at, at)
         var job = SessionDeliveryRow("delivery", "binding", "sample", 3, "synthetic bytes", sha256Utf8("synthetic bytes"))

@@ -1,83 +1,27 @@
-# macOS + Cursor bootstrap (personal accounts only)
+# Personal repository setup
 
-Target repo: `/Users/michal/repos/private/gym-assistant`; name `gym-assistant`; confirmed personal GitHub owner and current repository-local author name: `LachimB`. Author email: `michal.buzek@gmail.com`. Earlier owner assumptions are withdrawn. `gh api user --jq .login` must return exactly `LachimB` before any GitHub write.
+The confirmed personal GitHub account is `LachimB`; repository:
+`https://github.com/LachimB/gym-assistant`. This repository is intentionally public.
+Use your chosen `<repository-root>`; never copy another project's authentication.
 
-## Existing repository / managed worktrees
-
-The repository and M0 already exist. Do not recreate or reinitialize them. The
-current M1 branch is based on accepted M0 commit `936fcae`. For preflight in a
-managed worktree, pass its actual root as `EXPECTED_LOCAL_REPO_PATH`. Omit all four
-token override variables for personal-keyring commands; do not alter global Git
-config or expose token values. The following bootstrap steps are for new setup.
-
-## Step 0 — Inspect, do not copy existing project credentials
-
-`/Users/michal/repos/private/mobile-data-switch` may be used to *inspect* harmless GitHub and build conventions: `git remote -v`, `.gitignore`, GitHub workflow layout. **Never copy** its `.git` directory, git config, credentials, `gh` tokens, SSH private keys, `.env` or project-specific secrets. Existing setup can contain account-specific overrides.
-
-## Step 1 — Inspect local credentials without printing secrets
-
-```bash
-gh --version
-git --version
-gh auth status
-git config --show-origin --get-all credential.helper || true
-# Print only names/presence of any token override, never values.
-for key in GH_TOKEN GITHUB_TOKEN GH_ENTERPRISE_TOKEN GITHUB_ENTERPRISE_TOKEN; do
-  if printenv "$key" >/dev/null 2>&1; then echo "WARNING: $key is set"; fi
-done
-```
-
-The `${!key+x}` syntax requires bash; macOS interactive default may be zsh, so run that loop with `bash` or simply use the project preflight script.
-
-## Step 2 — Explicit personal identity
-
-The confirmed personal author email for this repository is `michal.buzek@gmail.com`. Do **not** reuse a company email. Pass it explicitly to preflight; do not rely on global Git config. Example invocation:
-
-```bash
-# Clear overrides first. A set GITHUB_TOKEN makes gh ignore the keyring account.
-unset GH_TOKEN GITHUB_TOKEN GH_ENTERPRISE_TOKEN GITHUB_ENTERPRISE_TOKEN
-export EXPECTED_GITHUB_OWNER='LachimB'
-export EXPECTED_GIT_AUTHOR_NAME='LachimB'
-export EXPECTED_GIT_AUTHOR_EMAIL='michal.buzek@gmail.com'
-# Before initializing a new repo use --bootstrap (validates account and author intent).
-bash tools/preflight_personal_github.sh --bootstrap
-```
-
-This stops on token environment overrides and requires the actual effective `gh api user` result to match `EXPECTED_GITHUB_OWNER`. After creating the repo, run it again without `--bootstrap` to verify `.git/config` and remote.
-
-## Step 3 — Initialize the existing directory (only after user approves creation)
-
-Do **not** run `tools/bootstrap_private_repo.sh`. It exits when `/Users/michal/repos/private/gym-assistant` already exists, The script now pins GitHub owner `LachimB`. It still exits when this directory already exists, so use the manual steps below.
-
-The starter package is already in the target directory. After preflight `--bootstrap` passes as `LachimB`, and after a separate yes to create the remote:
-
-```bash
-cd /Users/michal/repos/private/gym-assistant
-# Stop if `gh repo view LachimB/gym-assistant` shows an existing repository.
-git init -b main
-git config --local user.name 'LachimB'
-git config --local user.email 'michal.buzek@gmail.com'
-git add .
-git commit -m 'Add Gym Assistant starter specification'
-# Do not pass --push. The default helper can select the wrong account.
-gh repo create LachimB/gym-assistant --private --source=. --remote=origin
+```sh
+cd "$HOME/path/to/gym-assistant"
+git config --local user.name LachimB
+git config --local user.email 17935459+LachimB@users.noreply.github.com
+export EXPECTED_GITHUB_OWNER=LachimB
+export EXPECTED_GIT_AUTHOR_NAME=LachimB
+export EXPECTED_GIT_AUTHOR_EMAIL=17935459+LachimB@users.noreply.github.com
+export EXPECTED_LOCAL_REPO_PATH="$PWD"
 bash tools/preflight_personal_github.sh
-bash tools/personal_git_push.sh --set-upstream origin main
 ```
 
-Creating the remote, pushing, and relying on GitHub Actions each need explicit approval. If `LachimB/gym-assistant` already exists, stop and do not overwrite its history. GitHub Actions on a private repository can consume included minutes; stop before enabling a workflow that would be billed.
+Never change global Git identity or use company credentials. Resolve token override
+variables and authenticate the CLI to the confirmed personal account. Use
+`tools/personal_git_push.sh` for HTTPS pushes after the preflight passes.
+The legacy bootstrap script is for an explicitly approved new directory only;
+never run it against an existing checkout or create another remote for this project.
 
-## Step 4 — Validate in Cursor
-
-Open the destination folder in Cursor and run:
-
-```bash
-python3 -m pip install -r tools/requirements.txt
-python3 -m unittest discover -s tests -v
-```
-
-Read `AGENTS.md`, `docs/architecture/open-questions.md`, `docs/milestones/m0.md`, `M0_START_PROMPT.md`; give Cursor the starter prompt and request an M0-only implementation plan. No cloud services unless separately approved.
-
-## Step 5 — Versioning and approvals
-
-PRs and GitHub Issues are encouraged. CI runs fixture validation. Only after user approval may the agent create a Google Cloud project, OAuth client, authentication service or hosted previews; **separate explicit approval before billable resources**. Distinct stage/prod app IDs and credentials. Never hardcode Android application ID final values before appropriate review.
+Read [publication privacy](publication-privacy.md) before staging or sharing.
+Private accounts, provider IDs, source documents, sessions, screenshots, logs and
+acceptance details belong in `<private-evidence-directory>` outside the checkout.
+Public examples use reserved example domains and synthetic identifiers.
