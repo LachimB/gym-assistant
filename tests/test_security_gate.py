@@ -340,6 +340,58 @@ class ControllerTests(unittest.TestCase):
         self.assertEqual(len(texts), 3)
         self.assertEqual(len(reviews), 1)
 
+    def test_owner_self_review_is_exact_admin_comment_and_same_repository_only(self):
+        class API:
+            repo = 'LachimB/gym-assistant'
+            permission = 'admin'
+            def get(self, path):
+                self.path = path
+                return {'permission': self.permission}
+        api = API()
+        report = {'head': 'a'*40, 'review_digest': 'b'*64}
+        pr = {'user': {'login': 'LachimB'}}
+        policy = {'reviewers': ['LachimB'], 'owner_self_review_login': 'LachimB'}
+        review = {'id': 1, 'user': {'login': 'LachimB'}, 'state': 'COMMENTED',
+                  'commit_id': report['head'], 'body': 'Security-Privacy-Review: '+report['head']+' '+report['review_digest']}
+        self.assertTrue(authorized_review(api, pr, [review], report, policy))
+        self.assertEqual(api.path, '/collaborators/LachimB/permission')
+        for invalid in [dict(review, state='APPROVED'), dict(review, commit_id='c'*40),
+                        dict(review, body=review['body']+' changed')]:
+            self.assertFalse(authorized_review(api, pr, [invalid], report, policy))
+        for state in ['DISMISSED', 'CHANGES_REQUESTED', 'COMMENTED']:
+            self.assertFalse(authorized_review(api, pr, [review, dict(review, id=2, state=state, body='cancel')], report, policy))
+        api.permission = 'write'
+        self.assertFalse(authorized_review(api, pr, [review], report, policy))
+        api.permission = 'admin';api.repo = 'other/repository'
+        self.assertFalse(authorized_review(api, pr, [review], report, policy))
+        api.repo = 'LachimB/gym-assistant'
+        self.assertFalse(authorized_review(api, pr, [review], report, dict(policy, owner_self_review_login=None)))
+        self.assertFalse(authorized_review(api, {'user': {'login': 'other'}}, [review], report, policy))
+
+    def test_owner_receipt_stays_out_of_digest_but_ordinary_comments_do_not(self):
+        class API:
+            def pages(self, path):
+                if not path.endswith('/reviews'):return []
+                return [{'id': 1, 'user': {'login': 'LachimB'}, 'body': 'Security-Privacy-Review: '+'a'*40+' '+'b'*64,
+                         'state': 'COMMENTED', 'commit_id': 'a'*40}]
+        texts, reviews=content_snapshot(API(),1,{'title':'safe','body':'synthetic','user':{'login':'LachimB'}})
+        self.assertEqual(len(texts),1);self.assertEqual(reviews[0]['state'],'COMMENTED')
+
+    def test_missing_receipt_blocks_even_an_unflagged_pr_without_disabling_other_checks(self):
+        class API:
+            repo = 'LachimB/gym-assistant'
+            def __init__(self):self.states=[]
+            def get(self,path):return {'state':'open','head':{'sha':'a'*40},'base':{'sha':'b'*40},'user':{'login':'contributor'}}
+            def status(self,sha,context,state,url):self.states.append((context,state))
+        report={'head':'a'*40,'review_digest':'b'*64,'commits':[],'metadata':[],
+                'contexts':dict.fromkeys(('secrets','privacy','hygiene'),'success')}
+        with patch('security_controller.content_snapshot',return_value=([b'safe'],[])), \
+             patch('security_controller.fetch_objects'),patch('security_controller.Scanner'), \
+             patch('security_controller.scan_range',return_value=report), \
+             patch('security_controller.authorized_review',return_value=False):
+            api=API();self.assertFalse(assess(api,1,'https://example.test/run'))
+            self.assertEqual(dict(api.states[-3:]),{'secrets':'success','privacy':'failure','hygiene':'success'})
+
     def test_webhook_text_includes_accessible_previous_values(self):
         event = {'pull_request': {'title': 'title', 'body': 'body'},
                  'comment': {'body': 'comment'}, 'review': {'body': 'review'},
@@ -386,7 +438,7 @@ class ControllerTests(unittest.TestCase):
         with patch('security_controller.content_snapshot', return_value=([b'safe'], [])), \
              patch('security_controller.fetch_objects'), patch('security_controller.Scanner'), \
              patch('security_controller.scan_range', return_value=report), \
-             patch('security_controller.authorized_review', return_value=False):
+             patch('security_controller.authorized_review', return_value=True):
             api = API()
             self.assertTrue(assess(api, 1, 'https://example.test/run'))
             self.assertTrue(all(s == 'success' for _, s in api.states[-3:]))
@@ -408,6 +460,18 @@ class ControllerTests(unittest.TestCase):
         steps = trusted['jobs']['assess']['steps']
         self.assertEqual(steps[0]['with']['ref'], '${{ github.event.repository.default_branch }}')
         self.assertFalse(steps[0]['with']['persist-credentials'])
+        ruleset=json.loads((HERE/'security/ruleset.json').read_text())
+        self.assertEqual(ruleset['bypass_actors'],[])
+        by_type={r['type']:r for r in ruleset['rules']}
+        self.assertTrue({'deletion','non_fast_forward'} <= by_type.keys())
+        review=by_type['pull_request']['parameters']
+        self.assertEqual(review['required_approving_review_count'],0)
+        self.assertFalse(review['require_code_owner_review']);self.assertFalse(review['require_last_push_approval'])
+        self.assertTrue(review['required_review_thread_resolution'])
+        checks=by_type['required_status_checks']['parameters']
+        self.assertTrue(checks['strict_required_status_checks_policy'])
+        self.assertEqual({c['context'] for c in checks['required_status_checks']},{'privacy','Security / secrets','Security / privacy','Security / hygiene'})
+        self.assertTrue(all(c['integration_id']==15368 for c in checks['required_status_checks']))
         self.assertNotIn('paths', events['pull_request_target'])
         read_only = yaml.safe_load((HERE / '.github/workflows/privacy.yml').read_text())
         self.assertTrue(all(p == 'read' for p in read_only['permissions'].values()))

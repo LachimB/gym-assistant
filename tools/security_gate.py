@@ -42,6 +42,10 @@ def git(repo, *args, data=None, index=False):
 
 def load_policy(path):
     policy = json.loads(Path(path).read_text())
+    if policy.get('owner_self_review_login') not in {None, 'LachimB'}:
+        raise ValueError('invalid owner self-review identity')
+    if not isinstance(policy.get('require_pr_review', False), bool):
+        raise ValueError('invalid PR review requirement')
     for item in policy['rules']:
         re.compile(item['pattern'])
     for item in policy['exceptions']:
@@ -296,7 +300,7 @@ def apply_review(report, approved):
             for f in c['findings']:
                 if f['status'] == 'review':
                     f['status'] = 'reviewed'
-            c['privacy'] = 'independently-reviewed'
+            c['privacy'] = 'authorized-reviewed'
         for f in report['metadata']:
             if f['status'] == 'review':
                 f['status'] = 'reviewed'
@@ -307,6 +311,8 @@ def apply_review(report, approved):
 def summary(report):
     lines = ['Security assessment (values and filenames withheld)',
              'Head: ' + report['head'], 'Review digest: ' + report['review_digest']]
+    if 'review_approval' in report:
+        lines.append('Review approval: ' + report['review_approval'])
     for c in report['commits']:
         lines.append(f"{c['sha']}: technical={c['technical']}; privacy={c['privacy']}; objects={c['objects']}; findings={len(c['findings'])}")
         for f in c['findings']:

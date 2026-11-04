@@ -230,3 +230,20 @@ recovery. The existing owner-only reviewer list cannot self-approve flagged
 owner-authored changes; a separate consenting trusted reviewer remains necessary.
 Final configuration and smoke-test evidence belong in the PR28 rollout record;
 never treat this pre-activation handoff as proof that remote settings are active.
+
+## Owner self-review policy change — preparation
+
+The owner explicitly requested relaxing the self-approval prohibition for
+owner-authored PRs. The separate policy branch adds an exact COMMENTED-review
+receipt exception only for the confirmed repository owner with administrator
+permission, bound to the current PR head/digest. GitHub does not permit native
+self-approval. All PRs must still receive a trusted exact receipt; other authors
+need independent APPROVE reviews. Native review-count/code-owner/last-push gates
+are replaced by that trusted-status enforcement; four required checks, no bypass
+actors, strict up-to-date settings and force-push/deletion protection remain.
+
+No live ruleset, required check or collaborator permission was changed by preparing
+this source. A reviewed bootstrap remains necessary: default-branch policy cannot
+self-adopt proposed policy code. Present the concrete exact-head bootstrap plan
+before any temporary review waiver or merge. M1 foundation PR31 remains separate;
+continue its current-head CI and return to ADR-0009 after policy activation.
