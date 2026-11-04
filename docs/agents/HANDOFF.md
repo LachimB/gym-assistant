@@ -62,8 +62,9 @@
 - Owner approved main-branch protection: required PR and privacy check, strict
   up-to-date status, administrators included, force-push/deletion disabled. Applied
   and verified through GitHub. PR21 must incorporate this privacy fix before merge.
-- Drive sharing UI verification blocked: Computer Use permission unavailable.
-  No Drive permissions, shares, grants or credentials changed.
+- Owner manually verified Restricted access for the approved synthetic test
+  folder and all descendant folders/files. Independent UI/grant inspection was
+  unavailable. No Drive permissions, shares, grants or credentials changed.
 - Historical cleanup plan: `docs/operations/history-privacy-cleanup.md`. No rewrite,
   force-push, ref deletion or garbage collection performed.
 
