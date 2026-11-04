@@ -4,8 +4,9 @@
 
 - Repository: `LachimB/gym-assistant`, intentionally public. Confirmed personal
   author: `LachimB <17935459+LachimB@users.noreply.github.com>`.
-- GitHub main: `c8c0f603`; PR21 head at privacy-work startup: `74bc0392`.
-  PR21 remains unmerged. Privacy changes start from that development head.
+- Privacy PR22 merged into main at `e2ef498b`; companion PR23 merged into the
+  development branch at `d0790bb6`. Both reviewed heads passed all11 checks.
+  PR21 remains separate milestone work; this privacy task does not merge it.
 - M0 accepted. M1 remains incomplete. Decisions #1–#97 and ADRs remain binding.
 - ADR-0006 provides local reviewed Template publication and format2/history1.2.
   PR19 and PR20 merged after their required checks. Natural-completion regression
@@ -42,11 +43,13 @@
   remain separate; see `THIRD_PARTY_NOTICES.md`.
 - Historical commits still contain earlier disclosures. A coordinated rewrite
   and force-push require a separate explicit approval after reviewing the plan.
-- External sharing settings have not been verified by this remediation.
+- Owner manually verified Restricted and owner-only access for the synthetic
+  folder and all descendants, and enabled both GitHub email privacy settings.
+  These are owner-reported checks; no sharing permissions were changed.
 
 ## Next work
 
-1. Complete privacy verification and record exact results below.
+1. Historical erasure requires a separately approved coordinated cleanup.
 2. Review current GitHub checks and outstanding PR21 gates before milestone work.
 3. Complete full offline/interruption/synchronization/web acceptance without
    publishing personal inputs, characteristics or outcomes.
@@ -68,11 +71,16 @@
 - Historical cleanup plan: `docs/operations/history-privacy-cleanup.md`. No rewrite,
   force-push, ref deletion or garbage collection performed.
 
-The standalone privacy PR targets main without importing PR21 implementation.
-The development-branch companion preserves newer accepted technical evidence.
 
-The standalone privacy PR targets main without importing PR21 implementation.
-The development-branch companion preserves newer accepted technical evidence.
 
 Dependency/license inventory drift now fails privacy CI until a review record
 is updated. This does not grant binary-release clearance.
+
+## GitHub merge attribution follow-up
+
+The merged trees match their validated PR heads. Both merges use the same owner's
+legacy public noreply alias and GitHub's service committer; no real contact
+address was exposed. The initial gate rejected that alias as a false positive.
+The follow-up accepts only the two known public aliases of the confirmed owner;
+local commit identity remains pinned to the numeric alias. Merge instructions
+avoid the GraphQL authorEmail field and require post-merge metadata verification.
