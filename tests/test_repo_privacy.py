@@ -59,6 +59,13 @@ class PrivacyGateTests(unittest.TestCase):
             git('add', 'notes.md')
             self.assertEqual(scan(root, staged=True), [])
             self.assertTrue(inspect_revision(root, sha))
+            git('-c', 'core.hooksPath=/dev/null', 'commit', '-qm', 'Clean synthetic replacement')
+            script = Path(__file__).resolve().parent.parent / 'tools/check_repo_hygiene.py'
+            result = subprocess.run([os.sys.executable, str(script), '--commit', 'HEAD'], cwd=root, capture_output=True, text=True)
+            self.assertEqual(result.returncode, 0, result.stdout + result.stderr)
+            result = subprocess.run([os.sys.executable, str(script), '--commit', sha], cwd=root, capture_output=True, text=True)
+            self.assertNotEqual(result.returncode, 0)
+            self.assertNotIn('person' + '@' + 'mail.invalid', result.stdout + result.stderr)
 
     def test_gitignore_covers_private_operational_file_families(self):
         root = Path(__file__).resolve().parent.parent

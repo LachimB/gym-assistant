@@ -123,6 +123,7 @@ def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--staged', action='store_true', help='inspect index bytes, including partially staged files')
     parser.add_argument('--message-file', type=Path, help='inspect the proposed commit message without printing content')
+    parser.add_argument('--commit', help='inspect exactly one new commit without rescanning merged baseline ancestors')
     parser.add_argument('--commits', help='also check author/committer emails for commits in this revision range')
     args = parser.parse_args()
     try:
@@ -130,8 +131,9 @@ def main():
         failures = scan(root, args.staged)
         if args.message_file:
             failures.extend(('commit-message', line, reason) for line, reason in inspect_content('commit-message', args.message_file.read_bytes()))
-        if args.commits:
-            records = git(root, 'log', '--format=%H%x09%ae%x09%ce', args.commits).decode().splitlines()
+        if args.commits or args.commit:
+            options = ['-1'] if args.commit else []
+            records = git(root, 'log', '--format=%H%x09%ae%x09%ce', *options, args.commit or args.commits).decode().splitlines()
             for record in records:
                 sha, author, committer = record.split('\t')
                 if author != NOREPLY or committer not in {NOREPLY, 'noreply@github.com'}:
