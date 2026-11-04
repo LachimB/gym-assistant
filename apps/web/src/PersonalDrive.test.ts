@@ -1,16 +1,18 @@
 import {describe,it,expect,vi} from 'vitest';
 import {readFileSync} from 'node:fs';
-import {PersonalDriveReader,DRIVE_SCOPE,PERSONAL_FOLDER,checkConfig,type DriveConfig,type BudgetKind,type Grant} from './PersonalDrive';
+import {PersonalDriveReader,DRIVE_SCOPE,PERSONAL_FOLDER,checkConfig,privateConnection,type DriveConfig,type BudgetKind,type Grant} from './PersonalDrive';
 const config: DriveConfig = {clientId:'900-'+ 'a'.repeat(25)+'.apps.googleusercontent.com',apiKey:'AIza'+'x'.repeat(35),appId:'900',
   email:'owner@example.test',permissionId:'synthetic-account',folderId:'synthetic-folder',marker:'personal-m1-synthetic',allocationId:'synthetic-allocation'};
 const raw=readFileSync(new URL('../../../examples/sessions/synthetic-runtime-v2-session.json',import.meta.url),'utf8');
 const session=JSON.parse(raw);
-function harness(options: {status?:number; edit?: (meta: Record<string,unknown>,kind:string) => void; media?: string; grant?: Grant; choose?: () => Promise<string>; consume?: (kind: BudgetKind) => void} = {}) {
+function harness(options: {status?:number; failure?:boolean; metadataBody?:string; edit?: (meta: Record<string,unknown>,kind:string) => void; media?: string; grant?: Grant; choose?: () => Promise<string>; consume?: (kind: BudgetKind) => void} = {}) {
   const calls: {url:string;init?:RequestInit}[]=[]; const budgets:BudgetKind[]=[];
   const dialogs={authorize:vi.fn(async()=>options.grant??{token:'synthetic-access',expiresAt:2000,scope:DRIVE_SCOPE}),
     choose:vi.fn(options.choose??(async()=> 'synthetic-file'))};
   const fetcher=vi.fn(async(input: string|URL|Request,init?:RequestInit)=>{
     const url=String(input); calls.push({url,init});
+    if (options.failure) throw new TypeError('private provider failure');
+    if (options.metadataBody) return new Response(options.metadataBody);
     if (options.status) return new Response('private provider detail',{status:options.status});
     let kind: string;let meta: Record<string,unknown>;
     if(url.includes('/about?')) {kind='about';meta={user:{permissionId:config.permissionId,emailAddress:config.email}};}
@@ -69,6 +71,30 @@ describe('selected personal Drive reader',()=>{
     for(const media of ['{"private_source":"hidden"}', ' '.repeat(8388609),JSON.stringify(altered)]) {
       const h=harness({media});await expect(h.reader.open(new AbortController().signal)).rejects.not.toThrow('hidden');
     }
+  });
+  it('works without modern static AbortSignal helpers',async()=>{
+    const savedAny=AbortSignal.any,savedTimeout=AbortSignal.timeout;
+    try {Object.defineProperty(AbortSignal,'any',{value:undefined,configurable:true});Object.defineProperty(AbortSignal,'timeout',{value:undefined,configurable:true});
+      const h=harness();expect((await h.reader.open(new AbortController().signal)).record.sessionId).toBe(session.sessionId);
+    } finally {Object.defineProperty(AbortSignal,'any',{value:savedAny,configurable:true});Object.defineProperty(AbortSignal,'timeout',{value:savedTimeout,configurable:true});}
+  });
+  it('distinguishes connection failures from invalid metadata without echoing either body',async()=>{
+    const failed=harness({failure:true});await expect(failed.reader.open(new AbortController().signal)).rejects.toThrow('Unable to contact');
+    const malformed=harness({metadataBody:'not-json-private'});await expect(malformed.reader.open(new AbortController().signal)).rejects.toThrow('account metadata (JSON syntax)');
+    const array=harness({metadataBody:'[]'});await expect(array.reader.open(new AbortController().signal)).rejects.toThrow('account metadata (object shape)');
+  });
+  it('loads only local private settings and durably reserves with the caller cancellation signal',async()=>{
+    const fake=vi.fn(async(input:unknown,init?:RequestInit)=>String(input).endsWith('/config')?new Response(JSON.stringify(config)):new Response(null,{status:204}));
+    vi.stubGlobal('fetch',fake);try {const signal=new AbortController().signal;const connection=await privateConnection(signal);await connection.consume('request',signal);
+      expect(fake.mock.calls[1][1]).toMatchObject({method:'POST',signal,credentials:'same-origin'});
+      expect(JSON.parse(fake.mock.calls[1][1]!.body as string)).toEqual({allocationId:config.allocationId,kind:'request'});
+    } finally {vi.unstubAllGlobals();}
+  });
+  it('binds the default native fetch to its global receiver',async()=>{
+    const h=harness();const fake=function(this:unknown,input:string|URL|Request,init?:RequestInit){expect(this).toBe(globalThis);return h.fetcher(input,init);};
+    vi.stubGlobal('fetch',fake);try {const reader=new PersonalDriveReader(checkConfig(config),async()=>{},h.dialogs,undefined,()=>1000);
+      expect((await reader.open(new AbortController().signal)).record.sessionId).toBe(session.sessionId);
+    } finally {vi.unstubAllGlobals();}
   });
   it('never reuses an authorization grant across opens',async()=>{
     const h=harness();await h.reader.open(new AbortController().signal);await h.reader.open(new AbortController().signal);

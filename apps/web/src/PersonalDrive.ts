@@ -53,7 +53,7 @@ const messageFor = (status: number) => status === 401 ? 'Authorization expired. 
 export class PersonalDriveReader {
   private grant: Grant | null = null;
   constructor(private config: DriveConfig, private consume: Consume, private dialogs: DriveDialogs,
-    private fetcher: typeof fetch = fetch, private now: () => number = Date.now) {}
+    private fetcher: typeof fetch = (input, init) => globalThis.fetch(input, init), private now: () => number = Date.now) {}
   disconnect() { this.grant = null; }
   async open(signal: AbortSignal): Promise<ReadHistory> {
     this.disconnect();
@@ -103,11 +103,16 @@ export class PersonalDriveReader {
     } finally { this.disconnect(); }
   }
   private async metadata(kind: 'about'|'folder'|'file', signal: AbortSignal, id?: string): Promise<Record<string, unknown>> {
+    const text = await this.request(kind, signal, id);
     try {
-      const value: unknown = JSON.parse(await this.request(kind, signal, id));
+      const value: unknown = JSON.parse(text);
       if (!value || typeof value !== 'object' || Array.isArray(value)) throw new Error();
       return value as Record<string, unknown>;
-    } catch (error) { if (error instanceof DriveReadError) throw error; throw new DriveReadError('Drive returned invalid metadata.'); }
+    } catch (error) {
+      if (error instanceof DriveReadError) throw error;
+      const shape = error instanceof SyntaxError ? 'JSON syntax' : 'object shape';
+      throw new DriveReadError(`Drive returned invalid ${kind === 'about' ? 'account' : kind} metadata (${shape}).`);
+    }
   }
   private async request(kind: 'about'|'folder'|'file'|'media', signal: AbortSignal, id?: string): Promise<string> {
     if (signal.aborted) throw stopped();
@@ -118,13 +123,22 @@ export class PersonalDriveReader {
       `files/${encodeURIComponent(actualId!)}?` + (kind === 'media' ? 'alt=media' : 'fields=id,name,mimeType,parents,appProperties,trashed,size');
     await this.consume('request', signal);
     if (signal.aborted || !this.grant || this.grant.expiresAt <= this.now()) { this.disconnect(); throw stopped(); }
-    const requestSignal = AbortSignal.any([signal, AbortSignal.timeout(20000)]);
+    // Use the base AbortController API: older embedded browsers lack the static helpers.
+    const requestAbort = new AbortController();
+    const cancel = () => requestAbort.abort();
+    signal.addEventListener('abort', cancel, {once:true});
+    const timer = setTimeout(cancel, 20000);
+    try {
     const response = await this.fetcher('https://www.googleapis.com/drive/v3/' + path, {
       method:'GET', headers:{Authorization:'Bearer ' + this.grant.token}, credentials:'omit', redirect:'error',
-      referrerPolicy:'no-referrer', cache:'no-store', signal:requestSignal,
+      referrerPolicy:'no-referrer', cache:'no-store', signal:requestAbort.signal,
     });
     if (!response.ok) { if (response.status === 401) this.disconnect(); await response.body?.cancel().catch(() => {}); throw new DriveReadError(messageFor(response.status)); }
-    return boundedText(response, kind === 'media' ? MAX_HISTORY_BYTES : 32768, requestSignal);
+    return await boundedText(response, kind === 'media' ? MAX_HISTORY_BYTES : 32768, requestAbort.signal);
+    } catch (error) {
+      if (error instanceof DriveReadError) throw error;
+      throw new DriveReadError(signal.aborted ? 'Operation cancelled.' : 'Unable to contact Google Drive. Check the connection and try again.');
+    } finally { clearTimeout(timer); signal.removeEventListener('abort', cancel); }
   }
 }
 
