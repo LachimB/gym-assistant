@@ -133,6 +133,36 @@ the direct-request counters. Inspect only non-content status during live checks;
 real source/event text needs separate per-operation AI consent. Keep detailed
 acceptance evidence outside Git. Full M1 and Template synchronization remain open.
 
+## Continuous security gate implementation — 2026-11-04
+
+- Isolated branch `codex/continuous-security-gate` starts from freshly fetched
+  `origin/main` at `adac6c2`. Other worktrees and their uncommitted acceptance work
+  remain untouched. This change affects publication controls only.
+- Adds trusted default-branch Git-object scanning and stable separate secret,
+  contextual privacy and hygiene statuses; preserves the existing `privacy` job,
+  strict public attribution/content policy and license inventory check.
+- New scans cover all introduced commits, full changed contents and every parent
+  preimage. Gitleaks is version/checksum pinned. PR overrides have no authority.
+- Metadata controller scans paginated PR text/comments/reviews, never executes PR
+  code, and requires exact independent review receipts for contextual findings.
+  Unsupported linked/binary materials and platform timing limits are documented.
+- Prepared CODEOWNERS, narrow reviewed exceptions, local checks and a ruleset
+  example. No remote rules/settings, resources, billing or permissions changed.
+- PR28 is the draft implementation review. Existing contracts CI now installs
+  the pinned scanner before discovering security tests; read-only privacy CI
+  installs the existing Python test dependencies. GitHub validation is in progress.
+- Activation and independent reviewer setup remain administrator/reviewer actions;
+  see `docs/operations/continuous-security.md`. Current owner-only reviewer policy
+  cannot self-approve owner-authored flagged changes. Initial rollout needs review.
+- Local validation:115 Python tests (35 new security regressions),23 schema
+  fixtures and deterministic golden trace; privacy/license guards and redacted
+  Gitleaks pass. Checksum-verified actionlint validates both security workflows;
+  shell syntax passes. All15 requested security test categories are covered.
+- Read-only GitHub verification found baseline main green on all11 checks, no
+  open PRs, and existing strict `privacy` protection with administrators included,
+  force-push/deletion disabled. Approvals/code-owner enforcement still need rollout.
+  Live fork/events/required-merge behavior remains unverified until activation.
+
 ## Verified web integration and proposed next boundary
 
 PR27 merged at `adac6c26` after all11 named checks passed on `1c165a76`,
@@ -182,3 +212,21 @@ remaining design review and concrete common-root consolidation plan before askin
 for whole-ADR approval. The confirmed layout, root name, review-before-adoption
 and background/screen-off decisions are retained in ADR-0009. This checkpoint adds
 no application code, schema migration, background job or cloud operation.
+
+## Approved security rollout review — 2026-11-04
+
+The owner approved reviewing/merging PR28 and activating the prepared repository
+protections. Review of head `44dc714` found no blocking security/privacy issue; all
+11 CI checks passed, the required privacy run passed again, and all35 security
+regressions passed locally. The latest main merge `83b4c13` added only the paused
+ADR-0009 proposal/handoff; both handoff sections are preserved in the integration.
+No ADR-0009 implementation or external operation is authorized by this security task.
+
+Rollout adds the ruleset alongside existing classic protection, with no bypass
+actors. Preserve strict required privacy, administrators included, and disabled
+force-push/deletion. Live activation must verify all three Actions-published
+security statuses on an unmerged synthetic PR, negative metadata controls and
+recovery. The existing owner-only reviewer list cannot self-approve flagged
+owner-authored changes; a separate consenting trusted reviewer remains necessary.
+Final configuration and smoke-test evidence belong in the PR28 rollout record;
+never treat this pre-activation handoff as proof that remote settings are active.

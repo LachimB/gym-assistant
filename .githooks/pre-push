@@ -11,8 +11,13 @@ while read -r local_ref local_sha remote_ref remote_sha; do
     while read -r sha; do
       python3 tools/check_repo_hygiene.py --commit "$sha"
     done < <(git rev-list "$local_sha" --not --remotes=origin)
+    baseline="$(git rev-parse origin/main)"
+    if [[ "$baseline" != "$local_sha" ]]; then
+      python3 tools/security_gate.py --base "$baseline" --head "$local_sha" --automated-only
+    fi
   else
     python3 tools/check_repo_hygiene.py --commits "$remote_sha..$local_sha"
+    python3 tools/security_gate.py --base "$remote_sha" --head "$local_sha" --automated-only
   fi
 done
-gitleaks git . --log-opts='--all --full-history' --redact=100 --ignore-gitleaks-allow --no-banner
+# Full relevant file contents and preimages are scanned per new commit above.
