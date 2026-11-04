@@ -1,0 +1,63 @@
+name: Publication privacy
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, edited]
+  push:
+    branches: [main]
+permissions:
+  contents: read
+jobs:
+  privacy:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v7.0.1
+        with:
+          fetch-depth: 0
+          persist-credentials: false
+      - uses: actions/setup-python@v7.1.0
+        with:
+          python-version: '3.12'
+      - name: Inspect public files and privacy regression cases
+        run: |
+          python tools/check_repo_hygiene.py
+          python tools/check_license_inventory.py
+          python -m unittest discover -s tests -p test_repo_privacy.py -v
+          python -m unittest discover -s tests -p test_license_inventory.py -v
+      - name: Inspect every newly introduced commit
+        env:
+          EVENT_NAME: ${{ github.event_name }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha || github.event.before }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha || github.sha }}
+        run: |
+          if [ -z "$BASE_SHA" ] || ! git cat-file -e "$BASE_SHA^{commit}"; then
+            echo 'Cannot establish review baseline; stop for manual privacy review.'
+            exit 1
+          fi
+          python tools/check_repo_hygiene.py --commits "$BASE_SHA..$HEAD_SHA"
+      - name: Install checksum-pinned local secret scanner
+        run: |
+          curl --proto '=https' --tlsv1.2 -fsSL --retry 2 -o "$RUNNER_TEMP/gitleaks.tar.gz" https://github.com/gitleaks/gitleaks/releases/download/v8.30.1/gitleaks_8.30.1_linux_x64.tar.gz
+          echo "551f6fc83ea457d62a0d98237cbad105af8d557003051f41f3e7ca7b3f2470eb  $RUNNER_TEMP/gitleaks.tar.gz" | sha256sum -c -
+          mkdir "$RUNNER_TEMP/gitleaks-bin"
+          tar -xzf "$RUNNER_TEMP/gitleaks.tar.gz" -C "$RUNNER_TEMP/gitleaks-bin" gitleaks
+          echo "$RUNNER_TEMP/gitleaks-bin" >> "$GITHUB_PATH"
+      - name: Scan worktree and all fetched history without uploading content
+        run: |
+          gitleaks dir . --redact=100 --ignore-gitleaks-allow --no-banner
+          gitleaks git . --log-opts='--all --full-history' --redact=100 --ignore-gitleaks-allow --no-banner
+      - name: Inspect proposed public PR text without logging its contents
+        if: github.event_name == 'pull_request'
+        env:
+          PR_TEXT: ${{ github.event.pull_request.title }}
+
+            ${{ github.event.pull_request.body }}
+        run: |
+          python - <<'PYCODE'
+          import os, sys
+          from tools.check_repo_hygiene import inspect_content
+          issues = inspect_content('pull-request', os.environ.get('PR_TEXT', '').encode())
+          for line, reason in issues:
+              print(f'pull-request:{line}: {reason}; values withheld')
+          sys.exit(bool(issues))
+          PYCODE
+          printf '%s' "$PR_TEXT" | gitleaks stdin --redact=100 --ignore-gitleaks-allow --no-banner

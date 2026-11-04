@@ -3,8 +3,6 @@
   "integrity": "ok",
   "foreignKeys": "ok",
   "sourceSnapshotsPreserved": true,
-  "originalActionRowsPreserved": 702,
-  "originalOutboxRowsPreserved": 702,
   "unfinishedSlotPreserved": true,
   "scheduledObservedPauseAndCompletedPhasesUnchanged": true,
   "restoredPaused": true,
@@ -20,7 +18,6 @@
   "installMethod": "adb install -r; no clear/uninstall",
   "backupVerifiedBeforeInstall": true,
   "backupSchemaVersion": 1,
-  "backupStandaloneSha256": "1ea77e88e58e67f3653813b3e11aeb76d6779ff93a0a5ae3bbc51676ec9a0e9d",
   "backupLocation": "private persistent owner directory outside active app/repository; contents not committed",
   "liveSyntheticDelivery": "awaiting owner phone action at evidence capture"
 }
