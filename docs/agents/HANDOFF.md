@@ -151,7 +151,7 @@ acceptance evidence outside Git. Full M1 and Template synchronization remain ope
 - Activation and independent reviewer setup remain administrator/reviewer actions;
   see `docs/operations/continuous-security.md`. Current owner-only reviewer policy
   cannot self-approve owner-authored flagged changes. Initial rollout needs review.
-- Local validation:111 Python tests (31 new security regressions),23 schema
+- Local validation:113 Python tests (33 new security regressions),23 schema
   fixtures and deterministic golden trace; privacy/license guards and redacted
   Gitleaks pass. Checksum-verified actionlint validates both security workflows;
   shell syntax passes. All15 requested security test categories are covered.
