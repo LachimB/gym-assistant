@@ -162,3 +162,71 @@ acceptance evidence outside Git. Full M1 and Template synchronization remain ope
   open PRs, and existing strict `privacy` protection with administrators included,
   force-push/deletion disabled. Approvals/code-owner enforcement still need rollout.
   Live fork/events/required-merge behavior remains unverified until activation.
+
+## Verified web integration and proposed next boundary
+
+PR27 merged at `adac6c26` after all11 named checks passed on `1c165a76`,
+including seven Android versions. Merge metadata/content guard passes; the clean
+checkout was advanced to the exact merged tree before creating the proposal branch.
+Direct-reader detailed acceptance evidence stays outside Git. No additional live
+selection or budget reset is needed for that completed feature verification.
+
+ADR-0009 is proposed for selected Template YAML publication, immutable revisions,
+external-edit candidate review and additive Room4 to5 sync bookkeeping. No schema,
+phone migration or cloud Template operation has been implemented by drafting it.
+Await owner approval before those changes. Preserve all approved connection/budget
+bindings; the proposal describes a separate bounded reservation, not a reset.
+Full-workout acceptance, Template sync and remaining M1 gaps stay open.
+
+## ADR-0009 review decisions
+
+The owner confirmed review before adoption and one stable Current working copy
+folder per Template, with historical revisions separate. All app-owned Drive
+artifacts must be nested under one common project folder, including personal,
+synthetic/test, session, metadata/staging and backup areas. No additional top-level
+app folders. The draft now describes guarded per-file updates and incomplete-sync
+recovery, and a proposed common-root registry. Full ADR approval is still pending.
+Common-root selection and consolidation of existing areas need a concrete reviewed
+plan; drafting this requirement did not move/create any Drive folder, change
+permissions, retarget connections or implement a phone migration.
+
+The common Drive root display name is confirmed as Gym Assistant. This is a
+design decision only; whole-ADR approval and the concrete consolidation plan remain
+pending. No root creation, folder move or connection change was performed.
+
+ADR-0009 review now includes background and screen-off Template synchronization.
+The proposed contract uses persistent constrained work, durable job reconciliation,
+foreground/background serialization and in-memory tokens from existing Google
+Play authorization. Interactive resolution pauses work until owner reconnects;
+Android scheduling/Doze delays must be shown truthfully and tested. This supersedes
+the earlier foreground-only scope in the draft. Network policy remains to review.
+The ADR as a whole is still proposed; no scheduler dependency, schema migration,
+background permission, cloud operation or phone update was implemented by review.
+
+## Paused ADR review checkpoint
+
+Work is paused at the owner's request. ADR-0009 remains proposed, not approved for
+implementation. Resume the review at the network-policy choice: Wi-Fi and mobile
+data versus Wi-Fi only for Template YAML/metadata synchronization. Then finish the
+remaining design review and concrete common-root consolidation plan before asking
+for whole-ADR approval. The confirmed layout, root name, review-before-adoption
+and background/screen-off decisions are retained in ADR-0009. This checkpoint adds
+no application code, schema migration, background job or cloud operation.
+
+## Approved security rollout review — 2026-11-04
+
+The owner approved reviewing/merging PR28 and activating the prepared repository
+protections. Review of head `44dc714` found no blocking security/privacy issue; all
+11 CI checks passed, the required privacy run passed again, and all35 security
+regressions passed locally. The latest main merge `83b4c13` added only the paused
+ADR-0009 proposal/handoff; both handoff sections are preserved in the integration.
+No ADR-0009 implementation or external operation is authorized by this security task.
+
+Rollout adds the ruleset alongside existing classic protection, with no bypass
+actors. Preserve strict required privacy, administrators included, and disabled
+force-push/deletion. Live activation must verify all three Actions-published
+security statuses on an unmerged synthetic PR, negative metadata controls and
+recovery. The existing owner-only reviewer list cannot self-approve flagged
+owner-authored changes; a separate consenting trusted reviewer remains necessary.
+Final configuration and smoke-test evidence belong in the PR28 rollout record;
+never treat this pre-activation handoff as proof that remote settings are active.
