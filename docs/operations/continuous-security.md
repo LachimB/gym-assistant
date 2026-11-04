@@ -14,7 +14,7 @@ dismissals and inline comment changes also run it. It has no write token or
 repository secrets; it may run proposed scanner code as ordinary untrusted tests.
 It preserves the license inventory check and existing strict privacy guard.
 Its `--automated-only` scan reports contextual findings without failing this
-supplementary job; only the trusted privacy status can resolve independent review.
+supplementary job; only the trusted privacy status can resolve authorized review.
 It also retains immediate scanning of accessible PR/review/comment webhook text,
 including previous title/body values when the event supplies them.
 
@@ -72,7 +72,7 @@ counts and status, never matching bytes or potentially sensitive filenames.
 Pass 2 applies the existing publication privacy rules and centralized contextual
 rules for contact/location/health/account fields, correspondence/restricted
 material and private infrastructure. Suspicious fixtures/docs, changes to protected
-controls, or linked material require independent review. Detection is contextual
+controls, or linked material require authorized review. Detection is contextual
 triage, not a semantic proof. Legitimate synthetic addresses on reserved domains
 and the explicitly approved public author aliases pass the existing policy;
 other contact addresses still follow the stricter existing publication policy.
@@ -92,7 +92,7 @@ representative sensitive families. Limits: 2 MiB per object, 100 MiB total conte
 10,000 unique path/content scans, 500 commits. Exceeding limits blocks coverage;
 split the PR or design a reviewed bounded alternative. Nothing is silently truncated.
 
-## GitHub content and independent review
+## GitHub content and authorized review
 
 The controller paginates current title/body, conversation comments, review bodies
 and inline comments. Values are inspected in memory and withheld from output.
@@ -104,31 +104,50 @@ and redistribution rights separately, including combinations with committed data
 An inaccessible attachment remains unresolved until removed or reviewed through an
 authorized local process. Do not upload private material to an analysis service.
 
-To resolve contextual review findings, an independent allowlisted maintainer with
-current write/maintain/admin permission submits an **APPROVE review** with exactly:
+Every PR requires an exact receipt from an allowlisted maintainer with current
+write/maintain/admin permission, including PRs with no contextual findings. This
+trusted status replaces GitHub's native minimum-review count so the sole owner
+can use the explicitly approved exception below. Other authors still need an
+independent APPROVE review. Submit exactly:
 
 ```text
 Security-Privacy-Review: <full-head-SHA> <64-character-review-digest>
 ```
 
-Copy the SHA/digest from the trusted run summary. Before approving, inspect every
-listed commit, full relevant files and preimages, metadata, linked material,
-fixtures' provenance and combinations of identifiers. Approve only synthetic,
-publicly redistributable or explicitly consented material. Remove confirmed private
-content instead of approving it. Receipt text has no free-form disclosure. It binds
-the exact base/head, trusted policy, inspected metadata and findings. New commits,
-metadata edits, other comments, changed findings, dismissal or a later change request
-invalidate it. The receipt itself is excluded from the digest to avoid recursion.
-Contributor checkboxes, labels, arbitrary comments, self-review and approvals on
-another head do not resolve findings. Review cannot clear secrets, strict existing
-privacy violations, hygiene failures or incomplete scans.
+Copy the SHA/digest from the trusted run summary. Inspect every listed commit,
+full relevant files and preimages, metadata, linked material, fixture provenance
+and combinations of identifiers. Approve only synthetic, publicly redistributable
+or explicitly consented material; remove confirmed private content. The receipt
+binds exact base/head, trusted policy, inspected metadata and findings. New commits,
+metadata edits, changed findings, dismissal or a later change request invalidate
+it. Exact receipt-only review bodies are excluded from the digest to avoid recursion.
+Review cannot clear secrets, strict privacy failures, hygiene or incomplete scans.
 
-Initially only the confirmed owner is allowlisted. Owner-authored flagged PRs
-therefore need another consenting trusted maintainer added in a separately reviewed
-policy change before they can receive independent approval. CODEOWNERS also cannot
-self-approve. Do not weaken the gate or impersonate a reviewer to work around this.
-The initial rollout requires explicit manual review of the bootstrap PR because
-the controller cannot execute before it exists on default branch.
+### Owner-only self-review exception — approved 2026-11-04
+
+The owner explicitly requested allowing self-approval of owner-authored PRs.
+Only `LachimB` authoring a PR in `LachimB/gym-assistant` may self-review, while
+still allowlisted and holding current administrator permission. GitHub forbids a
+native APPROVE review by the PR author. Therefore the owner submits the exact
+receipt above as a **COMMENTED review**, bound by GitHub's `commit_id` to the
+inspected head. An ordinary issue/inline comment, arbitrary comment body, native
+APPROVE object, another author/repository, stale head/digest or non-admin permission
+does not qualify. A later owner review/comment cancels the previous receipt unless
+it supplies another exact current receipt. Do not claim independent review occurred.
+
+The native ruleset keeps PRs and resolved threads required, but its review count
+is0, code-owner enforcement is false and last-pusher approval is false. Required
+trusted statuses enforce the exact owner/independent review instead, on every PR.
+CODEOWNERS still routes sensitive control changes for inspection. No new reviewer,
+collaborator, bypass actor, service, token permission or weakened secret/privacy/
+hygiene scanner is added. All four required checks and strict up-to-date settings,
+administrator enforcement and force-push/deletion protection remain required.
+
+Activation needs a separately reviewed bootstrap because the trusted workflow on
+main intentionally cannot execute a PR's proposed controller/policy. Before any
+live bootstrap, present the exact PR head, test evidence, minimal temporary review
+waiver and restoration checks to the owner. Do not treat this source change or
+its local tests as evidence that live settings or the trusted controller changed.
 
 ## Exceptions and failure investigation
 
@@ -176,7 +195,7 @@ git config --local core.hooksPath .githooks
 
 The complete range command exits nonzero on blocking **or contextual review**
 findings, and on unavailable scanner. Local hooks scan complete staged files and
-new pushed commit ranges. Contextual staged findings warn because independent
+new pushed commit ranges. Contextual staged findings warn because authorized
 review happens in CI; secret/technical staged findings block. Local tooling uses
 current local policy and can be bypassed, so it never replaces GitHub enforcement.
 Use the existing personal credential preflight and push wrapper for remote writes.
@@ -191,8 +210,7 @@ verification; the baseline main commit passed all eleven existing checks.
 After reviewing/merging the bootstrap and observing a genuine
 trusted run, an administrator must review `security/ruleset.json` and add its rules
 to existing protections, retaining all existing required checks. It targets default
-and `release/**` branches, requires PRs/independent code-owner approval, dismisses
-stale approvals, requires approval after latest push and resolved review threads,
+and `release/**` branches, requires PRs, exact trusted review receipts and resolved review threads,
 requires strict up-to-date checks, and blocks force pushes/deletion with no bypass
 actors. Verify the GitHub Actions app integration ID (example: 15368) against actual
 runs before applying; do not accept a required status from an arbitrary publisher.
@@ -204,7 +222,7 @@ and testing merge_group handling; it is not supported by this implementation.
 GitHub Free supports branch rulesets for this public personal repository. Some
 organization-only required-workflow/push rules are unavailable here. A required
 status source can be bound to the Actions app, not to one specific workflow on
-this plan. Independent CODEOWNERS approval on every workflow/config/policy change
+this plan. Trusted allowlisted review on every workflow/config/policy change
 is therefore essential to resist another same-repository workflow spoofing a
 status with write permission. Fork PR tokens cannot publish these trusted statuses.
 Never approve an untrusted workflow merely to get a check to run. Restrict repository

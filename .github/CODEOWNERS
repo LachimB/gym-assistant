@@ -1,5 +1,6 @@
-# Independent approval is required: a PR author cannot approve their own PR.
-# Add another consenting trusted maintainer before owner-authored control PRs.
+# Route control review to the owner. The trusted security status enforces an
+# exact review receipt; the approved owner-only self-review exception uses a
+# COMMENTED review because GitHub disallows native approval of one's own PR.
 /.github/ @LachimB
 /.githooks/ @LachimB
 /security/ @LachimB
