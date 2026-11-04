@@ -366,3 +366,11 @@ Local Android65 JVM checks pass, including8 new lossless-merge regressions; Andr
 SQLite instrumentation still compiles. No dependency, schema, phone or Drive change.
 Full candidate-review UI, durable remote execution and background scheduling remain
 pending. Final CI and a fresh exact owner receipt precede this slice's merge.
+
+
+Live owner-review validation is complete: invalid/stale receipts stayed blocked;
+the exact current receipt passed. PR31 merged normally at `f0cbd6a` after all checks,
+including all seven Android versions, passed on `eb56fca`. Full final ruleset and
+classic protections were fetched again and verified unchanged. The one-time
+waiver is closed. Current work is the separate lossless-YAML candidate slice;
+future worker/provider/UI work and all physical/live acceptance gates remain.
