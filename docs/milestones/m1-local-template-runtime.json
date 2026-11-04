@@ -53,14 +53,15 @@
     "networkUpload": false
   },
   "cloud": {
-    "realWorkoutUploadAuthorized": false,
+    "realWorkoutUploadAuthorized": true,
     "exactSyntheticEligibilityGateChanged": false,
     "newService": false,
-    "billingChanged": false
+    "billingChanged": false,
+    "realWorkoutUploadImplementation": "ADR-0007 approved; implementation/testing in progress; no live real upload"
   },
   "remaining": [
     "complete a full real workout with the supported local runtime",
-    "owner approval of ADR-0007 before real personal Drive delivery and its separate migration",
+    "ADR-0007 approved personal delivery: current-head CI, fresh backup, phone migration and live owner-selected test pending",
     "implement/test authorized real-data delivery; Template synchronization and direct web Drive retrieval remain open",
     "remaining M1/product acceptance gates"
   ],
@@ -87,6 +88,40 @@
     "allTenChecksPassed": true,
     "selectedImportAndFooterUiIncluded": true
   },
+  "personalDeliveryContinuation": {
+    "adr": "0007",
+    "ownerApproved": true,
+    "pr": 21,
+    "candidateAppSourceCommit": "500cf55989b54f25c73dbfb76c9302267c7cf1b0",
+    "candidateVersionCode": 9,
+    "localJvmTests": 49,
+    "localSqliteTests": 28,
+    "localPythonTests": 73,
+    "localApi31AllThreeUiFlowsPassed": true,
+    "latestGithubStandardRun": 41767116394,
+    "latestGithubAndroidRun": 41767116465,
+    "latestGithubJobsStarted": true,
+    "githubBlock": null,
+    "phoneRemainsVersionCode": 9,
+    "phoneRemainsDatabaseVersion": 4,
+    "phoneRoom4MigrationPerformed": true,
+    "personalFolderCreated": false,
+    "realSessionUploaded": false,
+    "billingOrSpendingLimitChanged": false,
+    "verifiedPrHead": "74bc039228ec2e3a9f80a222c21ad3e009e80c4f",
+    "allTenCurrentHeadChecksPassed": true,
+    "repositoryVisibility": "PUBLIC \u2014 owner confirmed 2026-11-04"
+  },
+  "physicalRuntimeVerification": {
+    "result": "PASS",
+    "frozenSourceAndEffectivePlansPreserved": true,
+    "executionStateAndCountersPreserved": true,
+    "automaticResume": false,
+    "appDataCleared": false,
+    "cloudUpload": false,
+    "fullWorkoutAcceptance": "open",
+    "detailedEvidence": "retained outside Git"
+  },
   "completionRegression": {
     "issue": "natural plan end had no active phase; mixed numeric zero type failed checkpoint validation",
     "fix": "Long zero in absent-phase offset check",
@@ -94,25 +129,13 @@
     "publicCompletedHistoryFixture": "examples/sessions/synthetic-runtime-v2-completed-session.json",
     "localJvmAndSqliteTestsPassed": true,
     "phoneUpdateVerified": true,
-    "phoneUpdate": {
-      "installedVersionCode": 8,
-      "versionName": "0.1.6-m1-completion-fix",
-      "sourceCommit": "6977599428ed32e11f5202e6d6ae2b653aba0505",
-      "apkSha256": "1d3e3d6244982c083461eadf1d5f8c59968973e106fa8563d2f0e1b3cab08d0d",
-      "databaseVersionBefore": 3,
-      "databaseVersionAfter": 3,
-      "newMigrationApplied": false,
-      "allElevenTablesExactlyUnchanged": true,
-      "uninstallOrClearPerformed": false,
-      "cloudUpload": false
+    "ci": {
+      "pr": 20,
+      "head": "b4c57090fb58601fee21eb71b2ab5552461686fd",
+      "standardRun": 41706474885,
+      "sevenVersionAndroidRun": 41706474849,
+      "allTenPassed": true,
+      "mergedCommit": "c8c0f60"
     }
-  },
-  "physicalRuntimeVerification": {
-    "result": "PASS",
-    "sourceEffectivePlanStateAndCountersPreserved": true,
-    "automaticResume": false,
-    "cloudUpload": false,
-    "fullWorkoutAcceptance": "open",
-    "detailedEvidence": "retained outside Git"
   }
 }

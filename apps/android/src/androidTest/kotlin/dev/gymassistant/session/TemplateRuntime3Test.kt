@@ -20,7 +20,7 @@ class TemplateRuntime3Test {
     private val context:Context=ApplicationProvider.getApplicationContext()
     private val name="library-test-${UUID.randomUUID()}.db"
     private val root=File(context.cacheDir,"library-${UUID.randomUUID()}")
-    private var db=Room.databaseBuilder(context,WorkoutDatabase::class.java,name).addMigrations(DELIVERY_MIGRATION_1_2,LIBRARY_MIGRATION_2_3).build()
+    private var db=Room.databaseBuilder(context,WorkoutDatabase::class.java,name).addMigrations(DELIVERY_MIGRATION_1_2,LIBRARY_MIGRATION_2_3,PERSONAL_DELIVERY_MIGRATION_3_4).build()
     private val files=LibraryFiles3(root)
     private fun asset(name:String)=context.assets.open(name).bufferedReader().use { it.readText() }
     private val contracts=ImportContracts2(mapOf("1.0.0" to Json.parseToJsonElement(asset("template.v1.schema.json")).jsonObject,
@@ -163,6 +163,44 @@ class TemplateRuntime3Test {
         assertTrue(done.state.completionAcknowledged);assertNull(store.unfinished())
         assertEquals("plannedEnd",store.history(start.sessionId)?.completionKind)
         assertEquals(1,store.history(start.sessionId)?.events?.count {it.type=="planEndReached"})
+    }
+
+    @Test fun personalPayloadIsFileBackedFrozenAndAcknowledgesOnlyItsSession()=runBlocking {
+        val start=start2();val sessions=RoomSessionStore2(db,contracts);var saved=sessions.start(start,"start")
+        val payloads=DeliveryPayloadFiles4(File(root,"payloads"));val local=PersonalDeliveryStore4(db,payloads,contracts)
+        rejects {local.preview(start.sessionId)}
+        saved=sessions.commit(start.sessionId,saved.revision,"end",SessionAction2("end",1000,at))
+        val (revision,history)=local.preview(start.sessionId);val bytes=history.toCanonicalJson();val hash=sha256Utf8(bytes)
+        val connection=RoomDeliveryStore(db).bind(DriveConnectionRow("personal-binding","googleDrive","id","fixture@example.test","personal-root","personal-m1-test",at,at))
+        rejects {local.enqueue(connection.connectionId,start.sessionId,"job",revision,"wrong")}
+        val before=db.workouts().outbox(start.sessionId)
+        val job=local.enqueue(connection.connectionId,start.sessionId,"personal-job",revision,hash)
+        assertEquals(job,local.enqueue(connection.connectionId,start.sessionId,"unused-id",revision,hash))
+        assertEquals(bytes,local.load(job.deliveryId).second.canonicalJson)
+        assertEquals(before,db.workouts().outbox(start.sessionId))
+        assertNull(db.deliveries().delivery(job.deliveryId))
+        File(root,"payloads/"+job.payloadRelativePath).delete()
+        assertEquals(bytes,local.load(job.deliveryId).second.canonicalJson) // Exact frozen reconstruction only.
+        val loaded=local.load(job.deliveryId).second
+        rejects {local.save(loaded,loaded.copy(canonicalJson="changed"))}
+        local.save(loaded,loaded.copy(remoteFileId="reserved",state="delivered",attemptCount=1))
+        assertTrue(db.workouts().outbox(start.sessionId).all {it.status=="delivered"})
+        assertEquals(saved,sessions.load(start.sessionId))
+        File(root,"payloads/"+job.payloadRelativePath).writeText("corrupt")
+        rejects {local.load(job.deliveryId)}
+    }
+    @Test fun failedPersonalInsertLeavesNoExecutableJobAndDiscardedIsIneligible()=runBlocking {
+        val start=start2();val sessions=RoomSessionStore2(db,contracts);var saved=sessions.start(start,"start")
+        saved=sessions.commit(start.sessionId,saved.revision,"end",SessionAction2("end",1000,at))
+        val payloads=DeliveryPayloadFiles4(File(root,"payloads"));val local=PersonalDeliveryStore4(db,payloads,contracts){error("Injected insert failure")}
+        val (revision,history)=local.preview(start.sessionId)
+        val connection=RoomDeliveryStore(db).bind(DriveConnectionRow("personal-binding","googleDrive","id","fixture@example.test","personal-root","personal-m1-test",at,at))
+        rejects {local.enqueue(connection.connectionId,start.sessionId,"orphan-job",revision,sha256Utf8(history.toCanonicalJson()))}
+        assertNull(db.personalDeliveries().get("orphan-job"));assertTrue(File(root,"payloads/orphan-job.json").isFile)
+        val next=start.copy(sessionId="discarded2");val fresh=sessions.start(next,"start")
+        sessions.commit(next.sessionId,fresh.revision,"discard",SessionAction2("discard",recordedAt=at))
+        rejects {local.preview(next.sessionId)}
+        assertEquals(listOf(start.sessionId),local.eligible().map {it.sessionId})
     }
 
 }

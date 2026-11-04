@@ -89,6 +89,8 @@ jobs:
           python3 tools/test_android_process_recovery.py --serial emulator-5554
       - name: Selected Template import and accessible review publication
         run: python3 tools/test_android_template_review.py --serial emulator-5554
+      - name: Finalized synthetic session selection and personal preview
+        run: python3 tools/test_android_personal_preview.py --serial emulator-5554
       - name: Stop disposable emulator
         if: always()
         run: adb -s emulator-5554 emu kill || true

@@ -11,6 +11,22 @@ import unittest
 from tools.backup_android_database import BackupError,make_verified_snapshot,validate_database,validate_library_archive
 
 class PrivateBackupTest(unittest.TestCase):
+    def test_personal_delivery_archives_keep_boundaries_and_reject_links(self):
+        for folder in ('delivery-payloads','personal-drive'):
+            content=io.BytesIO()
+            with tarfile.open(fileobj=content,mode='w') as archive:
+                entry=tarfile.TarInfo('files/'+folder+'/synthetic.json');entry.size=2
+                archive.addfile(entry,io.BytesIO(b'{}'))
+            evidence=validate_library_archive(content.getvalue(),folder)
+            self.assertEqual(evidence['fileCount'],1)
+            self.assertNotIn('synthetic.json',json.dumps(evidence))
+            with self.assertRaises(BackupError):validate_library_archive(content.getvalue())
+            content=io.BytesIO()
+            with tarfile.open(fileobj=content,mode='w') as archive:
+                entry=tarfile.TarInfo('files/'+folder+'/link');entry.type=tarfile.SYMTYPE;entry.linkname='/outside'
+                archive.addfile(entry)
+            with self.assertRaises(BackupError):validate_library_archive(content.getvalue(),folder)
+
     def fixture(self, path, status='Paused'):
         with sqlite3.connect(path) as db:
             db.executescript('PRAGMA user_version=1;CREATE TABLE session_starts(sessionId TEXT,snapshotJson TEXT);CREATE TABLE checkpoints(sessionId TEXT,revision INTEGER,checkpointJson TEXT);CREATE TABLE actions(sessionId TEXT,sequence INTEGER,checkpointJson TEXT);CREATE TABLE unfinished_slot(slot INTEGER,sessionId TEXT);CREATE TABLE outbox(sessionId TEXT,revision INTEGER,status TEXT);')

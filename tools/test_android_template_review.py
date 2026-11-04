@@ -64,7 +64,7 @@ def main():
                 elif not suffix:raise AssertionError('No local recording database')
             with sqlite3.connect(path) as db:
                 return {t:db.execute('SELECT * FROM '+t+' ORDER BY rowid').fetchall() for t in
-                        ('session_starts','checkpoints','actions','unfinished_slot','outbox','drive_connections','session_deliveries','execution_plan_revisions')}
+                        ('session_starts','checkpoints','actions','unfinished_slot','outbox','drive_connections','session_deliveries','execution_plan_revisions','personal_session_deliveries')}
     device_names={call('shell','getprop','ro.product.model').decode().strip(),call('shell','settings','get','global','device_name').decode().strip()}
     folder='/sdcard/Download/GymRuntimeM1'
     call('shell','mkdir','-p',folder)
@@ -98,7 +98,14 @@ def main():
     click('Publish reviewed revision');wait('Training Template published locally.')
     assert workout_rows()==before, 'Review/publication must not alter a workout or delivery'
     click('Close')
+    click('Send a finished session to personal Drive…',scroll=True)
+    wait('Personal session delivery')
+    assert any('PERSONAL M1 DEV' in s for s in labels(nodes()))
+    send=[n for n in nodes() if n.get('clickable')=='true' and any(child.get('text')=='Send or retry selected session' for child in n.iter('node'))]
+    assert send and all(n.get('enabled')=='false' for n in send), 'No unreviewed send must be enabled'
+    assert workout_rows()==before, 'Personal history preview must not enqueue or acknowledge anything'
+    click('Close')
     print(json.dumps({'result':'PASS','selectedSyntheticFiles':2,'completePreviewPhases':10,'publicationFooterVisibleWithoutScrolling':True,
-        'explicitPublication':True,'existingWorkoutAndDeliveryRowsUnchanged':True,'workoutStarted':False,'googleAuthorization':False,'appDataCleared':False}))
+        'explicitPublication':True,'existingWorkoutAndDeliveryRowsUnchanged':True,'workoutStarted':False,'personalDeliveryPreviewPreservesRows':True,'googleAuthorization':False,'appDataCleared':False}))
 
 if __name__=='__main__':main()

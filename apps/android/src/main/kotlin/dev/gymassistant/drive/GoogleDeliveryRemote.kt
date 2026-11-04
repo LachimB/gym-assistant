@@ -26,7 +26,7 @@ internal class GoogleDeliveryHttp(private var token: String, private val reserve
     override fun request(request: DeliveryHttpRequest): DeliveryHttpResponse {
         check(token.isNotBlank() && '\r' !in token && '\n' !in token)
         val path = request.path
-        require(path == ACCOUNT_PATH || path == "/drive/v3/files/generateIds?count=1&space=drive" ||
+        require(path == ACCOUNT_PATH || path == "/drive/v3/files?fields=id" || path == "/drive/v3/files/generateIds?count=1&space=drive" ||
             Regex("/drive/v3/files/[-A-Za-z0-9_]+\\?fields=[A-Za-z0-9,()]+").matches(path) ||
             Regex("/drive/v3/files/[-A-Za-z0-9_]+\\?alt=media").matches(path) ||
             path == "/upload/drive/v3/files?uploadType=multipart&fields=id")

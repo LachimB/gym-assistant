@@ -12,6 +12,7 @@ import android.accounts.Account
 import android.view.WindowManager
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.enableEdgeToEdge
 import androidx.activity.viewModels
 import androidx.activity.result.IntentSenderRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -20,6 +21,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.safeDrawingPadding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.AlertDialog
@@ -60,6 +62,7 @@ class MainActivity : ComponentActivity() {
     private val workout by viewModels<WorkoutModel>()
     private val driveProbe by viewModels<DriveProbeModel>()
     private val driveDelivery by viewModels<DriveDeliveryModel>()
+    private val personalDelivery by viewModels<dev.gymassistant.drive.PersonalDeliveryModel4>()
     private val templateFiles = registerForActivityResult(ActivityResultContracts.OpenMultipleDocuments()) { uris ->
         if(uris.isNotEmpty())lifecycleScope.launch {
             try {
@@ -91,19 +94,22 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun failDriveAuthorization() {
-        if (driveDelivery.awaitingAuthorization()) driveDelivery.failed() else driveProbe.failed()
+        if(personalDelivery.awaitingAuthorization()) personalDelivery.failed()
+        else if (driveDelivery.awaitingAuthorization()) driveDelivery.failed() else driveProbe.failed()
     }
 
     private fun completeDriveAuthorization(result: AuthorizationResult) {
         if (result.hasResolution()) { failDriveAuthorization(); return }
-        if (driveDelivery.awaitingAuthorization()) driveDelivery.authorized(result.grantedScopes, result.accessToken)
+        if(personalDelivery.awaitingAuthorization()) personalDelivery.authorized(result.grantedScopes,result.accessToken)
+        else if (driveDelivery.awaitingAuthorization()) driveDelivery.authorized(result.grantedScopes, result.accessToken)
         else driveProbe.authorized(result.grantedScopes, result.accessToken)
     }
 
-    private fun testDriveConnection(delivery: Boolean = false) {
-        if (driveProbe.busy.value || driveDelivery.busy.value) return
+    private fun testDriveConnection(delivery: Boolean = false, personal: Boolean = false) {
+        if (driveProbe.busy.value || driveDelivery.busy.value || personalDelivery.busy.value) return
         val email = BuildConfig.SYNTHETIC_DRIVE_ACCOUNT
-        if (delivery) { if (!driveDelivery.begin()) return } else if (!driveProbe.begin(email)) return
+        if(personal) {if(!personalDelivery.begin())return}
+        else if (delivery) { if (!driveDelivery.begin()) return } else if (!driveProbe.begin(email)) return
         try {
             val request = AuthorizationRequest.builder()
                 .setAccount(Account(email, "com.google"))
@@ -123,6 +129,7 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        enableEdgeToEdge()
         window.addFlags(WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON)
         setContent {
             val ui by workout.ui.collectAsState()
@@ -132,13 +139,14 @@ class MainActivity : ComponentActivity() {
             var showDriveTest by remember { mutableStateOf(false) }
             MaterialTheme {
                 Surface(modifier = Modifier.fillMaxSize()) {
-                    Column(modifier = Modifier.padding(24.dp).verticalScroll(rememberScrollState()),
+                    Column(modifier = Modifier.safeDrawingPadding().padding(24.dp).verticalScroll(rememberScrollState()),
                         verticalArrangement = Arrangement.spacedBy(12.dp)) {
                         Text("Gym Assistant", style = MaterialTheme.typography.headlineSmall)
                         if (ui.needsRecovery && ui.saved?.checkpoint?.outcome == "inProgress") {
                             TextButton(onClick = { showDriveTest = true }) { Text("Drive connection test") }
                         }
                         TextButton(onClick={showLibrary=true},enabled=workout.canImport()) {Text("Training Template library")}
+                        PersonalDeliveryControls4()
                         if(!showLibrary)ui.libraryMessage?.let {Text(it)}
                         when {
                             ui.loading -> Text("Loading saved workout…")
@@ -151,7 +159,7 @@ class MainActivity : ComponentActivity() {
                             ui.saved == null -> {
                                 Text("Training Template", style = MaterialTheme.typography.headlineMedium)
                                 Text("Synthetic alternating pyramid · 50 seconds")
-                                Text("Starts an ungrouped Workout Session. Saved on this phone; real-workout cloud synchronization is not enabled.")
+                                Text("Starts an ungrouped Workout Session. Saved on this phone. Finished local sessions may be sent manually after review.")
                                 WorkoutButton("Start Workout") { workout.command("start") }
                                 DriveTestControls()
                             }
@@ -275,6 +283,33 @@ class MainActivity : ComponentActivity() {
     }
 
     @Composable
+    private fun PersonalDeliveryControls4() {
+        var show by remember {mutableStateOf(false)}
+        var selected by remember {mutableStateOf<dev.gymassistant.drive.PersonalSessionChoice4?>(null)}
+        val choices by personalDelivery.choices.collectAsState()
+        val busy by personalDelivery.busy.collectAsState()
+        val status by personalDelivery.status.collectAsState()
+        val reviewNote by personalDelivery.reviewNote.collectAsState()
+        val otherBusy by driveDelivery.busy.collectAsState()
+        val probeBusy by driveProbe.busy.collectAsState()
+        TextButton(onClick={show=true;selected=null;personalDelivery.refresh()},enabled=!busy && !otherBusy && !probeBusy) {Text("Send a finished session to personal Drive…")}
+        if(show) AlertDialog(onDismissRequest={if(!busy)show=false},title={Text("Personal session delivery")},
+            text={Column(modifier=Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
+                Text("Account: ${BuildConfig.SYNTHETIC_DRIVE_ACCOUNT}")
+                Text("Destination: Gym Assistant — PERSONAL M1 DEV. Created privately on the first send. No automatic uploads.")
+                if(selected==null)choices.forEach {choice->TextButton(onClick={selected=choice;personalDelivery.select(choice)}) {Text(choice.label)}}
+                selected?.let {choice->
+                    Text(choice.label);Text(reviewNote);Text("${choice.bytes} bytes. Includes frozen workout instructions, meaningful events, dates and timing. Internal ticks and the original PDF stay off Drive.")
+                    Text("Send freezes this exact recording. Retry uses the same file; conflicts stop without overwriting.")
+                    TextButton(onClick={selected=null},enabled=!busy){Text("Choose another session")}
+                }
+                Text(status)
+            }},
+            confirmButton={TextButton(onClick={testDriveConnection(personal=true)},enabled=selected!=null && !busy && !otherBusy && !probeBusy && BuildConfig.PERSONAL_DELIVERY_BUDGET_RESERVED){Text(if(busy)"Sending…" else "Send or retry selected session")}},
+            dismissButton={TextButton(onClick={show=false},enabled=!busy){Text("Close")}})
+    }
+
+    @Composable
     private fun DriveTestControls() {
         val probeStatus by driveProbe.status.collectAsState()
         val probeBusy by driveProbe.busy.collectAsState()
@@ -366,7 +401,7 @@ private fun ModernWorkout(saved:SavedWorkout2,recovery:Boolean,command:(String)-
     Text("Observed ${formatMs(state.observedRunMs)} · pause ${formatMs(state.pauseMs)}")
     Text("Unobserved ${formatMs(state.unobservedGapMs)} · ${cp.unknownGapCount} interruption(s) of unknown duration")
     Text("${saved.plan.adjustments.size} extra repetition(s) · ${state.completedInstanceIds.size} phases completed")
-    Text("Saved on this phone · this workout has not been uploaded")
+    Text("Saved on this phone · check personal Drive delivery for send status")
     when {
         cp.outcome!="inProgress"->WorkoutButton("New Workout"){command("new")}
         recovery->Unit
