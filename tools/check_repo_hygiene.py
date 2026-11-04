@@ -6,7 +6,6 @@ import re
 import subprocess
 import sys
 import io
-import tarfile
 
 NOREPLY = '17935459+LachimB@users.noreply.github.com'
 PRIVATE_DIRS = {'personal-data', 'private-data', 'private-evidence', 'private-config',
@@ -101,21 +100,34 @@ def scan(root, staged=False):
 
 
 def inspect_revision(root, sha):
+    # Read the Git tree/objects directly: export-ignore/export-subst attributes
+    # must not hide or rewrite historical bytes during a privacy inspection.
     failures = []
-    archive = git(root, 'archive', '--format=tar', sha)
-    with tarfile.open(fileobj=io.BytesIO(archive)) as entries:
-        for entry in entries:
-            if entry.isdir():
-                continue
-            name = entry.name
-            if not entry.isfile():
-                failures.append((name, 1, 'non-regular Git entry requires review'))
-                continue
-            reason = filename_issue(name)
-            if reason:
-                failures.append((name, 1, reason))
-            data = entries.extractfile(entry).read()
-            failures.extend((name, line, reason) for line, reason in inspect_content(name, data))
+    blobs = []
+    for record in git(root, 'ls-tree', '-rz', '--full-tree', sha).split(b'\0'):
+        if not record:
+            continue
+        metadata, raw_name = record.split(b'\t', 1)
+        mode, kind, object_sha = metadata.split()
+        name = raw_name.decode('utf-8')
+        if kind != b'blob' or mode not in {b'100644', b'100755'}:
+            failures.append((name, 1, 'non-regular Git entry requires review'))
+            continue
+        blobs.append((name, object_sha))
+    request = b''.join(object_sha + b'\n' for _, object_sha in blobs)
+    output = subprocess.check_output(['git', '-C', str(root), 'cat-file', '--batch'], input=request, stderr=subprocess.DEVNULL)
+    stream = io.BytesIO(output)
+    for name, expected in blobs:
+        actual, kind, size = stream.readline().split()
+        if actual != expected or kind != b'blob':
+            raise ValueError('Unexpected Git object')
+        data = stream.read(int(size))
+        if len(data) != int(size) or stream.read(1) != b'\n':
+            raise ValueError('Incomplete Git object')
+        reason = filename_issue(name)
+        if reason:
+            failures.append((name, 1, reason))
+        failures.extend((name, line, reason) for line, reason in inspect_content(name, data))
     return [('commit ' + sha[:12] + '/' + name, line, reason) for name, line, reason in failures]
 
 
