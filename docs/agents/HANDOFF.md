@@ -1242,3 +1242,34 @@ Read `docs/architecture/seasons-programs-and-promotion.md` and ADR-0001. Canonic
   App source remains500cf55, phone still v8/Room3, no personal folder, upload or
   migration. Ten successful current-head checks and a fresh verified private
   backup remain mandatory before install-r.
+
+
+## Public Actions passed; physical Room4 upgrade verified — 2026-11-04
+
+- PR21 head74bc039228ec2e3a9f80a222c21ad3e009e80c4f passed all10 checks:
+  standard41767116394 and seven-version Android41767116465. AllAPI31–37.0
+  migrations/recovery/import-publication/finalized-personal-preview flows pass,
+  including newer-OS system-bar spacing and dialog transitions.73 Python tests.
+  Public visibility is owner-confirmed; spending settings were not changed.
+- Fresh verified private Room3 backup before installation:
+  <private-path>
+  standaloneSHA2561d792a9e76ee27230cefce9d848dfda9143fd1694d4e579a2faaaaf0cfebc1e5.
+  Post comparison post-room4-check-20261104T033703Z. Prior backups retained.
+- Phone installed v9/0.1.7-m1-personal-delivery with install-r; private APK SHA256
+  331eeeff0fbaae0af743b3cb23156372eb0cd173aec6721de48a3ef580eaeba2, same signer.
+  App source500cf55 is byte-for-byte unchanged at verified PR head74bc039.
+  Room3→4 additive migration passed: all11 original tables compare EXACTLY equal,
+  new personal table empty, no unfinished slot, library/payload/setup archives
+  unchanged, all8 external private source files read back exactly. No clear,
+  uninstall, restore, personal folder creation or cloud upload. Private evidence
+  /private/tmp/gym-m1-personal9-phone-evidence.json. Do not repeat migration/install.
+- Owner asked for normal workout from library's reviewed45m50 Template, temporary
+  offline operation, pause/close/reopen/explicit resume and Complete Workout at end.
+  Expected Workout saved; report adjusted duration and offline/recovery result.
+  User may disconnect USB; do not operate/restart/update phone during this workout.
+  This is still an external acceptance gate, NOT full-workout acceptance evidence.
+- Finish PR21 evidence review/CI/merge without any further phone operation. Then
+  await owner result; next live step is explicit owner-selected finished session
+  preview/send to personal Drive, exact readback and same-file retry, followed by
+  local web review. No auto-send of discarded test or private virtual JSON. Broader
+  Template synchronization/direct Drive web integration remain open; M1 not done.
