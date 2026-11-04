@@ -19,6 +19,16 @@ android {
         require(probeAccount.isEmpty() || probeAccount.matches(Regex("[A-Za-z0-9._+@-]+")))
         buildConfigField("String", "SYNTHETIC_DRIVE_ACCOUNT", "\"$probeAccount\"")
         buildConfigField("boolean", "SYNTHETIC_DELIVERY_BUDGET_RESERVED", providers.gradleProperty("syntheticDeliveryBudgetReserved").orElse("false").get().also { require(it in setOf("true", "false")) })
+        // Operational identifiers are private build inputs, never source defaults.
+        for ((property, field, fallback) in listOf(
+            Triple("syntheticDriveParent", "SYNTHETIC_DRIVE_PARENT", "synthetic_fixture_folder"),
+            Triple("syntheticDriveChild", "SYNTHETIC_DRIVE_CHILD", "synthetic_fixture_child"),
+            Triple("syntheticDriveMarker", "SYNTHETIC_DRIVE_MARKER", "synthetic_fixture_marker")
+        )) {
+            val value = providers.gradleProperty(property).orElse(fallback).get()
+            require(value.matches(Regex("[-A-Za-z0-9_]{1,160}")))
+            buildConfigField("String", field, "\"$value\"")
+        }
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
     }
     buildFeatures { compose = true; buildConfig = true }
@@ -27,7 +37,7 @@ android {
         targetCompatibility = JavaVersion.VERSION_17
     }
     packaging {
-        resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
+        resources.merges += setOf("/META-INF/AL2.0", "/META-INF/LGPL2.1", "/META-INF/LICENSE*", "/META-INF/NOTICE*")
     }
     sourceSets.getByName("androidTest").assets.srcDir("schemas")
     sourceSets.getByName("main").apply {

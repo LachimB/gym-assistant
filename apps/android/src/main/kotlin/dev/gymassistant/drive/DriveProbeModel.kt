@@ -24,7 +24,7 @@ class DriveProbeModel(application: Application) : AndroidViewModel(application) 
     fun begin(expectedEmail: String): Boolean {
         if (mutableBusy.value) return false
         val value = expectedEmail.trim()
-        if (BuildConfig.SYNTHETIC_DRIVE_ACCOUNT.isBlank() || !value.equals(BuildConfig.SYNTHETIC_DRIVE_ACCOUNT, ignoreCase = true)) {
+        if (!syntheticResourcesConfigured() || BuildConfig.SYNTHETIC_DRIVE_ACCOUNT.isBlank() || !value.equals(BuildConfig.SYNTHETIC_DRIVE_ACCOUNT, ignoreCase = true)) {
             mutableStatus.value = "This test build is not configured for that approved personal account."; return false
         }
         if (!value.matches(Regex("[^\\s@]+@[^\\s@]+\\.[^\\s@]+"))) {

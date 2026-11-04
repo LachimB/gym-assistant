@@ -10,7 +10,7 @@ Resume first settles the paused interval. JVM adapter tests do not replace the
 remaining phone pause/resume/navigation and screen-off smoke checks.
 
 ```bash
-cd /Users/michal/repos/private/gym-assistant
+cd "$HOME/path/to/gym-assistant"
 ./gradlew :android:assembleDebug
 adb devices
 adb install -r apps/android/build/outputs/apk/debug/android-debug.apk

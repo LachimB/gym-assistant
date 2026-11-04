@@ -25,11 +25,11 @@ and the timing/history formats have already been approved.
 
 ## Exact initial authorization requested
 
-- Reuse the existing personal development project `gym-assistant-m1-synthetic-dev`
+- Reuse the existing personal development project `<approved-development-project>`
   and its registered Android client, with the owner's explicit expansion of its
   data boundary for this test. Its current name does not imply continued
   synthetic-only eligibility after approval; the app preview must say PERSONAL.
-- Account: `michal.buzek.de@gmail.com`, verified by stable Drive permission ID as
+- Account: `the approved personal Google account`, verified by stable Drive permission ID as
   well as displayed email. Exactly `drive.file`; no additional scope or account.
 - Create one private folder named **Gym Assistant — PERSONAL M1 DEV**, separate
   from all synthetic fixtures. No invitation, sharing change or public exposure.

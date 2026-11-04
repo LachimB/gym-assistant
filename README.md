@@ -8,7 +8,7 @@ Gym Assistant is a private-first, offline-capable Android Workout Session execut
 
 1. Review [architecture and milestones](docs/architecture/overview.md) and the [open design / feasibility gap register](docs/architecture/open-questions.md). The gaps are **not silently decided**.
 2. Read [all 97 recorded decisions](docs/product/decision-register.md), [the requirement catalog](docs/product/requirements.md), and [release acceptance gates](docs/product/release-acceptance.md).
-3. Follow the [macOS + Cursor personal-account bootstrap](docs/operations/macos-cursor-bootstrap.md). New private repo name: `gym-assistant`; target location: `/Users/michal/repos/private/gym-assistant`. **Personal GitHub credentials ONLY.** Existing project `/Users/michal/repos/private/mobile-data-switch` is an example to inspect safely, not copy wholesale.
+3. Follow the [personal-account bootstrap](docs/operations/macos-cursor-bootstrap.md) from your chosen repository directory. Use personal GitHub credentials only.
 4. Follow [M1 tasks](docs/milestones/m1.md) and the current handoff. The [M0 starter prompt](M0_START_PROMPT.md) is historical bootstrap guidance.
 5. Validate this skeleton with `python3 -m pip install -r tools/requirements.txt` followed by `python3 -m unittest discover -s tests -v`.
 
@@ -39,7 +39,7 @@ See [v2 release notes](V2_RELEASE_NOTES.md) for what changed from the earlier 78
 
 ## Non-negotiable safety / privacy gates
 
-- Never use company accounts, company credentials, company email or company resources. Validate both Git author and effective GitHub authentication **before** repository creation, push or deployment. Confirmed personal GitHub owner is `LachimB`; repository-local author is `LachimB <michal.buzek@gmail.com>`. Earlier `michal-buzek` and `MichalB` login assumptions are withdrawn; the confirmed GitHub login is `LachimB`.
+- Never use company accounts, company credentials, company email or company resources. Validate both Git author and effective GitHub authentication **before** repository creation, push or deployment. Confirmed personal GitHub owner is `LachimB`; repository-local author is `LachimB <17935459+LachimB@users.noreply.github.com>`. The confirmed GitHub login is `LachimB`.
 - Require approval for **every new external service** and separate explicit confirmation before **any billable resource** is created/enabled. An approved development plan is not blanket approval to provision infrastructure.
 - No personal workout history, original physiotherapy PDFs, cloud tokens, private notes or secrets in Git. Sanitized or synthetic test fixtures only.
 - Bind no application logic to Google Drive, VITALISTA, one person, or a specific AI provider. Auth identity, data, storage, sharing and cloud APIs are separate concerns.
@@ -56,4 +56,15 @@ Official platform references and caveats: [Android foreground service types](htt
 
 ## License
 
-**No open-source license is granted by this private starter package.** Choose and record an explicit license with verified dependency/media rights before any public release. Do not copy source images from private physiotherapy PDFs into public fixtures.
+**Original project code is all rights reserved**, as recorded in `LICENSE`. Third-party terms remain separate; review dependency/media rights before any general-use release. Do not copy source images from private physiotherapy PDFs into public fixtures.
+
+## Publication privacy and licensing
+
+Read [the binding public-record privacy policy](docs/operations/publication-privacy.md)
+before contributing. Private operational configuration and detailed acceptance
+records stay outside Git. Run the privacy guard and secret scanner before writes.
+
+Original code is **all rights reserved**; public visibility does not constitute an
+open-source release. MIT may be considered later with explicit owner approval.
+Third-party components retain their own terms; see [LICENSE](LICENSE) and
+[third-party notices](THIRD_PARTY_NOTICES.md).

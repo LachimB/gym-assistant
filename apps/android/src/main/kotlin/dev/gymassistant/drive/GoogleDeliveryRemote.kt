@@ -16,7 +16,6 @@ internal fun retryAfterDelayMs(value: String?, now: java.time.Instant): Long? {
     } catch (_: Exception) { null }
 }
 
-private const val SYNTHETIC_MARKER = "c1d2a450-f45f-43c5-846e-df40845bd21e"
 internal data class DeliveryHttpRequest(val method: String, val path: String, val contentType: String? = null, val body: ByteArray? = null)
 internal data class DeliveryHttpResponse(val status: Int, val body: ByteArray = byteArrayOf(), val retryAfterMs: Long? = null)
 internal fun interface DeliveryHttp { fun request(request: DeliveryHttpRequest): DeliveryHttpResponse }

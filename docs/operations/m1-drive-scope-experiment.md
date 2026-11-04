@@ -5,7 +5,7 @@ explicitly approved the synthetic-only, billing-disabled experiment described
 below, including a dedicated personal Google Cloud development project/OAuth
 clients, `drive.file`, labelled test files and a maximum of 500 requests.
 The user selected their personal Google account and completed browser sign-in.
-The dedicated project `gym-assistant-m1-synthetic-dev` was created with no
+The dedicated project `<approved-development-project>` was created with no
 organization; the billing page explicitly reports no linked billing account.
 Drive API is enabled. The user separately approved the Google API Services User
 Data Policy at the final agreement step. OAuth remains in Testing mode with only
@@ -137,7 +137,7 @@ Official implementation reference: [Google browser token model](https://develope
   folder-constrained list 200 with exactly one child; rename 200; same-ID read 200.
   The made-up JSON probe is not a canonical or real Workout Session export.
 - Retained synthetic folder for user review:
-  [Gym Assistant synthetic test](https://drive.google.com/drive/folders/1r2LHV_D0E97USw2eb6tDnZGPD1zWMNMT).
+  `<approved-synthetic-folder>`.
   Nothing was shared, deleted or read outside the app-created synthetic artifacts.
 - Three further requests verified that folder's exact synthetic label/app marker,
   located its sole matching child, and read child concurrency metadata (all 200).
@@ -174,7 +174,7 @@ and two direct app requests. The bookkeeping helper can only consume budget, not
 reset it. Six Node tests cover budget safety, exact synthetic metadata, native
 fetch receiver and fixed-origin/redirect behavior. The external fixture remains
 private and retained for review:
-[synthetic external child](https://drive.google.com/file/d/1XMMi-8UlkMPy4z3X4dUk5Zg1hNAVVtbo/view?usp=drivesdk).
+`<approved-synthetic-child>`.
 
 Prepared the next Google Picker selection in the local tool, restricted to JSON
 and the known test folder/query, with exact picked-ID checking. No Picker request
@@ -230,24 +230,15 @@ subfolder; move that JSON into it; read the same file ID; return it to the origi
 parent; read and verify that same ID and original parent again. No content change,
 sharing, deletion or grant expansion. The empty destination remains available for
 review under the test parent as `SYNTHETIC-M1-MOVE-TEST-<random-id>` (provider ID
-`1eL_pcbtgNtrzBNze62yYS_ZdSkpoBg5b`). Explicitly selected file access survived this
+`synthetic_fixture_move_folder`). Explicitly selected file access survived this
 move and return; this is not a blanket folder/descendant or shared-drive claim.
 
 Current direct/setup counter **30/500**; two Picker UI attempts in addition, with
 internal request count unmeasured. The move tool stops on every failure, does not
 silently retry or automatically undo an uncertain write, and retains artifacts.
 
-The user separately proposed a real-workout specification folder. Connector
-metadata returned 404 and the signed-in browser showed You need access for the
-selected personal account. No folder contents were opened or access-request
-message sent. The user then supplied an accessible individual PDF and explicitly
-selected OpenAI in this Codex chat for this one extraction operation on 2026-11-02.
-The PDF was downloaded outside the repository and its complete single page was
-text-extracted and visually inspected. Source, extracted personal content and
-source identifiers are excluded from Git and this synthetic experiment. Execution
-ambiguities were sent to the owner for review; no executable real template or
-real-workout acceptance is claimed. This operation does not approve another AI
-provider, paid AI API, broader document access or real-data Drive synchronization.
+Private source-document feasibility details are retained outside Git. Synthetic
+experiment approval does not authorize private content publication or AI uploads.
 
 
 ## Native Android read-only stage prepared — 2026-11-03

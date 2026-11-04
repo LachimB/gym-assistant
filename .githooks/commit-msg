@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+cd "$(git rev-parse --show-toplevel)"
+python3 tools/check_repo_hygiene.py --staged --message-file "$1"
+gitleaks stdin --redact=100 --ignore-gitleaks-allow --no-banner < "$1"
