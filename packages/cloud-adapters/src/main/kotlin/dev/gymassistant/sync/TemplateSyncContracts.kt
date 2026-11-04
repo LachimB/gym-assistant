@@ -41,7 +41,9 @@ class TemplateRevisionManifest(
     fun checkedPayloads(payloads: Map<String, ByteArray>): List<Pair<RevisionFile, String>> {
         require(payloads.keys == files.map { it.objectId }.toSet()) { "Source bundle incomplete or unexpected" }
         return files.map { file ->
-            val bytes = payloads.getValue(file.objectId)
+            val supplied = payloads.getValue(file.objectId)
+            check(supplied.size == file.byteCount) { "Source byte count differs from manifest" }
+            val bytes = supplied.copyOf()
             check(bytes.size == file.byteCount && hashSourceBytes(bytes) == file.sha256) { "Source bytes differ from manifest" }
             val text = Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT)
                 .onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes)).toString()

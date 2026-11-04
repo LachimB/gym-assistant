@@ -35,13 +35,14 @@ class TemplateSyncFiles5(private val root:File,private val contracts:ImportContr
         val file=File(root,name).canonicalFile
         check(file.parentFile==root.canonicalFile) { "Invalid private sync path" };return file
     }
+    private fun syncDirectory()=FileChannel.open(root.toPath(),StandardOpenOption.READ).use {it.force(true)}
     private fun write(name:String,bytes:ByteArray)=synchronized(lock) {
         require(bytes.size in 1..1048576)
         check(root.mkdirs() || root.isDirectory)
         root.setReadable(false,false);root.setWritable(false,false);root.setExecutable(false,false)
         check(root.setReadable(true,true) && root.setWritable(true,true) && root.setExecutable(true,true))
         val target=path(name)
-        if(target.exists()){check(target.isFile && target.length()==bytes.size.toLong() && target.readBytes().contentEquals(bytes)) { "Immutable sync file changed" };return@synchronized}
+        if(target.exists()){check(target.isFile && target.length()==bytes.size.toLong() && target.readBytes().contentEquals(bytes)) { "Immutable sync file changed" };syncDirectory();return@synchronized}
         val temporary=File(root,".stage-${UUID.randomUUID()}")
         FileOutputStream(temporary).use {stream->
             temporary.setReadable(false,false);temporary.setWritable(false,false)
@@ -50,7 +51,7 @@ class TemplateSyncFiles5(private val root:File,private val contracts:ImportContr
         }
         // One app process serializes writers. No existing retained file is overwritten or cleaned up.
         Files.move(temporary.toPath(),target.toPath(),StandardCopyOption.ATOMIC_MOVE)
-        FileChannel.open(root.toPath(),StandardOpenOption.READ).use {it.force(true)}
+        syncDirectory()
     }
     private fun read(name:String,max:Int):ByteArray {
         val target=path(name);check(target.isFile && target.length() in 1..max.toLong()) { "Private sync file missing or outside bounds" }

@@ -301,3 +301,11 @@ authorization acquisition or allowance reservation occurred. See
 Continue with durable execution, lossless source mapping, provider integration,
 WorkManager/auth/budget reconciliation, source review UI and full device evidence.
 Preserve the exact-inventory and CI/fresh-verified-backup gates.
+
+Foundation PR31 is open. Its trusted secret/hygiene checks passed; the trusted
+privacy status requires independent contextual review. The policy currently
+allowlists only the owner and forbids self-approval of an owner-authored PR.
+An independent maintainer must be nominated before preparing a reviewed policy/
+access change; no collaborator invitation or protection/policy change is authorized
+by the ADR approval. Do not merge or install the migration while this gate is open.
+Complete current-head CI and fix technical failures while awaiting that decision.
