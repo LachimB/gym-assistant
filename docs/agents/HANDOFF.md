@@ -317,3 +317,37 @@ that omission; actual migration SQL is unchanged. Rerun the complete seven-versi
 matrix on the fix. Separately, the owner explicitly requested an owner-only
 self-review exception; its policy/activation plan is on the separate
 `codex/owner-self-review-policy` branch. No live ruleset change is applied.
+
+## Owner self-review policy change — preparation
+
+The owner explicitly requested relaxing the self-approval prohibition for
+owner-authored PRs. The separate policy branch adds an exact COMMENTED-review
+receipt exception only for the confirmed repository owner with administrator
+permission, bound to the current PR head/digest. GitHub does not permit native
+self-approval. All PRs must still receive a trusted exact receipt; other authors
+need independent APPROVE reviews. Native review-count/code-owner/last-push gates
+are replaced by that trusted-status enforcement; four required checks, no bypass
+actors, strict up-to-date settings and force-push/deletion protection remain.
+
+No live ruleset, required check or collaborator permission was changed by preparing
+this source. A reviewed bootstrap remains necessary: default-branch policy cannot
+self-adopt proposed policy code. Present the concrete exact-head bootstrap plan
+before any temporary review waiver or merge. M1 foundation PR31 remains separate;
+continue its current-head CI and return to ADR-0009 after policy activation.
+
+
+## Owner self-review activated — 2026-11-04
+
+The owner approved the concrete bootstrap after a plain-language explanation.
+PR32 merged at `02103c8`; only that policy PR was merged in the temporary window.
+All four required contexts and publisher pins were immediately restored. Classic
+protection is unchanged, including administrator enforcement, strict up-to-date
+checks and disabled force-push/deletion. No bypass actor, collaborator, phone or
+Drive operation was added. Earlier independent-review setup gates above are
+superseded by the approved owner-only exact-receipt policy. Live receipt validation
+is in progress; never label owner review as independent.
+
+PR31 head `06470a3` passed all technical checks, including all seven supported
+Android versions after the fixture-loader correction. Integrating current main
+requires new-head CI and an exact fresh receipt before merging. All earlier
+private-backup/physical-installation and exact Drive-inventory gates remain.

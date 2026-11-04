@@ -82,18 +82,23 @@ def content_snapshot(api, number, pr):
 
 def authorized_review(api, pr, reviews, report, policy):
     receipt = f"Security-Privacy-Review: {report['head']} {report['review_digest']}"
-    # A later CHANGES_REQUESTED or DISMISSED state cancels earlier approval.
+    owner = policy.get('owner_self_review_login')
+    owner_exception = (owner == 'LachimB' and pr['user']['login'] == owner
+                       and getattr(api, 'repo', None) == 'LachimB/gym-assistant')
+    # A later CHANGES_REQUESTED/DISMISSED or owner comment cancels prior approval.
     latest = {}
     for review in reviews:
-        if review['state'] != 'COMMENTED':
+        if review['state'] != 'COMMENTED' or (owner_exception and review['user']['login'] == owner):
             latest[review['user']['login']] = review
     for login, review in latest.items():
-        if (login == pr['user']['login'] or login not in policy['reviewers']
-                or review['state'] != 'APPROVED' or review.get('commit_id') != report['head']
+        self_review = login == pr['user']['login']
+        allowed_state = (review['state'] == 'COMMENTED' if self_review and owner_exception else review['state'] == 'APPROVED')
+        if ((self_review and not owner_exception) or login not in policy['reviewers']
+                or not allowed_state or review.get('commit_id') != report['head']
                 or (review.get('body') or '').strip() != receipt):
             continue
         permission = api.get('/collaborators/' + login + '/permission')['permission']
-        if permission in {'admin', 'maintain', 'write'}:
+        if permission in ({'admin'} if self_review else {'admin', 'maintain', 'write'}):
             return True
     return False
 
@@ -144,6 +149,11 @@ def assess(api, number, run_url):
             report = scan_range(tmp, base, head, scanner, metadata)
         approved = authorized_review(api, pr, reviews, report, policy)
         apply_review(report, approved)
+        report['review_approval'] = 'verified' if approved else 'missing'
+        # Replaces native required reviews so the owner exception does not remove
+        # approval requirements for ordinary PRs without contextual findings.
+        if policy.get('require_pr_review', False) and not approved:
+            report['contexts']['privacy'] = 'failure'
         # Guard concurrent edits/pushes; no stale green result gets published.
         current = api.get(f'/pulls/{number}')
         current_metadata, current_reviews = content_snapshot(api, number, current)

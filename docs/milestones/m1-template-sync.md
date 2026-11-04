@@ -32,7 +32,7 @@ it does not enable a live connection or establish background/device acceptance.
 
 ## Local validation and required gates
 
-Android57 JVM, adapter20 JVM and119 Python tests pass. Engine JVM tests pass.
+Android57 JVM, adapter20 JVM and122 Python tests pass. Engine JVM tests pass.
 Android migration instrumentation compiles; SQLite execution and the supported
 API31–36/37.0 matrix must pass in CI. No local emulator was configured for this
 check. Migration tests seed all12 old tables, inject4→5 failure, verify rollback,
