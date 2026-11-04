@@ -55,7 +55,8 @@ by rebase/cherry-pick/force-push. The report lists every SHA and coverage count.
 For every changed path it examines complete new contents and prior contents from
 every parent, including deletions, overwrites, comments and extensionless files.
 Commit objects (author, committer, signatures and message) and filenames are also
-inspected. Objects are read directly, so export-ignore/export-subst attributes
+inspected. Shallow history is rejected and Git replacement objects are disabled.
+Objects are read directly, so export-ignore/export-subst attributes
 cannot hide them. Identical path/content scans are deduplicated inside each run.
 Unchanged baseline files and unrelated historical commits are not rescanned;
 this is incremental forward enforcement, not a declaration that old history is safe.

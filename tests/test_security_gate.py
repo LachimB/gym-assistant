@@ -283,6 +283,23 @@ class SecurityTests(unittest.TestCase):
         self.assertEqual(result.returncode, 1)
         self.assertNotIn(fake_token().encode(), result.stdout + result.stderr)
 
+    def test_git_replace_cannot_hide_a_historical_secret(self):
+        self.repo.write('source.py', 'token="' + fake_token() + '"')
+        bad = self.repo.commit()
+        self.repo.write('source.py', 'count = 1')
+        head = self.repo.commit()
+        git(self.repo.root, 'replace', bad, head)
+        report = self.scan(head)
+        self.assertEqual(report['contexts']['secrets'], 'failure')
+        self.assertEqual([c['sha'] for c in report['commits']], [bad, head])
+
+    def test_shallow_history_fails_closed(self):
+        self.repo.write('source.py', 'count = 1')
+        head = self.repo.commit()
+        (self.repo.root / '.git/shallow').write_text(head + '\n')
+        with self.assertRaises(ValueError):
+            self.scan(head)
+
     def test_unquoted_sensitive_assignment_and_certificate(self):
         value = 'password=' + hashlib.sha256(b'synthetic password').hexdigest()
         self.assertTrue(self.scanner.secret(value.encode()))
@@ -401,6 +418,10 @@ class ControllerTests(unittest.TestCase):
                 for step in job['steps']:
                     if 'uses' in step:
                         self.assertRegex(step['uses'], r'@[a-f0-9]{40}$')
+        contracts = yaml.safe_load((HERE / '.github/workflows/ci.yml').read_text())
+        contract_steps = contracts['jobs']['contracts']['steps']
+        self.assertTrue(any(s.get('run') == 'bash tools/install_gitleaks.sh' for s in contract_steps))
+        self.assertTrue(any(s.get('run') == 'python -m pip install -r tools/requirements.txt' for s in read_only['jobs']['privacy']['steps']))
         rules = json.loads((HERE / 'security/ruleset.json').read_text())
         self.assertEqual(rules['bypass_actors'], [])
         required = rules['rules'][-1]['parameters']['required_status_checks']

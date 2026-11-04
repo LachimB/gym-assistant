@@ -148,10 +148,13 @@ acceptance evidence outside Git. Full M1 and Template synchronization remain ope
   Unsupported linked/binary materials and platform timing limits are documented.
 - Prepared CODEOWNERS, narrow reviewed exceptions, local checks and a ruleset
   example. No remote rules/settings, resources, billing or permissions changed.
+- PR28 is the draft implementation review. Existing contracts CI now installs
+  the pinned scanner before discovering security tests; read-only privacy CI
+  installs the existing Python test dependencies. GitHub validation is in progress.
 - Activation and independent reviewer setup remain administrator/reviewer actions;
   see `docs/operations/continuous-security.md`. Current owner-only reviewer policy
   cannot self-approve owner-authored flagged changes. Initial rollout needs review.
-- Local validation:113 Python tests (33 new security regressions),23 schema
+- Local validation:115 Python tests (35 new security regressions),23 schema
   fixtures and deterministic golden trace; privacy/license guards and redacted
   Gitleaks pass. Checksum-verified actionlint validates both security workflows;
   shell syntax passes. All15 requested security test categories are covered.
