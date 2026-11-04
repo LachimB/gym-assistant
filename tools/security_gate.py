@@ -27,7 +27,8 @@ def git_environment(index=False):
     # Git hooks export GIT_DIR/GIT_INDEX_FILE and push -c config. Never let
     # those redirect scratch operations back into the developer's repository.
     env = {k: v for k, v in os.environ.items() if not k.startswith('GIT_')}
-    env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0')
+    env.update(GIT_CONFIG_NOSYSTEM='1', GIT_CONFIG_GLOBAL=os.devnull, GIT_TERMINAL_PROMPT='0',
+               GIT_NO_REPLACE_OBJECTS='1')
     if index and 'GIT_INDEX_FILE' in os.environ:
         env['GIT_INDEX_FILE'] = os.environ['GIT_INDEX_FILE']
     return env
@@ -160,6 +161,8 @@ def tree(repo, sha):
 
 
 def validate_refs(repo, base, head):
+    if git(repo, 'rev-parse', '--is-shallow-repository').strip() != b'false':
+        raise ValueError('shallow history cannot establish complete coverage')
     if not SHA.fullmatch(base) or not SHA.fullmatch(head) or base == head:
         raise ValueError('exact distinct commit SHAs required')
     for sha in (base, head):
