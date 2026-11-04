@@ -1,0 +1,20 @@
+# Independent approval is required: a PR author cannot approve their own PR.
+# Add another consenting trusted maintainer before owner-authored control PRs.
+/.github/ @LachimB
+/.githooks/ @LachimB
+/security/ @LachimB
+/.gitleaks.toml @LachimB
+/.gitignore @LachimB
+/AGENTS.md @LachimB
+/tools/security_gate.py @LachimB
+/tools/security_controller.py @LachimB
+/tools/install_gitleaks.sh @LachimB
+/tools/check_repo_hygiene.py @LachimB
+/tests/test_security_gate.py @LachimB
+/tests/test_repo_privacy.py @LachimB
+/docs/operations/continuous-security.md @LachimB
+/tools/security_local.py @LachimB
+/tools/personal_git_push.sh @LachimB
+/tools/preflight_personal_github.sh @LachimB
+/.gitleaksignore @LachimB
+/.pre-commit-config.yaml @LachimB
