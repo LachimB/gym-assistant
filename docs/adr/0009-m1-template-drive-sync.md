@@ -1,6 +1,6 @@
 # ADR-0009 — Selected Training Template publication and external-edit synchronization
 
-- Status: **Proposed — approval required before implementation or live access**
+- Status: **Approved by owner in chat on 2026-11-04 — implementation in progress**
 - Date: 2026-11-04
 - Requirements: GA-DOM-006, GA-DATA-001/002/003/004/010/011; ADR-0001/0006/0007.
 
@@ -21,11 +21,33 @@ sharing, AI analysis or automatic adoption of changed future defaults.
 
 ## Confirmed review decisions — 2026-11-04
 
-These decisions are confirmed; the ADR as a whole remains proposed:
+The owner approved this ADR as a whole after the design walkthrough. The exact
+private folder inventory review, CI, verified-backup and device evidence gates
+remain binding before their respective live actions. Confirmed decisions:
 
+- The consolidation sequence below is confirmed as the planned approach. Whole-ADR
+  approval and an exact private source/destination inventory review still precede
+  live creation or relocation; no folder has moved during this review.
+- The live-test allowance is confirmed: up to200 additional direct Drive API
+  attempts within the existing500 global allowance, reserved once after ledger
+  reconciliation, and at most6 explicit Google authorization launches. Preserve
+  counters and pending work on exhaustion. Billing remains disabled. Nothing is
+  reserved or consumed merely by confirming this design-review decision.
+- The additive phone-database migration approach is confirmed: preserve existing
+  records, pass required automated/supported-Android checks, create and verify a
+  fresh private backup before installation, then verify preservation after update.
+  No uninstall or data clearing. Whole-ADR approval does not waive CI, private
+  backup or the remaining operation-specific gates.
+- Conflicts are resolved field by field, with both original versions retained.
+  Show the common-base, phone and Drive values for each conflict; the owner chooses
+  the value to retain. Revalidate the complete combined candidate and show its
+  final diff before publication. Do not default to a whole-version winner.
 - Review before adoption: downloaded changes never become future workout
   instructions without explicit acceptance. The last validated revision remains
   usable offline; running sessions retain their frozen instructions.
+- Template YAML and sync metadata may synchronize over both Wi-Fi and mobile
+  data, including metered networks. This decision does not set a policy for media
+  downloads or authorize additional document/session uploads.
 - Background and screen-off Template synchronization belong in this ADR.
   Reopening the app must not be a routine prerequisite for pending transfers.
 - One stable **Current working copy** folder per Training Template, with immutable
@@ -68,11 +90,70 @@ only authorized app-owned object metadata, preserve all existing folder/file IDs
 connection identities, markers and sharing settings, and verify the resulting
 ancestry. Moving an existing personal/synthetic area under the common root must
 not recreate its contents or redirect delivery jobs to another folder. Do not
-move unrelated user files. No live relocation or root creation is authorized by
-this draft review; existing protected bindings remain authoritative until the
+move unrelated user files. No live relocation or root creation occurs before the private inventory review;
+existing protected bindings remain authoritative until the
 consolidation and compatible readers/writers are approved and verified.
 
-## Proposed authorization and boundaries
+## Reviewed consolidation sequence — execution approval pending
+
+1. After whole-ADR approval, prepare and test compatible phone/web readers and
+   writers before moving existing areas. Existing area IDs, names and namespace
+   markers remain valid during adoption; the new common-root binding is explicit.
+   Follow the tested-update/private-backup gates before a phone database update.
+2. Build an owner-visible private inventory of only the previously authorized
+   personal delivery and synthetic/test areas: exact IDs, account, current parent,
+   marker, ownership and effective sharing. Record the intended destination of
+   each area and the existing connection/job bindings. Do not open unrelated
+   documents or select targets by display name alone. Stop on ambiguous ownership,
+   unexpected parents, missing access or any effect that would widen sharing.
+3. Preview that exact from/to inventory for the owner before live relocation.
+   Plan one private common folder named Gym Assistant. If a folder with that name
+   already exists, require its explicit verified selection rather than assuming
+   it is the project root or creating a confusing duplicate. Persist the chosen
+   or reserved root ID and operation intent before creation, then verify it.
+4. Create only the required children below the verified root. Move the existing
+   personal area beneath it and existing synthetic/test areas under Development,
+   retaining their IDs, names, markers, contents and sharing. Initial consolidation
+   does not rename legacy areas or rearrange the session files inside them.
+   Add Templates beneath the personal area for the selected Template. All new
+   cloud staging and metadata stays within this hierarchy. Backups/imported-source
+   locations in the illustrative tree do not authorize new backup/source uploads.
+5. Before each parent change, recheck the exact source ID, expected parent and
+   sharing; use guarded updates where supported and test that boundary first.
+   Persist progress and inspect that same ID after an uncertain acknowledgement.
+   Do not recreate/copy contents, change permissions, delete old data or redirect
+   pending deliveries. A mismatch stops for review; never force a move or undo a
+   newer external change automatically.
+6. Verify that every inventoried project area is now below the pinned common
+   root, with the original file/folder identities, namespaces and effective access
+   preserved. Verify existing session deliveries/retries and read-only web access
+   against those same identities. Activation succeeds only after the hierarchy
+   and compatible clients pass these checks. An interrupted consolidation remains
+   visibly pending and resumes from persisted steps without duplicate roots.
+
+The initial physical layout retains existing area names for compatibility:
+
+```text
+Gym Assistant/
+  <existing personal area>/
+    <existing session files>
+    Templates/
+      <Training Template>/
+        Current working copy/
+        History/
+        Sync metadata/
+  Development/
+    <existing synthetic/test areas>
+```
+
+The earlier Personal/Sessions labels describe the logical organization. Renaming
+or further rearranging legacy areas is not part of this initial relocation.
+Only the common root belongs at My Drive level; unrelated user files are untouched.
+Whole-ADR approval and the exact private inventory review remain necessary before
+any live root creation/relocation. This sequence is the reviewed plan, not evidence
+that any folder has already moved.
+
+## Approved authorization and boundaries
 
 Reuse the approved personal Google project/account, exactly drive.file and the
 existing verified personal area under the single verified common project root.
@@ -101,8 +182,14 @@ is backgrounded or the screen is off, for an explicitly enabled Template binding
 Use persistent, uniquely named WorkManager tasks with network constraints and
 bounded exponential backoff. New approved local publications enqueue durable
 one-off transfer work. Bounded periodic discovery checks the selected Template's
-known remote objects, not the whole Drive account. The network policy and polling
-interval must be explicit; network policy is still being reviewed. No perpetual
+known remote objects, not the whole Drive account. Use a connected-network
+constraint that permits both Wi-Fi and mobile data, not an unmetered-only
+constraint. Respect Android-imposed network/Data Saver restrictions. Propose a
+15-minute periodic discovery interval, subject to Android deferral, with additional
+checks on app opening or explicit Sync now. New approved local publications enqueue
+one-off work rather than waiting for that periodic check. These triggers share
+the same durable queue, limits and serialization. Network policy is confirmed;
+this scheduling default is included in the approved ADR. No perpetual
 service, exact alarm, new server/FCM service or battery-optimization exemption is
 assumed. A compatible pinned WorkManager dependency and its transitive licenses
 must pass the existing inventory/review gates before acceptance.
@@ -274,8 +361,13 @@ Use three-way comparison against the last common source. Preserve raw local,
 remote and base bytes. Disjoint stable-ID field edits may form a merge candidate
 only if the complete result compiles and the owner reviews its exact diff. Never
 merge YAML as arbitrary text lines or infer equivalence by labels/array indices.
-Conflicting scalar changes, deletions/reorders, identity reuse or unsupported
-structures require explicit resolution; retain both branches. Failure to safely
+Conflicting scalar changes require field-by-field owner resolution against the
+common base, showing phone and Drive values with their stable source references.
+Keep choices separate from the original branches. Do not infer an unresolved value
+from edit timestamps or silently select an entire version. Deletion/reorder,
+identity or unsupported structural conflicts must remain explicit and blocked if
+a safe field-level result cannot be represented. Retain both branches. Validate
+the complete resolved candidate and require final diff review before publication. Failure to safely
 produce a candidate does not erase either source or change the last valid default.
 
 Published older revisions remain verifiable by hash; if edited externally, report
@@ -312,5 +404,6 @@ Template synchronization is now part of this proposal, not deferred. This propos
 ## Platform references
 
 - [Persistent task scheduling and WorkManager](https://developer.android.com/develop/background-work/background-tasks/persistent)
+- [Defining periodic work, constraints and backoff](https://developer.android.com/develop/background-work/background-tasks/persistent/getting-started/define-work)
 - [Doze and App Standby](https://developer.android.com/training/monitoring-device-state/doze-standby)
 - [Google authorization on Android](https://developer.android.com/identity/authorization)

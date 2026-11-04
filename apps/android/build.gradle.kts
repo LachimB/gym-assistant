@@ -64,6 +64,7 @@ tasks.withType<Test>().configureEach {
 }
 
 dependencies {
+    implementation(project(":cloud-adapters"))
     implementation("com.google.android.gms:play-services-auth:22.0.0")
     testImplementation(kotlin("test-junit"))
     implementation("androidx.room:room-runtime:2.8.5")

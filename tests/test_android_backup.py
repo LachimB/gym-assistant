@@ -12,7 +12,7 @@ from tools.backup_android_database import BackupError,make_verified_snapshot,val
 
 class PrivateBackupTest(unittest.TestCase):
     def test_personal_delivery_archives_keep_boundaries_and_reject_links(self):
-        for folder in ('delivery-payloads','personal-drive'):
+        for folder in ('delivery-payloads','personal-drive','template-sync'):
             content=io.BytesIO()
             with tarfile.open(fileobj=content,mode='w') as archive:
                 entry=tarfile.TarInfo('files/'+folder+'/synthetic.json');entry.size=2
@@ -44,6 +44,22 @@ class PrivateBackupTest(unittest.TestCase):
             self.assertEqual(evidence['tableCounts']['outbox'],1)
             self.assertNotIn('private-looking',json.dumps(evidence))
             self.assertEqual(source.stat().st_size,dest.stat().st_size)
+
+    def test_room_five_snapshot_covers_all_sixteen_tables_and_sync_jobs(self):
+        with tempfile.TemporaryDirectory() as temp:
+            source=Path(temp)/'source.db';dest=Path(temp)/'backup.db';self.fixture(source)
+            added=['drive_connections','session_deliveries','template_candidates','template_revisions','template_heads','execution_plan_revisions','personal_session_deliveries','project_storage_roots','template_sync_bindings','template_sync_jobs','template_sync_observations']
+            with sqlite3.connect(source) as db:
+                db.execute('PRAGMA user_version=5')
+                for table in added:
+                    db.execute('CREATE TABLE '+table+'(id TEXT)')
+                    db.execute('INSERT INTO '+table+' VALUES (?)',('synthetic-record',))
+            evidence=make_verified_snapshot(source,dest,5)
+            self.assertEqual(len(evidence['tableCounts']),16)
+            self.assertEqual(evidence['tableCounts']['template_sync_jobs'],1)
+            self.assertNotIn('synthetic-record',json.dumps(evidence))
+            with sqlite3.connect(source) as db:db.execute('DROP TABLE template_sync_observations')
+            with self.assertRaises(sqlite3.Error):validate_database(source,5)
     def test_copied_wal_is_recovered_only_in_the_private_working_copy(self):
         with tempfile.TemporaryDirectory() as temp:
             source=Path(temp)/'source.db';self.fixture(source)

@@ -1,0 +1,52 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://example.test/schemas/template-sync-head.v1.schema.json",
+  "title": "template-sync-head",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schemaVersion",
+    "templateId",
+    "generationId",
+    "revisionManifestId",
+    "workingFolderId",
+    "sourceHash",
+    "previousGenerationId"
+  ],
+  "properties": {
+    "schemaVersion": {
+      "const": "1.0.0"
+    },
+    "templateId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,127}$"
+    },
+    "generationId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,127}$"
+    },
+    "revisionManifestId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,160}$"
+    },
+    "workingFolderId": {
+      "type": "string",
+      "pattern": "^[A-Za-z0-9_-]{1,160}$"
+    },
+    "sourceHash": {
+      "type": "string",
+      "pattern": "^[a-f0-9]{64}$"
+    },
+    "previousGenerationId": {
+      "anyOf": [
+        {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9][A-Za-z0-9_-]{2,127}$"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    }
+  }
+}

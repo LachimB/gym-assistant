@@ -1,8 +1,11 @@
 # Owner self-review activation plan
 
-Status: prepared; no live protection was changed. The owner requested the
-LachimB-only self-review exception. Its implementation is separate from the M1
-foundation PR. See `continuous-security.md` for the final exact-receipt rules.
+Status: activated with owner approval on2026-11-04. PR32 merged at `02103c8`;
+all four required contexts were immediately restored and classic protection was
+verified unchanged. Only the policy PR merged during the bootstrap window.
+Live receipt validation follows separately on the M1 foundation PR. The sequence
+below records the reviewed activation plan. See `continuous-security.md` for the
+final exact-receipt rules.
 
 ## Permanent change
 

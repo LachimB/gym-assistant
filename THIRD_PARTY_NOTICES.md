@@ -47,3 +47,9 @@ Authoritative references:
 or license-inventory drift until an explicit review record is updated. Updating
 that record does not itself clear binary redistribution; required notices and
 SDK terms still need the release-specific review above.
+
+ADR-0009's initial sync contracts reuse the existing internal cloud-adapters
+project and existing serialization/YAML dependencies. Java/Kotlin bytecode is
+aligned at17 for Android consumption. This adds no third-party component or
+changes to upstream notices; the dependency-input review pins the wiring change.
+WorkManager and its transitive terms still require review when scheduling is added.
