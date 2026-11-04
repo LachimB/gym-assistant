@@ -1,13 +1,13 @@
 // Approved, bounded synthetic experiment only. Not a production storage adapter.
-export const FIXTURE = Object.freeze({
-  folder: '<private-provider-id>',
-  child: '<private-provider-id>',
-  marker: 'c1d2a450-f45f-43c5-846e-df40845bd21e',
+export let FIXTURE = Object.freeze({
+  folder: 'synthetic_fixture_folder',
+  child: 'synthetic_fixture_child',
+  marker: 'synthetic_fixture_marker',
   name: 'SYNTHETIC-external-child.json',
 });
 const isStrongTag = value => typeof value === 'string' && /^"[\x21\x23-\x7e]+"$/.test(value);
 export async function probeConditionalContent(client, expectedEmail, report, nonce) {
-  if (!expectedEmail || !expectedEmail.endsWith('@gmail.com')) throw new Error('Personal test account required');
+  if (!expectedEmail || !/^\S+@[^\s@]+\.[^\s@]+$/.test(expectedEmail)) throw new Error('Personal test account required');
   if (!/^[a-zA-Z0-9-]{1,80}$/.test(nonce)) throw new Error('Invalid synthetic marker');
   const call = async (label, path, init, expected = 200) => {
     const response = await client.request(path, init);
@@ -52,4 +52,16 @@ export async function probeConditionalContent(client, expectedEmail, report, non
   if (JSON.stringify(retained) !== body) throw new Error('Retained synthetic content differs; conflict safety unproven');
   report('PASS: Drive v2 content update accepted the current tag, rejected the stale tag with 412, and retained the first content. This does not establish v3 tag compatibility or production synchronization.');
   return {outcome:'staleWriteRejected', requests:7};
+}
+
+// Configure once from explicitly reviewed private inputs; never persist or report values.
+export function configurePrivateFixture({folder, child, marker}) {
+  for (const value of [folder, child, marker]) {
+    if (typeof value !== 'string' || !/^[-A-Za-z0-9_]{1,160}$/.test(value) || value.startsWith('synthetic_fixture_')) throw new Error('Private synthetic configuration required');
+  }
+  if (!FIXTURE.folder.startsWith('synthetic_fixture_')) throw new Error('Fixture already pinned; reload before changing configuration');
+  FIXTURE = Object.freeze({folder, child, marker, name: 'SYNTHETIC-external-child.json'});
+}
+export function requirePrivateFixture() {
+  if (FIXTURE.folder.startsWith('synthetic_fixture_')) throw new Error('Configure the approved private fixture before live access');
 }

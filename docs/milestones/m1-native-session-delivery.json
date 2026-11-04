@@ -1,7 +1,7 @@
 {
   "singleSavedSyntheticDelivery": true,
   "state": "delivered",
-  "remoteFileId": "<private-provider-id>",
+  "remoteFileId": "synthetic_fixture_delivery",
   "canonicalSha256": "07c722af74d1ff2939ba65b2711e39c8ca1e4e0e8ebb29e29cd2dd4a46098b3b",
   "terminalRevision": 3,
   "senderRequestAttempts": 6,
@@ -13,8 +13,6 @@
   "rawContentsPrinted": false,
   "date": "2026-11-03",
   "device": "Pixel 10a / Android 17",
-  "ownerReportedInitialResult": "Synthetic example delivered and read back exactly",
-  "ownerReportedRetryResult": "Same success after retry",
   "authorizationAttempts": 2,
   "directHttpRequests": 11,
   "internalSenderCounterMeasures": "domain requests; inspect can issue metadata and media HTTP calls",

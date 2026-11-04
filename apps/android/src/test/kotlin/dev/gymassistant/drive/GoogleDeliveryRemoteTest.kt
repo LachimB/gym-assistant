@@ -4,7 +4,7 @@ import kotlinx.coroutines.runBlocking
 import kotlin.test.*
 
 class GoogleDeliveryRemoteTest {
-    private val marker = "c1d2a450-f45f-43c5-846e-df40845bd21e"
+    private val marker = SYNTHETIC_MARKER
     @Test fun exact404IsAbsenceBut403NeverCreatesOrReadsContent() = runBlocking {
         for (status in listOf(404,403)) {
             var calls = 0

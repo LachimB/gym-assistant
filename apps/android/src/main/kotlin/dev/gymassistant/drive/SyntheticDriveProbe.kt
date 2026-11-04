@@ -1,15 +1,16 @@
 package dev.gymassistant.drive
 
+import dev.gymassistant.m0.BuildConfig
 import java.net.URL
 import javax.net.ssl.HttpsURLConnection
 import kotlinx.serialization.json.*
 
 internal const val DRIVE_FILE_SCOPE = "https://www.googleapis.com/auth/drive.file"
-internal const val SYNTHETIC_PARENT = "<private-provider-id>"
-internal const val SYNTHETIC_CHILD = "<private-provider-id>"
+internal val SYNTHETIC_PARENT = BuildConfig.SYNTHETIC_DRIVE_PARENT
+internal val SYNTHETIC_CHILD = BuildConfig.SYNTHETIC_DRIVE_CHILD
 internal const val ACCOUNT_PATH = "/drive/v3/about?fields=user(emailAddress,permissionId)"
-internal const val PARENT_PATH = "/drive/v3/files/$SYNTHETIC_PARENT?fields=name,mimeType,appProperties"
-internal const val CHILD_PATH = "/drive/v3/files/$SYNTHETIC_CHILD?fields=id,name,mimeType,parents,version"
+internal val PARENT_PATH = "/drive/v3/files/$SYNTHETIC_PARENT?fields=name,mimeType,appProperties"
+internal val CHILD_PATH = "/drive/v3/files/$SYNTHETIC_CHILD?fields=id,name,mimeType,parents,version"
 
 internal data class ProbeResponse(val code: Int, val body: String = "", val etagPresent: Boolean = false)
 internal fun interface ProbeTransport { fun get(token: String, path: String): ProbeResponse }
@@ -17,6 +18,7 @@ internal fun interface ProbeTransport { fun get(token: String, path: String): Pr
 /** Experiment-only read transport; never send a token to a supplied URL or follow a redirect. */
 internal class GoogleProbeTransport(private val reserveRequest: () -> Unit) : ProbeTransport {
     override fun get(token: String, path: String): ProbeResponse {
+        check(syntheticResourcesConfigured()) { "Private synthetic configuration required" }
         require(path in setOf(ACCOUNT_PATH, PARENT_PATH, CHILD_PATH)) { "Unsupported probe endpoint" }
         require(token.isNotBlank() && '\n' !in token && '\r' !in token)
         reserveRequest() // Persist the experiment request before transmission; failures consume budget.
@@ -83,3 +85,7 @@ internal fun runSyntheticDriveProbe(token: String, expectedEmail: String, transp
         if (childResponse.etagPresent) "Native client can read an ETag; conditional writes remain untested. No workout uploaded."
         else "No ETag received from this metadata endpoint. This read-only probe does not test conditional writes. No workout uploaded."
 }
+
+internal val SYNTHETIC_MARKER: String get() = BuildConfig.SYNTHETIC_DRIVE_MARKER
+internal fun syntheticResourcesConfigured() = listOf(SYNTHETIC_PARENT, SYNTHETIC_CHILD, SYNTHETIC_MARKER)
+    .all { it.isNotBlank() && !it.startsWith("synthetic_fixture_") }

@@ -4,7 +4,7 @@ import {probeConditionalContent, FIXTURE} from './drive_conditional_probe.mjs';
 const content = {experiment:'gym-assistant-m1-synthetic',createdOutsideApplicationGrant:true,containsRealTrainingData:false};
 function setup(change = {}) {
   const calls = [];
-  const account = {user:{emailAddress:'<private-contact-redacted>'}};
+  const account = {user:{emailAddress:'fixture@example.test'}};
   const parent = {name:`Gym Assistant — SYNTHETIC M1 TEST — ${FIXTURE.marker}`,mimeType:'application/vnd.google-apps.folder',appProperties:{gymSyntheticM1:FIXTURE.marker}};
   const metadata = {id:FIXTURE.child,title:FIXTURE.name,mimeType:'application/json',parents:[{id:FIXTURE.folder}],etag:'"current"'};
   const data = [account,parent,metadata,content,{id:FIXTURE.child,etag:'"new"'},null,{...content,conditionalProbe:'nonce'}];
@@ -16,7 +16,7 @@ function setup(change = {}) {
     return {status:statuses[index],json:async () => data[index]};
   }}};
 }
-const run = client => probeConditionalContent(client,'<private-contact-redacted>',()=>{},'nonce');
+const run = client => probeConditionalContent(client,'fixture@example.test',()=>{},'nonce');
 test('content compare-and-swap uses v2 tag twice and verifies retained payload', async () => {
   const {client,calls} = setup();
   assert.deepEqual(await run(client),{outcome:'staleWriteRejected',requests:7});
@@ -25,7 +25,7 @@ test('content compare-and-swap uses v2 tag twice and verifies retained payload',
   assert.notEqual(calls[4].init.body,calls[5].init.body);
 });
 test('wrong account stops before any folder access', async () => {
-  const {client,calls} = setup({index:0,value:{user:{emailAddress:'<private-contact-redacted>'}}});
+  const {client,calls} = setup({index:0,value:{user:{emailAddress:'other@example.test'}}});
   await assert.rejects(run(client),/Account mismatch/);assert.equal(calls.length,1);
 });
 test('wrong folder or child stops before content access', async () => {
@@ -53,4 +53,17 @@ test('accepted stale write or changed retained content never produces success', 
   for (const change of [{statusIndex:5,status:200},{index:6,value:{...content,conditionalProbe:'stale-nonce'}}]) {
     const {client}=setup(change);await assert.rejects(run(client),/Unexpected status|differs/);
   }
+});
+
+test('live configuration is explicit and cannot silently retarget an existing pin', async () => {
+  const module = await import('./drive_conditional_probe.mjs?private-config-test');
+  assert.throws(() => module.requirePrivateFixture(), /Configure/);
+  assert.throws(() => module.configurePrivateFixture({folder:'synthetic_fixture_folder',child:'child',marker:'marker'}), /Private/);
+  module.configurePrivateFixture({folder:'synthetic_test_folder',child:'synthetic_test_child',marker:'synthetic_test_marker'});
+  module.requirePrivateFixture();
+  assert.throws(() => module.configurePrivateFixture({folder:'different',child:'child',marker:'marker'}), /already pinned/);
+  const delivery = await import('./drive_phone_readback.mjs?private-config-test');
+  assert.throws(() => delivery.configurePrivateDelivery('synthetic_fixture_delivery'), /Private/);
+  delivery.configurePrivateDelivery('synthetic_test_delivery');
+  assert.throws(() => delivery.configurePrivateDelivery('different'), /already pinned/);
 });

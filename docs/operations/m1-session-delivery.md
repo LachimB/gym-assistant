@@ -103,23 +103,15 @@ phone was visible to ADB at the pre-backup check; owner reconnect requested.
 
 ## Physical migration result
 
-On2026-11-03 the reconnected Pixel10a/Android17 was backed up privately outside
-active storage before installation. Version1 integrity/foreign keys and committed
-receipt consistency passed; verified standalone snapshot retained persistently.
-The verified privatev5 APK was installed with data preserved and launched. Local
-private-copy comparison confirms version2, unchanged frozen sources, all702 prior
-action/outbox rows, the same unfinished slot and unchanged scheduled/observed/pause
-and completed-phase values. The app restored paused; only normal recovery records
-were added. No raw session contents printed or committed. Sanitized evidence:
+Verified backup, integrity and foreign-key checks preceded the additive migration.
+Local comparison preserved prior source/action/outbox records and execution state.
+Only expected recovery records were appended. Detailed counts, backup hashes and
+personal state observations are retained outside Git. Public technical summary:
 `../milestones/m1-phone-delivery-migration.json`.
-
-Live synthetic delivery is awaiting the owner's explicit phone action. The
-existing recovered workout has not been selected/uploaded. No automatic send.
 
 ## Live synthetic delivery and browser/web result
 
-Owner reported successful phone delivery/read-back, then the same success after
-explicit retry. Whitelisted counters show2 authorization attempts/11 direct HTTP
+Synthetic phone delivery/read-back and explicit retry were reported successful. Whitelisted counters show2 authorization attempts/11 direct HTTP
 requests. One durable delivered job/connection exists; only the generated sample's
 three outbox rows were acknowledged. All original source/action/outbox rows and
 paused progress remain unchanged. Sender-domain counter6 is not the HTTP counter:

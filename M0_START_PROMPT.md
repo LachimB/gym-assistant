@@ -1,12 +1,12 @@
 # Cursor / coding-agent first assignment: Milestone 0
 
-You are implementing **Milestone 0 only** in a new, private, personal GitHub repository named `gym-assistant`, located at `<private-path>` on macOS.
+You are implementing **Milestone 0 only** in the personal GitHub repository `gym-assistant` at `<repository-root>` on macOS. This historical M0 prompt does not supersede the current M1 handoff or public-repository privacy policy.
 
 **First read:** `AGENTS.md`; `docs/product/requirements.md`; `docs/product/decision-register.md`; `docs/architecture/overview.md`; `docs/architecture/execution.md`; `docs/architecture/seasons-programs-and-promotion.md`; `docs/architecture/open-questions.md`; `docs/milestones/m0.md`; `docs/agents/HANDOFF.md`.
 
 ## Hard gates
 
-- Verify effective GitHub identity and repository-local personal author identity with `tools/preflight_personal_github.sh` before any GitHub write. The confirmed personal GitHub login is `LachimB`, author `LachimB <<private-contact-redacted>>`, private repo `LachimB/gym-assistant`. `gh api user` must return exactly `LachimB`. Never use company GitHub identity, credentials, email or resources. Earlier `michal-buzek` and `MichalB` login assumptions are withdrawn; use the user-confirmed `LachimB`. Do not blindly copy auth setup from `mobile-data-switch`.
+- Verify effective GitHub identity and repository-local personal author identity with `tools/preflight_personal_github.sh` before any GitHub write. The confirmed personal GitHub login is `LachimB`, author `LachimB <17935459+LachimB@users.noreply.github.com>`, public repo `LachimB/gym-assistant`. `gh api user` must return exactly `LachimB`. Never use company GitHub identity, credentials, email or resources. Use the user-confirmed `LachimB`. Do not copy authentication configuration from another project.
 - No external services without individual approval; no billable resource without separate explicit confirmation. Use mock/in-memory storage first, then propose Google Drive access and permission scopes for approval.
 - No personal sessions, original PDFs or secrets in Git; use synthetic fixtures.
 - Do not build M1–M5 features beyond what is needed to validate M0.

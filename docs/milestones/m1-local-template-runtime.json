@@ -52,25 +52,6 @@
     "tickReceiptsVisible": false,
     "networkUpload": false
   },
-  "phone": {
-    "installedVersionCode": 7,
-    "databaseVersion": 3,
-    "room3MigrationApplied": true,
-    "newVerifiedBackupRequired": false,
-    "verifiedBackupStandaloneSha256": "8f721c29712de5ac08dcda1a62ff21b4c66d35272053ffb1e488d58daf825319",
-    "originalRecordsPreserved": 706,
-    "originalConnectionsAndDeliveriesPreserved": true,
-    "originalTimingAndProgressUnchanged": true,
-    "normalRecoveryRowsAdded": 1,
-    "uninstallOrClearPerformed": false,
-    "automaticRestorePerformed": false,
-    "versionName": "0.1.5-m1-local-template",
-    "uiApkSourceCommit": "5ba555b17bb256b56b097d83c4c2366abfcee400",
-    "uiApkSha256": "6ddb16fbfd8bb30dc7ba38f07489c57c1a5577f10352463785d34f5e2fafcb0c",
-    "uiUpdateAllElevenTablesExactlyUnchanged": true,
-    "previousPartialRecordVerified": true,
-    "noUnfinishedWorkout": true
-  },
   "cloud": {
     "realWorkoutUploadAuthorized": true,
     "exactSyntheticEligibilityGateChanged": false,
@@ -107,72 +88,12 @@
     "allTenChecksPassed": true,
     "selectedImportAndFooterUiIncluded": true
   },
-  "physicalRuntimeShortTest": {
-    "result": "PASS",
-    "appVersionCode": 7,
-    "originalPlannedDurationMs": 2750000,
-    "adjustedPlannedDurationMs": 2760000,
-    "extraRepetitionsRetained": 1,
-    "activeCountdownAndCompletedProgressUnchanged": true,
-    "frozenSourceAndEffectivePlansUnchanged": true,
-    "allPriorActionsAndOutboxPreserved": true,
-    "otherSessionsAndLibraryUnchanged": true,
-    "normalUnknownRecoveryGapAdded": 1,
-    "automaticResume": false,
-    "countersFrozenAfterRecovery": true,
-    "appDataCleared": false,
-    "cloudUpload": false,
-    "fullWorkoutAcceptance": "not performed by this short test",
-    "testRecordRetainedAsDiscarded": true,
-    "publishedTemplateStillUnchanged": true,
-    "noUnfinishedWorkout": true
-  },
-  "completionRegression": {
-    "issue": "natural plan end had no active phase; mixed numeric zero type failed checkpoint validation",
-    "fix": "Long zero in absent-phase offset check",
-    "targetVersionCode": 8,
-    "publicCompletedHistoryFixture": "examples/sessions/synthetic-runtime-v2-completed-session.json",
-    "fullVirtualPrivateShape": {
-      "physicalWorkoutEvidence": false,
-      "adjustedPhases": 476,
-      "meaningfulEvents": 956,
-      "canonicalUtf8Bytes": 1219806,
-      "independentWebReaderPassed": true,
-      "networkCalls": 0
-    },
-    "localJvmAndSqliteTestsPassed": true,
-    "phoneUpdateVerified": true,
-    "phoneUpdate": {
-      "installedVersionCode": 8,
-      "versionName": "0.1.6-m1-completion-fix",
-      "sourceCommit": "6977599428ed32e11f5202e6d6ae2b653aba0505",
-      "apkSha256": "1d3e3d6244982c083461eadf1d5f8c59968973e106fa8563d2f0e1b3cab08d0d",
-      "databaseVersionBefore": 3,
-      "databaseVersionAfter": 3,
-      "newMigrationApplied": false,
-      "allElevenTablesExactlyUnchanged": true,
-      "noUnfinishedWorkout": true,
-      "privateImportFilesReadBackExactly": 8,
-      "backupStandaloneSha256": "1d792a9e76ee27230cefce9d848dfda9143fd1694d4e579a2faaaaf0cfebc1e5",
-      "uninstallOrClearPerformed": false,
-      "cloudUpload": false
-    },
-    "ci": {
-      "pr": 20,
-      "head": "b4c57090fb58601fee21eb71b2ab5552461686fd",
-      "standardRun": 41706474885,
-      "sevenVersionAndroidRun": 41706474849,
-      "allTenPassed": true,
-      "mergedCommit": "c8c0f60"
-    }
-  },
   "personalDeliveryContinuation": {
     "adr": "0007",
     "ownerApproved": true,
     "pr": 21,
     "candidateAppSourceCommit": "500cf55989b54f25c73dbfb76c9302267c7cf1b0",
     "candidateVersionCode": 9,
-    "candidateApkSha256": "331eeeff0fbaae0af743b3cb23156372eb0cd173aec6721de48a3ef580eaeba2",
     "localJvmTests": 49,
     "localSqliteTests": 28,
     "localPythonTests": 73,
@@ -189,30 +110,32 @@
     "billingOrSpendingLimitChanged": false,
     "verifiedPrHead": "74bc039228ec2e3a9f80a222c21ad3e009e80c4f",
     "allTenCurrentHeadChecksPassed": true,
-    "repositoryVisibility": "PUBLIC — owner confirmed 2026-11-04"
+    "repositoryVisibility": "PUBLIC \u2014 owner confirmed 2026-11-04"
   },
-  "physicalRoom4Upgrade": {
+  "physicalRuntimeVerification": {
     "result": "PASS",
-    "sourceCommit": "74bc039228ec2e3a9f80a222c21ad3e009e80c4f",
-    "installedVersionCode": 9,
-    "versionName": "0.1.7-m1-personal-delivery",
-    "apkSha256": "331eeeff0fbaae0af743b3cb23156372eb0cd173aec6721de48a3ef580eaeba2",
-    "signerSha1": "cedeecbef3a892f245d283ec4831a007577912bd",
-    "databaseVersionBefore": 3,
-    "databaseVersionAfter": 4,
-    "allElevenOriginalTablesExactlyUnchanged": true,
-    "newPersonalDeliveryTableEmpty": true,
-    "noUnfinishedWorkout": true,
-    "libraryAndPayloadAndSetupArchivesUnchanged": true,
-    "externalSourceFilesReadBackExactly": 8,
-    "verifiedBackupDirectory": "<private-path>",
-    "backupStandaloneSha256": "1d792a9e76ee27230cefce9d848dfda9143fd1694d4e579a2faaaaf0cfebc1e5",
-    "postVerificationDirectory": "<private-path>",
-    "allTenCurrentHeadCiChecksPassed": true,
-    "uninstallOrClearPerformed": false,
-    "automaticRestorePerformed": false,
-    "realFolderCreated": false,
+    "frozenSourceAndEffectivePlansPreserved": true,
+    "executionStateAndCountersPreserved": true,
+    "automaticResume": false,
+    "appDataCleared": false,
     "cloudUpload": false,
-    "fullRealWorkoutAcceptance": "pending owner normal-workout test"
+    "fullWorkoutAcceptance": "open",
+    "detailedEvidence": "retained outside Git"
+  },
+  "completionRegression": {
+    "issue": "natural plan end had no active phase; mixed numeric zero type failed checkpoint validation",
+    "fix": "Long zero in absent-phase offset check",
+    "targetVersionCode": 8,
+    "publicCompletedHistoryFixture": "examples/sessions/synthetic-runtime-v2-completed-session.json",
+    "localJvmAndSqliteTestsPassed": true,
+    "phoneUpdateVerified": true,
+    "ci": {
+      "pr": 20,
+      "head": "b4c57090fb58601fee21eb71b2ab5552461686fd",
+      "standardRun": 41706474885,
+      "sevenVersionAndroidRun": 41706474849,
+      "allTenPassed": true,
+      "mergedCommit": "c8c0f60"
+    }
   }
 }
