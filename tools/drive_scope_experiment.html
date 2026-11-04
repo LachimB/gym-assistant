@@ -23,6 +23,9 @@ The access token lives only in this page's memory. The request counter persists 
 <strong>SYNTHETIC-external-child.json</strong> in the labelled test folder.</p>
 <button id="pick-child" disabled>Select only the external synthetic child with Google Picker</button>
 <button id="move-child" disabled>Move the verified synthetic child to a test folder and back</button>
+<label>Approved synthetic marker <input id="private-marker" autocomplete="off"></label>
+<label>Approved synthetic delivery ID <input id="private-delivery" autocomplete="off"></label>
+<button id="pin-private">Pin the reviewed private synthetic configuration for this page</button>
 <button id="conditional-content" disabled>Test v2 conditional content writes on the exact synthetic child</button>
 <button id="read-phone" disabled>Verify the phone-delivered synthetic session through this browser grant</button>
 <button id="download-phone" disabled>Download verified synthetic session JSON</button>
@@ -31,11 +34,20 @@ The access token lives only in this page's memory. The request counter persists 
 <pre id="status" role="status">Loading Google's authorization library…</pre>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <script type="module">
-import {readPhoneSyntheticDelivery, PHONE_DELIVERY} from './drive_phone_readback.mjs';
-import {probeConditionalContent, FIXTURE} from './drive_conditional_probe.mjs';
+import {readPhoneSyntheticDelivery, PHONE_DELIVERY, configurePrivateDelivery} from './drive_phone_readback.mjs';
+import {probeConditionalContent, FIXTURE, configurePrivateFixture, requirePrivateFixture} from './drive_conditional_probe.mjs';
 import {DriveScopeClient, SCOPE, reserveBudget, isExternalSyntheticFixture} from './drive_scope_client.mjs?v=conditional-content-1';
 const byId = id => document.getElementById(id);
 const status = byId('status');
+byId('pin-private').onclick = () => {
+  if (busy) return;
+  try {
+    configurePrivateFixture({folder: byId('folder').value.trim(), child: byId('external').value.trim(), marker: byId('private-marker').value.trim()});
+    const delivery = byId('private-delivery').value.trim();
+    if (delivery) configurePrivateDelivery(delivery);
+    report('Private configuration pinned for this page only. No network or sharing change.');
+  } catch { report('Private configuration rejected. Reload to review again.'); }
+};
 let token = '', expiresAt = 0, busy = false, verifiedPhoneJson = '';
 function report(message) { status.textContent += '\n' + message; }
 byId('reserve-delivery').onclick = () => {
@@ -100,6 +112,8 @@ byId('read-phone').onclick = async () => {
   if (busy || !token || !Number.isFinite(expiresAt) || Date.now() >= expiresAt) {forget(); return;}
   busy=true;byId('authorize').disabled=true;byId('download-phone').disabled=true;verifiedPhoneJson='';
   try {
+    requirePrivateFixture();
+    if (PHONE_DELIVERY.id.startsWith('synthetic_fixture_')) throw new Error('Private delivery ID required');
     verifiedPhoneJson=await readPhoneSyntheticDelivery(new DriveScopeClient(token,localStorage),byId('account').value.trim(),
       message=>report(message+'; global budget '+localStorage.getItem('gym-m1-drive-requests')+'/500'));
     byId('download-phone').disabled=false;
@@ -119,6 +133,7 @@ byId('conditional-content').onclick = async () => {
   }
   busy = true; byId('authorize').disabled = true;
   try {
+    requirePrivateFixture();
     await probeConditionalContent(new DriveScopeClient(token, localStorage), byId('account').value.trim(),
       message => report(message+'; global budget '+localStorage.getItem('gym-m1-drive-requests')+'/500'), crypto.randomUUID());
   } catch (error) {report(error.message);}

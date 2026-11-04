@@ -55,7 +55,7 @@ internal class SessionDeliverySender(
             }
             try {
                 if (connection.provider != "googleDrive" || connection.rootFolderId != SYNTHETIC_PARENT ||
-                    connection.namespaceMarker != "c1d2a450-f45f-43c5-846e-df40845bd21e" ||
+                    connection.namespaceMarker != SYNTHETIC_MARKER ||
                     expectedPersonalEmail.isBlank() || !allowSynthetic(job)) throw DeliveryFailure("contract")
                 val identity = request { remote.identity() }
                 if (identity.permissionId != connection.permissionId ||
