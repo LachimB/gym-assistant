@@ -42,3 +42,8 @@ Authoritative references:
 [Apache2.0 redistribution requirements](https://www.apache.org/licenses/LICENSE-2.0.html),
 [CC-BY4.0 terms](https://creativecommons.org/licenses/by/4.0/),
 [Android SDK terms](https://developer.android.com/studio/terms.html).
+
+`python3 tools/check_license_inventory.py` and privacy CI reject dependency-input
+or license-inventory drift until an explicit review record is updated. Updating
+that record does not itself clear binary redistribution; required notices and
+SDK terms still need the release-specific review above.

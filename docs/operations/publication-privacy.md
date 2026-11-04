@@ -94,3 +94,8 @@ Main branch protection was explicitly approved and applied on2026-11-04: pull
 requests and the privacy check are required, branches must be up to date,
 administrators are included, and force-pushes/deletion are disabled. Do not weaken
 or remove these protections to merge a change. The privacy-fix PR must pass first.
+
+Run `python3 tools/check_license_inventory.py` after dependency changes. The
+review record pins dependency inputs and declared licenses; review and update
+upstream notices before accepting a changed record. Binary release remains
+uncleared until the separate release review is completed.
