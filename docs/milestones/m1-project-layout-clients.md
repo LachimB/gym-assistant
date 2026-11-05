@@ -61,11 +61,26 @@ three localhost-helper checks pass. The web production build and Android
 instrumentation compilation pass. These are synthetic contract/regression
 results, not evidence of live relocation or physical-device behavior.
 
-Current-head CI, including the supported Android matrix, remains required before
-merge or a phone update. The compatible build still requires a fresh verified
-private backup and exact private layout configuration before installation. No
-live containers have been created, existing areas moved/renamed, sharing changed,
-tokens acquired or phone updates performed for this change.
+PR40 merged at `a3cb5ac` after all required checks, including the supported
+seven-version Android matrix and exact owner receipt, passed on `dad223b`.
+The compatible private build was installed with `adb install -r` after a fresh
+verified private backup. Physical4→5 migration passed integrity/foreign-key
+checks; all twelve pre-existing tables, retained app-file archives and prior
+request counters compared exactly unchanged. The prior APK and both verified
+backups remain private. The app was reopened without resuming a workout.
+
+Metadata-only identity preparation reserved fixed future container IDs within
+the existing allowance. No folders were created/moved/renamed, permissions
+changed, project-root binding activated or Template opted into synchronization.
+This establishes migration preservation, not live hierarchy or background proof.
+
+The localhost helper also accepts explicitly smaller caps for a separately
+reserved verification allocation, never above its existing maxima. Synthetic
+regressions keep an exhausted earlier allocation exhausted and reject mismatched
+allocation identity, malformed caps and increased maxima. The original private
+ledger is never cleared or repurposed; live preparation must debit the new
+suballocation from the already approved parent reservation before use. Four
+local helper checks pass; current-head CI remains required for this follow-up.
 
 Remaining work includes the reviewed consolidation intent/progress and conditional
 folder-update proof, private from/to execution review, hierarchy activation,
