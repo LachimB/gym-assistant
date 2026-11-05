@@ -3,6 +3,11 @@ package dev.gymassistant.sync
 import kotlin.test.*
 
 class TemplateSyncContractsTest {
+    @Test fun sha256RemainsCanonicalForEmptyAsciiAndAllByteValues() {
+        assertEquals("e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",hashSourceBytes(byteArrayOf()))
+        assertEquals("ba7816bf8f01cfea414140de5dae2223b00361a396177a9cb410ff61f20015ad",hashSourceBytes("abc".toByteArray()))
+        assertEquals("40aff2e9d2d8922e47afd4648e6967497158785fbd1da870e7110266bf944880",hashSourceBytes(ByteArray(256){it.toByte()}))
+    }
     private val template = "schemaVersion: 1.1.0\n".encodeToByteArray()
     private val exercise = "familyId: exercise_demo\n".encodeToByteArray()
     private val files = listOf(

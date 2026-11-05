@@ -816,12 +816,19 @@ retained before failure. Head-write construction remains closed until durable
 working receipts complete. Incomplete scopes are only for role/read-only checks.
 All token-bearing transports close on completion/failure. No runtime activation.
 
-Local141 Android JVM/35 adapter JVM checks pass; instrumentation compiles. Three
+Local142 Android JVM/36 adapter JVM checks pass; instrumentation compiles. Three
 new SQLite cases require current-head seven-version execution, including the
 strict composed protocol across close/reopen with a lost working acknowledgement,
 stable IDs and delayed head opening. The fake counts every direct call and stops
 at400; this is offline rehearsal evidence, not a live allowance. See
 `docs/milestones/m1-native-history-first.md`.
+
+The same source component bounds reuse of already verified record syntax. Every
+lookup still rereads/bounds/hashes its file; semantic/source/lease checks remain
+fresh. Canonical SHA-256 output is unchanged. New regressions reject tampering,
+deletion, oversize and malformed records after a syntax-cache hit. This addresses
+repeated journal parsing in the long native rehearsal; current-head seven-version
+CI remains required after the follow-up commit.
 
 Next: verified initial/base remote capture, binding/job completion, account/
 allowance-bound authorization/scheduling and source review. All eight authorization

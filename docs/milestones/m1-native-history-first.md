@@ -27,15 +27,23 @@ validation. All token-bearing batches close after failure or completion. The
 optional internal injected HTTP seam is used only by synthetic instrumentation;
 normal callers retain the fixed-origin socket profiles and request callback.
 
-Eight new JVM regressions cover strict source writes/readback, same-ID409/lost
+Eight new native JVM regressions cover strict source writes/readback, same-ID409/lost
 acknowledgement, stale412, missing existing files, owner/access failures, malformed
 raw retention, exact socket bytes, incomplete head scopes and read-only mutation
-refusal. Local141 Android JVM/35 adapter JVM checks pass; instrumentation compiles.
+refusal. Two further regressions verify canonical SHA-256 vectors and fresh-file
+tamper/deletion/size/malformed-input checks after syntax reuse. Local142 Android
+JVM/36 adapter JVM checks pass; instrumentation compiles.
 Three new SQLite cases cover the composed native protocol across close/reopen,
 same-ID recovery and delayed head opening, plus missing/conflicting preflight
 refusal before any source mutation. The full fake counts every direct call before
 execution and stops at400; this offline bound does not authorize live requests.
 Current-head execution across all seven Android versions remains required.
+
+Repeated private-record reads retain fresh file bounds and hash verification.
+Only syntax for those identical verified bytes is reused, bounded to2048 entries
+and4MiB of text. Source/compiler, lineage, scope, lease and SQL checks are never
+cached. Canonical lowercase SHA-256 bytes remain unchanged while hex conversion
+avoids per-byte formatter allocation. Reopening still checks the full audit chain.
 
 Verified initial/base remote capture, binding/job completion, account/allowance-
 bound authorization/scheduling and source review remain open. No Room or recording

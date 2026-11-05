@@ -7,7 +7,11 @@ import java.security.MessageDigest
 internal fun domainId(value: String) = require(value.matches(Regex("[A-Za-z0-9][A-Za-z0-9_-]{2,127}"))) { "Invalid domain identity" }
 internal fun objectId(value: String) = require(value.matches(Regex("[A-Za-z0-9_-]{1,160}"))) { "Invalid object handle" }
 internal fun sourceHash(value: String) = require(value.matches(Regex("[a-f0-9]{64}"))) { "Invalid content hash" }
-fun hashSourceBytes(bytes: ByteArray): String = MessageDigest.getInstance("SHA-256").digest(bytes).joinToString("") { "%02x".format(it) }
+fun hashSourceBytes(bytes: ByteArray): String {
+    val digest=MessageDigest.getInstance("SHA-256").digest(bytes);val hex="0123456789abcdef";val result=CharArray(digest.size*2)
+    for((index,byte) in digest.withIndex()){val value=byte.toInt() and 255;result[index*2]=hex[value ushr 4];result[index*2+1]=hex[value and 15]}
+    return result.concatToString()
+}
 
 enum class SourceRole { TEMPLATE, EXERCISE }
 data class RevisionFile(

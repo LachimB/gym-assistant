@@ -119,4 +119,17 @@ class TemplateSyncFiles5Test {
         assertFails {store.prepare("job-test","operation-test","binding-test",manifest.revisionId,manifest,payloads,overlapping)}
         assertFalse(root.resolve("job-test.json").exists())
     }
+    @Test fun syntaxReuseNeverBypassesFreshFileHashBoundsOrMalformedInputChecks() {
+        val pointer=store.writeRecord("{\"kind\":\"synthetic-retained-record\"}")
+        assertEquals("synthetic-retained-record",Json.parseToJsonElement(store.readRecord(pointer)).jsonObject.getValue("kind").jsonPrimitive.content)
+        val path=root.resolve(pointer.path);val original=path.readBytes()
+        path.writeText("{\"kind\":\"changed\"}");assertFails {store.readRecord(pointer)}
+        val duplicate="{\"kind\":\"first\",\"kind\":\"second\"}".toByteArray();path.writeBytes(duplicate)
+        assertFails {store.readRecord(pointer.copy(sha256=hashSourceBytes(duplicate)))}
+        val invalid=byteArrayOf(0xC3.toByte(),0x28);path.writeBytes(invalid)
+        assertFails {store.readRecord(pointer.copy(sha256=hashSourceBytes(invalid)))}
+        path.writeBytes(original);assertEquals(original.toString(Charsets.UTF_8),store.readRecord(pointer))
+        path.writeBytes(ByteArray(65537));assertFails {store.readRecord(pointer)}
+        path.delete();assertFails {store.readRecord(pointer)}
+    }
 }

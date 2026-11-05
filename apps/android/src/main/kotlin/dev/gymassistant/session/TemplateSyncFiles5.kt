@@ -30,6 +30,9 @@ class CheckedSyncIntent5(val jobId:String,val operationId:String,val bindingId:S
 class TemplateSyncFiles5(private val root:File,private val contracts:ImportContracts2) {
     companion object { private val lock=Any() }
     private val json=Json { encodeDefaults=true; ignoreUnknownKeys=false }
+    // Cache syntax only. Every lookup still rereads/bounds/hashes the file; semantic and scope checks stay external.
+    private val recordSyntax=LinkedHashMap<String,String>(16,0.75f,true)
+    private var syntaxBytes=0
     private fun id(value:String)=require(value.matches(Regex("[A-Za-z0-9_-]{3,128}")))
     private fun hash(value:String)=require(value.matches(Regex("[a-f0-9]{64}")))
     private fun path(name:String):File {
@@ -108,9 +111,14 @@ class TemplateSyncFiles5(private val root:File,private val contracts:ImportContr
         require(pointer.path.matches(Regex("[A-Za-z0-9_-]{3,128}\\.json")))
         hash(pointer.sha256)
         val raw=read(pointer.path,65536);check(hashSourceBytes(raw)==pointer.sha256) { "Private sync intent changed" }
+        synchronized(recordSyntax){recordSyntax[pointer.sha256]?.let {return it}}
         val text=Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(raw)).toString()
         Json.parseToJsonElement(text).jsonObject
         dev.gymassistant.engine.v2.readYaml2(text)
+        synchronized(recordSyntax) {
+            if(pointer.sha256 !in recordSyntax){recordSyntax[pointer.sha256]=text;syntaxBytes+=text.length*2
+                while(recordSyntax.size>2048 || syntaxBytes>4194304){val entry=recordSyntax.entries.iterator();val oldest=entry.next();syntaxBytes-=oldest.value.length*2;entry.remove()}}
+        }
         return text
     }
     internal fun writeRecord(text:String):SyncIntentFile5 {
