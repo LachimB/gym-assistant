@@ -99,10 +99,10 @@ internal class GoogleImmutableHttp5(token:String,reserveRequest:()->Unit,revisio
     }
 }
 
-internal class TemplateImmutableBatch5(token:String,reserveRequest:()->Unit,revision:ImmutableRevisionFiles5,retain:(RemoteObjectCapture5)->Unit):Closeable {
-    private val http=GoogleImmutableHttp5(token,reserveRequest,revision)
+internal class TemplateImmutableBatch5(token:String,reserveRequest:()->Unit,revision:ImmutableRevisionFiles5,retain:(RemoteObjectCapture5)->Unit,transport:TemplateHttp5?=null):Closeable {
+    private val http=transport?:GoogleImmutableHttp5(token,reserveRequest,revision)
     val remote:ImmutableFileRemote=GoogleTemplateImmutableRemote5(http,revision,retain)
-    override fun close()=http.close()
+    override fun close(){(http as? Closeable)?.close()}
 }
 
 /** Creates only captured immutable objects. Same-ID409/lost-ack recovery belongs to GuardedImmutableFile. */

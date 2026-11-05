@@ -9,7 +9,7 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.withContext
 
 class PublicationRemoteSet5(val immutable:ImmutableFileRemote,val head:PublicationHeadRemote,
-    val working:WorkingFileRemote?=null,private val finish:()->Unit):Closeable {
+    val working:WorkingFileRemote?=null,val preflight:(()->Unit)?=null,private val finish:()->Unit):Closeable {
     override fun close()=finish()
 }
 /** A verified publication is not local adoption, a default change, or whole-job completion. */
@@ -35,6 +35,7 @@ class TemplatePublicationExecutor5(private val store:TemplatePublicationStore5) 
         current()
         open(initial,retain).use {remotes->
             check(initial.working.allFilesAcknowledged || initial.historyFirst && remotes.working!=null)
+            if(initial.historyFirst){current();checkNotNull(remotes.preflight) {"History-first execution requires head preflight"}.invoke();current()}
             val immutableJournal=object:ImmutableFileJournal {
                 override fun requireDurable(step:ImmutableFileStep){check(current().immutableSteps.any {sameStep(it,step)})}
                 override fun requireCurrentLease(){current()}
@@ -44,6 +45,7 @@ class TemplatePublicationExecutor5(private val store:TemplatePublicationStore5) 
             for(step in initial.immutableSteps)GuardedImmutableFile(remotes.immutable,immutableJournal).execute(step)
             check(current().allImmutableAcknowledged)
             if(initial.historyFirst) {
+                current();checkNotNull(remotes.preflight).invoke();current()
                 val remote=checkNotNull(remotes.working) {"History-first execution requires the working transport"}
                 fun sameWorking(a:WorkingFileStep,b:WorkingFileStep)=a.objectId==b.objectId && a.folderId==b.folderId && a.marker==b.marker &&
                     a.name==b.name && a.mimeType==b.mimeType && a.expectedTag==b.expectedTag && a.beforeHash==b.beforeHash && a.intendedHash==b.intendedHash

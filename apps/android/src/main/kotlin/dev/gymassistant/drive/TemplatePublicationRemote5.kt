@@ -20,12 +20,13 @@ internal class RemoteObjectCapture5(val kind:RemoteObjectKind5,val objectId:Stri
 
 internal class TemplatePublicationScope5(val intent:PublicationHeadIntent,val revision:ImmutableRevisionFiles5,
     val workingNamespace:TemplateNamespace5,val metadataNamespace:ImmutableRevisionNamespace5,
-    steps:List<WorkingFileStep>,receipts:List<WorkingReceipt5>,val contracts:ImportContracts2) {
+    steps:List<WorkingFileStep>,receipts:List<WorkingReceipt5>,val contracts:ImportContracts2,requireCompleteReceipts:Boolean=true) {
     val workingSteps=steps.toList();val workingReceipts=receipts.associateBy {it.objectId}
     val immutableSteps=revision.objects.associateBy {it.objectId}
     val manifest=TemplateSyncContracts5.manifest(immutableText5(revision.manifestFile.bytes,65536))
     val folders:Map<String,TemplateFolderPin5>
     val readableIds:Set<String>
+    val completeWorkingReceipts get()=workingReceipts.size==workingSteps.size
     init {
         val r=revision.namespace;val w=workingNamespace;val m=metadataNamespace
         require(r.permissionId==w.permissionId && r.permissionId==m.permissionId && r.commonRootId==w.commonRootId && r.commonRootId==m.commonRootId)
@@ -42,12 +43,13 @@ internal class TemplatePublicationScope5(val intent:PublicationHeadIntent,val re
             require(pin.markerKey==TEMPLATE_MARKER_KEY_5 && pin.marker==intent.marker)
         folders=prefix+listOf(work,meta,history,revisionFolder).associateBy {it.id}
         require(folders.size==prefix.size+4)
-        require(steps.size==manifest.files.size && steps.map {it.objectId}.distinct().size==steps.size && receipts.size==steps.size && workingReceipts.size==receipts.size)
+        require(steps.size==manifest.files.size && steps.map {it.objectId}.distinct().size==steps.size && receipts.size<=steps.size && workingReceipts.size==receipts.size)
+        require(workingReceipts.keys.all {id->steps.any {it.objectId==id}} && (!requireCompleteReceipts || completeWorkingReceipts))
         val descriptors=manifest.files.associateBy {it.relativeName}
         require(steps.map {it.name}.toSet()==descriptors.keys)
-        for(step in steps){val d=descriptors.getValue(step.name);val receipt=checkNotNull(workingReceipts[step.objectId])
-            require(step.folderId==w.workingFolderId && step.marker==intent.marker && step.intendedHash==d.sha256 && step.intendedBytes.size==d.byteCount && receipt.sha256==d.sha256)
-            immutableTag5(receipt.tag)}
+        for(step in steps){val d=descriptors.getValue(step.name);val receipt=workingReceipts[step.objectId]
+            require(step.folderId==w.workingFolderId && step.marker==intent.marker && step.intendedHash==d.sha256 && step.intendedBytes.size==d.byteCount)
+            receipt?.let {require(it.sha256==d.sha256);immutableTag5(it.tag)}}
         intent.expectedTag?.let(::immutableTag5)
         val ids=folders.keys+immutableSteps.keys+steps.map {it.objectId}+intent.objectId
         require(ids.size==folders.size+immutableSteps.size+steps.size+1)
@@ -63,6 +65,7 @@ private fun headMetadata5(scope:TemplatePublicationScope5)=buildJsonObject {
 
 /** Captured head bytes are the sole mutable target. Other registered objects are read-only. */
 internal class GooglePublicationHttp5(token:String,reserveRequest:()->Unit,private val scope:TemplatePublicationScope5):TemplateHttp5,Closeable {
+    init {require(scope.completeWorkingReceipts)}
     private val bytes=TemplateSyncContracts5.encode(scope.intent.intended).toByteArray()
     private val delegate=GoogleTemplateHttp5(token,reserveRequest,scope.readableIds,emptySet(),IMMUTABLE_FILE_FIELDS_5,scope.intent.objectId,64)
     override fun close()=delegate.close()
@@ -90,14 +93,30 @@ internal class GooglePublicationHttp5(token:String,reserveRequest:()->Unit,priva
 }
 
 internal class TemplatePublicationBatch5(token:String,reserveRequest:()->Unit,scope:TemplatePublicationScope5,
-    retain:(RemoteObjectCapture5)->Unit):Closeable {
-    private val http=GooglePublicationHttp5(token,reserveRequest,scope)
+    retain:(RemoteObjectCapture5)->Unit,transport:TemplateHttp5?=null):Closeable {
+    private val http=transport?:GooglePublicationHttp5(token,reserveRequest,scope)
     val remote:PublicationHeadRemote=GoogleTemplatePublicationRemote5(http,scope,retain)
-    override fun close()=http.close()
+    override fun close(){(http as? Closeable)?.close()}
+}
+
+/** Read-only head preflight before history/working mutations; incomplete receipts cannot open a writer. */
+internal class TemplateHeadReadBatch5(token:String,reserveRequest:()->Unit,scope:TemplatePublicationScope5,
+    retain:(RemoteObjectCapture5)->Unit,private val transport:TemplateHttp5?=null):Closeable {
+    private val delegate=if(transport==null)GoogleTemplateHttp5(token,reserveRequest,scope.folders.keys+scope.intent.objectId,emptySet(),
+        IMMUTABLE_FILE_FIELDS_5,scope.intent.objectId) else null
+    private val http=transport?:TemplateHttp5 {request->
+        require(request.method=="GET" && (request.path==ACCOUNT_PATH || (scope.folders.keys+scope.intent.objectId).any {
+            request.path=="/drive/v2/files/$it?fields=$IMMUTABLE_FILE_FIELDS_5"} || request.path=="/drive/v2/files/${scope.intent.objectId}?alt=media"))
+        checkNotNull(delegate).request(request)
+    }
+    val remote:PublicationHeadRemote=GoogleTemplatePublicationRemote5(http,scope,retain,true)
+    override fun close(){try{(transport as? Closeable)?.close()}finally{delegate?.close()}}
 }
 
 internal class GoogleTemplatePublicationRemote5(private val http:TemplateHttp5,private val scope:TemplatePublicationScope5,
-    private val retain:(RemoteObjectCapture5)->Unit):PublicationHeadRemote {
+    private val retain:(RemoteObjectCapture5)->Unit,private val readOnly:Boolean):PublicationHeadRemote {
+    constructor(http:TemplateHttp5,scope:TemplatePublicationScope5,retain:(RemoteObjectCapture5)->Unit):this(http,scope,retain,false)
+    init {require(readOnly || scope.completeWorkingReceipts)}
     private var verified=false;private var immutableReady=false;private var workingReady=false
     private class ObjectBytes(val tag:String,val metadata:ByteArray,val content:ByteArray)
     private fun checked(request:TemplateHttpRequest5,allow:Set<Int> = setOf(200)):DeliveryHttpResponse {
@@ -160,7 +179,7 @@ internal class GoogleTemplatePublicationRemote5(private val http:TemplateHttp5,p
         }
         workingReady=matches;matches
     }
-    private fun mayMutate(){check(verified && immutableReady && workingReady)}
+    private fun mayMutate(){check(!readOnly && verified && immutableReady && workingReady)}
     override fun replace(objectId:String,expectedTag:String,head:TemplatePublicationHead)=immutableSafe5 {
         mayMutate();require(objectId==scope.intent.objectId && expectedTag==scope.intent.expectedTag && head==scope.intent.intended)
         val r=checked(TemplateHttpRequest5("PUT","/upload/drive/v2/files/$objectId?uploadType=media&fields=id","application/json",TemplateSyncContracts5.encode(head).toByteArray(),expectedTag))

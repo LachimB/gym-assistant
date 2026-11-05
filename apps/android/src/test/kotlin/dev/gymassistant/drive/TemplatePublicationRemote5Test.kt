@@ -164,4 +164,18 @@ class TemplatePublicationRemote5Test {
         assertFails {GuardedPublicationHead(remote,j).execute(f.s.intent)}
         assertEquals(0,f.writes);assertEquals(0,f.creates);assertEquals(0,j.acknowledged)
     }
+    @Test fun incompleteWorkingScopeCanCheckRolesButCannotOpenAnyHeadTransport() {
+        val s=scope();val incomplete=TemplatePublicationScope5(s.intent,revision,s.workingNamespace,s.metadataNamespace,working,emptyList(),contracts,false)
+        assertFalse(incomplete.completeWorkingReceipts);var attempts=0
+        assertFails {GooglePublicationHttp5("synthetic",{attempts++},incomplete)}
+        assertFails {GoogleTemplatePublicationRemote5(TemplateHttp5 {attempts++;error("Synthetic socket forbidden")},incomplete){}}
+        assertEquals(0,attempts)
+    }
+    @Test fun readOnlyPreflightCannotMutateEvenWithCompleteImmutableAndWorkingVectors() {
+        val f=Fake();val remote=GoogleTemplatePublicationRemote5(f,f.s,{f.captured+=it},true)
+        remote.verifyNamespace();assertEquals(prior,remote.read(f.s.intent.objectId)!!.head)
+        remote.verifyImmutablePublication(f.s.intent.intended);assertTrue(remote.workingVectorMatches())
+        assertFails {remote.replace(f.s.intent.objectId,f.s.intent.expectedTag!!,f.s.intent.intended)}
+        assertFails {remote.createReserved(f.s.intent)};assertEquals(0,f.writes);assertEquals(0,f.creates)
+    }
 }

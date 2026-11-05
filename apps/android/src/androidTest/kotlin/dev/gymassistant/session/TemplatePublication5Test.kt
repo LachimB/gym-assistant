@@ -6,7 +6,9 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.gymassistant.engine.v2.*
 import dev.gymassistant.sync.*
+import dev.gymassistant.drive.*
 import java.io.File
+import java.io.Closeable
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
@@ -156,7 +158,8 @@ class TemplatePublication5Test {
                     if(loseWorkingAck){loseWorkingAck=false;error("Synthetic lost working acknowledgement")}
                 }
             }
-            return PublicationRemoteSet5(immutable,remote,if(captured.historyFirst)working else null){closes++}
+            val preflight:(()->Unit)?=if(!captured.historyFirst)null else {{check(head==captured.intent.expected || head==captured.intent.intended)}}
+            return PublicationRemoteSet5(immutable,remote,if(captured.historyFirst)working else null,preflight){closes++}
         }
     }
     @Test fun executorReopensLostFileAndHeadAcknowledgementsUsingTheOriginalIdentities()=runBlocking {
@@ -227,5 +230,84 @@ class TemplatePublication5Test {
         try{store(commit={error("Synthetic working pointer failure")}).acknowledgeWorking(f.lease,receipt)}catch(_:IllegalStateException){failed=true}
         assertTrue(failed);assertEquals(prior,db.templateSync().job("job-test"));assertTrue(s.load(f.lease).working.receipts.isEmpty())
         s.acknowledgeWorking(f.lease,receipt);assertEquals(receipt,s.load(f.lease).working.receipts[step.objectId]);assertEquals(before,rows())
+    }
+    @Test fun nativeCompositionRetainsStrictResponsesAndDelaysHeadUntilRecoveredWorkingReceiptsAreComplete()=runBlocking {
+        val f=fixture(false);val before=rows();store().begin(f.lease,"revision-folder",f.intent,null,true,true)
+        val captured=store().load(f.lease)
+        fun folder(id:String,parent:String,name:String,key:String="gymTemplateM1",marker:String="gym-template-test")=TemplateFolderPin5(id,parent,name,key,marker)
+        val prefix=listOf(folder("project-root","my-drive-test","Gym Assistant","gymProjectM1","gym-project-test"),
+            folder("dev-root","project-root","dev","gymEnvironmentM1","env-dev-test"),
+            folder("personal-root","dev-root","PERSONAL M1","gymPersonalM1","personal-m1-test"),
+            folder("library-folder","personal-root","Templates","gymTemplateLibraryM1","library-test"),folder("template-folder","library-folder","selected fixture"))
+        val work=folder("working-folder","template-folder","Current working copy");val metadata=folder("metadata-folder","template-folder","Sync metadata")
+        val history=folder("history-folder","template-folder","History");val revision=folder("revision-folder","history-folder","revision fixture")
+        val folders=(prefix+work+metadata+history+revision).associateBy {it.id}
+        val immutable=captured.immutableSteps.associateBy {it.objectId};val editable=captured.working.captured.steps.associateBy {it.objectId}
+        val objects=mutableMapOf<String,ByteArray>();val creations=mutableMapOf<String,Int>();val opened=mutableListOf<String>();val closed=mutableListOf<String>()
+        var loseWorkingAck=true;var directRequests=0
+        fun objectMetadata(id:String,parent:String,name:String,mime:String,key:String,marker:String)=buildJsonObject {
+            put("id",id);put("title",name);put("mimeType",mime);put("etag","\"tag-$id\"");put("ownedByMe",true);put("shared",false)
+            put("parents",buildJsonArray {add(buildJsonObject {put("id",parent)})});put("labels",buildJsonObject {put("trashed",false)})
+            put("properties",buildJsonArray {add(buildJsonObject {put("key",key);put("value",marker);put("visibility","PRIVATE")})})
+            put("permissions",buildJsonArray {add(buildJsonObject {put("id","synthetic-owner");put("type","user");put("role","owner")})})
+        }.toString().toByteArray()
+        val factory:(String)->TemplateHttp5={role->
+            if(role=="head"){assertTrue(objects.keys.containsAll(immutable.keys+editable.keys))}
+            opened+=role
+            object:TemplateHttp5,Closeable {
+                override fun close(){closed+=role}
+                override fun request(request:TemplateHttpRequest5):DeliveryHttpResponse {
+                    check(++directRequests<=400) {"Synthetic offline request bound exceeded"}
+                    if(request.path==ACCOUNT_PATH)return DeliveryHttpResponse(200,"{\"user\":{\"permissionId\":\"synthetic-owner\"}}".toByteArray())
+                    if(request.method=="POST") {
+                        val text=request.body!!.toString(Charsets.UTF_8);val meta=Json.parseToJsonElement(text.substringAfter("\r\n\r\n").substringBefore("\r\n--")).jsonObject
+                        val id=meta.getValue("id").jsonPrimitive.content;assertFalse(objects.containsKey(id))
+                        if(id in editable)assertTrue(objects.keys.containsAll(immutable.keys))
+                        if(id==f.intent.objectId)assertTrue(objects.keys.containsAll(immutable.keys+editable.keys))
+                        objects[id]=immutable[id]?.bytes?:editable[id]?.intendedBytes?:TemplateSyncContracts5.encode(f.intent.intended).toByteArray()
+                        creations[id]=(creations[id]?:0)+1
+                        if(id in editable && loseWorkingAck){loseWorkingAck=false;throw DeliveryFailure("network")}
+                        return DeliveryHttpResponse(200,buildJsonObject {put("id",id)}.toString().toByteArray())
+                    }
+                    check(request.method=="GET")
+                    val id=request.path.substringAfter("/drive/v2/files/").substringBefore('?')
+                    if(request.path.endsWith("?alt=media"))return DeliveryHttpResponse(200,checkNotNull(objects[id]))
+                    folders[id]?.let {return DeliveryHttpResponse(200,objectMetadata(id,it.parent,it.name,"application/vnd.google-apps.folder",it.markerKey,it.marker))}
+                    if(id !in objects)return DeliveryHttpResponse(404)
+                    val immutablePin=immutable[id];val workingPin=editable[id]
+                    return DeliveryHttpResponse(200,objectMetadata(id,immutablePin?.folderId?:workingPin?.folderId?:"metadata-folder",
+                        immutablePin?.name?:workingPin?.name?:"head.json",immutablePin?.mimeType?:workingPin?.mimeType?:"application/json","gymTemplateM1","gym-template-test"))
+                }
+            }
+        }
+        fun native()=TemplateNativePublication5(store(),contracts,TemplateNamespace5("synthetic-owner","project-root","working-folder",prefix+work),
+            ImmutableRevisionNamespace5("synthetic-owner","project-root","metadata-folder",prefix+metadata),
+            ImmutableRevisionNamespace5("synthetic-owner","project-root","revision-folder",prefix+history+revision),factory)
+        var failed=false;try{native().execute(f.lease,"synthetic"){error("Real socket forbidden")}}catch(error:DeliveryFailure){assertEquals("network",error.reason);failed=true}
+        assertTrue(failed);assertFalse(opened.contains("head"));assertEquals(opened.sorted(),closed.sorted())
+        db.close();db=open()
+        val result=native().execute(f.lease,"synthetic"){error("Real socket forbidden")}
+        assertEquals(HeadPublicationResult.PUBLISHED_WORKING_COPY_VERIFIED,result.result);assertEquals(1,opened.count {it=="head"})
+        assertEquals(opened.sorted(),closed.sorted());assertTrue(creations.values.all {it==1})
+        val final=store().load(f.lease);assertTrue(final.working.allFilesAcknowledged && final.allImmutableAcknowledged)
+        assertTrue(final.rawObservations.map {it.kind}.containsAll(listOf("NAMESPACE","IMMUTABLE","WORKING","HEAD")))
+        assertEquals(before,rows());assertEquals("running",db.templateSync().job("job-test")!!.state)
+        println("Synthetic native direct requests: $directRequests") // Offline evidence, not a live allowance.
+    }
+    @Test fun historyFirstConflictPreflightStopsBeforeAnySourceMutation()=runBlocking {
+        val f=fixture(false);val before=rows();store().begin(f.lease,"revision-folder",f.intent,null,true,true)
+        val provider=Provider(store().load(f.lease));provider.loseFileAck=false
+        provider.head=f.intent.intended.copy(generationId="competing-generation");var failed=false
+        try{TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertEquals(0,provider.creates);assertEquals(0,provider.workingCreates);assertEquals(0,provider.headWrites)
+        assertEquals(before,rows());assertNull(store().load(f.lease).publishedTag)
+    }
+    @Test fun historyFirstCannotRunWithoutAnExplicitHeadPreflight()=runBlocking {
+        val f=fixture(false);val before=rows();store().begin(f.lease,"revision-folder",f.intent,null,true,true)
+        val provider=Provider(store().load(f.lease));provider.loseFileAck=false;var failed=false
+        try{TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->
+            val original=provider.open(retain);PublicationRemoteSet5(original.immutable,original.head,original.working){original.close()}
+        }}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertEquals(0,provider.creates);assertEquals(0,provider.workingCreates);assertEquals(1,provider.closes);assertEquals(before,rows())
     }
 }

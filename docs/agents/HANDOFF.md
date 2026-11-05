@@ -800,3 +800,32 @@ binding/job completion and source review. Worker/UI remain disabled. No Room,
 recording, default, dependency or timing change; no new live request, allowance
 reset, APK assembly or phone installation. All eight authorization launches remain
 used. Native/live/background/screen-off acceptance and M1 remain incomplete.
+
+## Strict native history-first composition preparation — 2026-11-05
+
+PR49 merged at `2be8156` after all required checks, the exact owner receipt and
+seven supported Android versions passed on `3be943f`. An external compiler-download
+504 required rerunning only the failed matrix job; no gate or source was weakened.
+The two additional SQLite history/working ordering cases passed on all versions.
+
+The explicit native composition now uses a strict working socket profile and
+durable original-response sink, with exact body/MIME/strong-tag writes and no
+existing-file recreation fallback. A read-only head preflight runs before any
+history-first mutation and again before editable transfer; conflicting facts are
+retained before failure. Head-write construction remains closed until durable
+working receipts complete. Incomplete scopes are only for role/read-only checks.
+All token-bearing transports close on completion/failure. No runtime activation.
+
+Local141 Android JVM/35 adapter JVM checks pass; instrumentation compiles. Three
+new SQLite cases require current-head seven-version execution, including the
+strict composed protocol across close/reopen with a lost working acknowledgement,
+stable IDs and delayed head opening. The fake counts every direct call and stops
+at400; this is offline rehearsal evidence, not a live allowance. See
+`docs/milestones/m1-native-history-first.md`.
+
+Next: verified initial/base remote capture, binding/job completion, account/
+allowance-bound authorization/scheduling and source review. All eight authorization
+launches remain used. No new service, live request, resource, allowance reset,
+schema/default/dependency change, APK assembly or phone installation. A concrete
+separately reviewed plan and the CI/fresh-backup/device gates precede a native live
+batch. M1 and actual native/background/screen-off/Doze acceptance remain open.
