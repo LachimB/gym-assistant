@@ -912,3 +912,29 @@ and the remaining job reported successful steps without a final job conclusion.
 That incomplete platform record is not claimed as a seven-version pass. Fresh
 current-head CI and a new exact-head receipt are required after the baseline and
 handoff update. No physical installation or additional live Drive operation ran.
+
+## Known-source vector capture preparation — 2026-11-05
+
+PR53 retains the read-only transport against verified main after PR51 merged.
+It replaces the older dependent PR52 without rewriting or deleting either branch.
+The unchanged new-branch/current-main publication range passed local guards;
+the older branch update had included an already upstream GitHub merge signature
+that triggered the legacy content detector. No content exception or gate change
+was introduced. Current-head checks and the exact receipt remain required.
+
+The next internal component captures the complete known working-file vector
+twice with head brackets and namespace rechecks. Tags, original metadata and bytes
+must agree; changes remain durably retained but cannot return a completed vector.
+The existing compiler checks the complete observed source and bound Template,
+preserving original bytes/revision identity and canonical hashes. An absent head
+is unknown publication state; differing working/head hashes remain visible.
+No candidate/adoption/job completion or immutable-base proof is claimed.
+
+Local163 Android JVM/36 adapter JVM checks pass. Ten new JVM cases pass and two
+additional SQLite composition cases compile, pending actual current-head execution
+on all seven versions. See `docs/milestones/m1-known-source-vector.md`. A later edit
+remains possible; base verification, durable classification, explicit three-way
+review, transfer-intent preparation, completion and authorization/scheduling stay
+open. No schema/default/recording/dependency/live request/allowance/resource/APK
+assembly/phone-installation change. All eight live authorization launches remain
+used. M1 and actual native/provider/background/screen-off acceptance remain open.
