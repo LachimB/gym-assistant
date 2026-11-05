@@ -60,8 +60,19 @@ class TemplateImmutableRemote5Test {
             return response(metadata(id,pin.folderId,pin.name,pin.mimeType,TEMPLATE_MARKER_KEY_5,pin.marker,checkNotNull(tags[id])))
         }
     }
+    @Test fun rawImmutableResponsesAreRetainedBeforeValidationAndSinkFailurePreventsCreation() {
+        val r=revision();val fake=Fake(r);val captured=mutableListOf<RemoteObjectCapture5>();val pin=r.files.first()
+        fake.retain(pin);fake.bytes[pin.objectId]=byteArrayOf(0xC3.toByte(),0x28)
+        val remote=GoogleTemplateImmutableRemote5(fake,r){captured+=it}
+        assertFails {GuardedImmutableFile(remote,Journal()).execute(pin)}
+        assertTrue(captured.any {it.kind==RemoteObjectKind5.IMMUTABLE && it.contentBytes?.contentEquals(fake.bytes[pin.objectId]!!)==true})
+        assertEquals(0,fake.posts)
+        val missing=Fake(r);var retained=0
+        val failing=GoogleTemplateImmutableRemote5(missing,r){if(it.kind==RemoteObjectKind5.IMMUTABLE){retained++;error("Synthetic retention failure")}}
+        assertFails {GuardedImmutableFile(failing,Journal()).execute(pin)};assertEquals(1,retained);assertEquals(0,missing.posts)
+    }
     @Test fun sourceAndJsonManifestCreateAndLostAcknowledgementsReuseExactlyTheSameReservedObjects() {
-        val r=revision();val fake=Fake(r);val remote=GoogleTemplateImmutableRemote5(fake,r)
+        val r=revision();val fake=Fake(r);val remote=GoogleTemplateImmutableRemote5(fake,r){}
         for(pin in listOf(r.files.first(),r.manifestFile)){
             val journal=Journal();fake.loseAck=true;assertFailsWith<DeliveryFailure> {GuardedImmutableFile(remote,journal).execute(pin)}
             assertEquals(0,journal.acknowledged);fake.loseAck=false;GuardedImmutableFile(remote,journal).execute(pin);assertEquals(1,journal.acknowledged)
@@ -69,7 +80,7 @@ class TemplateImmutableRemote5Test {
         assertEquals(2,fake.posts);assertTrue(fake.calls.none {it.method in setOf("PUT","PATCH","DELETE")})
     }
     @Test fun sameId409NeedsExactReadbackAndDifferentExistingBytesCannotBeReplaced() {
-        val r=revision();val fake=Fake(r);fake.race409=true;val remote=GoogleTemplateImmutableRemote5(fake,r);val journal=Journal();val pin=r.manifestFile
+        val r=revision();val fake=Fake(r);fake.race409=true;val remote=GoogleTemplateImmutableRemote5(fake,r){};val journal=Journal();val pin=r.manifestFile
         GuardedImmutableFile(remote,journal).execute(pin);assertEquals(1,journal.acknowledged)
         fake.bytes[pin.objectId]=pin.bytes.copyOf().also {it[0]=32}
         assertFails {GuardedImmutableFile(remote,journal).execute(pin)};assertEquals(1,fake.posts);assertEquals(1,journal.acknowledged)
@@ -85,17 +96,17 @@ class TemplateImmutableRemote5Test {
         val r=revision()
         for(mode in 0..2){val fake=Fake(r);val pin=r.files.first();fake.retain(pin)
             when(mode){0->fake.account="different-test-owner";1->fake.badFolder=true;2->fake.sharedFile=true}
-            assertFails {GuardedImmutableFile(GoogleTemplateImmutableRemote5(fake,r),Journal()).execute(pin)}
+            assertFails {GuardedImmutableFile(GoogleTemplateImmutableRemote5(fake,r){},Journal()).execute(pin)}
             assertTrue(fake.calls.none {it.path.endsWith("?alt=media") || it.method=="POST"})}
     }
     @Test fun malformedMetadataChangingTagsAndOversizedContentCannotProduceReceipts() {
         val r=revision()
         for(mode in 0..3){val fake=Fake(r);val pin=r.files.first();fake.retain(pin)
             when(mode){0->fake.badMetadata=byteArrayOf(0xff.toByte());1->fake.badMetadata="{\"id\":\"first\",\"id\":\"second\"}".toByteArray();2->fake.changeRead=true;3->fake.bytes[pin.objectId]=pin.bytes+byteArrayOf(32)}
-            val j=Journal();assertFails {GuardedImmutableFile(GoogleTemplateImmutableRemote5(fake,r),j).execute(pin)};assertEquals(0,j.acknowledged);assertEquals(0,fake.posts)}
+            val j=Journal();assertFails {GuardedImmutableFile(GoogleTemplateImmutableRemote5(fake,r){},j).execute(pin)};assertEquals(0,j.acknowledged);assertEquals(0,fake.posts)}
     }
     @Test fun unknownObjectsAndFailedNamespaceRecheckCannotAccessSource() {
-        val r=revision();val fake=Fake(r);val remote=GoogleTemplateImmutableRemote5(fake,r)
+        val r=revision();val fake=Fake(r);val remote=GoogleTemplateImmutableRemote5(fake,r){}
         assertFails {remote.read(r.files.first().objectId)};assertTrue(fake.calls.isEmpty())
         remote.verifyNamespace();fake.badFolder=true;assertFails {remote.verifyNamespace()}
         val count=fake.calls.size;assertFails {remote.read(r.files.first().objectId)};assertEquals(count,fake.calls.size)
@@ -113,7 +124,7 @@ class TemplateImmutableRemote5Test {
         assertFails {legacy.request(TemplateHttpRequest5("GET","/drive/v2/files/${pin.objectId}?fields=$IMMUTABLE_FILE_FIELDS_5"))};legacy.close();assertEquals(0,attempts)
     }
     @Test fun onlyTheExactCapturedYamlAndManifestMultipartCanReachRequestReservation() {
-        val r=revision();val fake=Fake(r);val remote=GoogleTemplateImmutableRemote5(fake,r);remote.verifyNamespace()
+        val r=revision();val fake=Fake(r);val remote=GoogleTemplateImmutableRemote5(fake,r){};remote.verifyNamespace()
         var attempts=0
         val http=GoogleImmutableHttp5("synthetic",{attempts++;error("Synthetic budget stop before socket")},r)
         for(pin in listOf(r.files.first(),r.manifestFile)){

@@ -99,14 +99,14 @@ internal class GoogleImmutableHttp5(token:String,reserveRequest:()->Unit,revisio
     }
 }
 
-internal class TemplateImmutableBatch5(token:String,reserveRequest:()->Unit,revision:ImmutableRevisionFiles5):Closeable {
+internal class TemplateImmutableBatch5(token:String,reserveRequest:()->Unit,revision:ImmutableRevisionFiles5,retain:(RemoteObjectCapture5)->Unit):Closeable {
     private val http=GoogleImmutableHttp5(token,reserveRequest,revision)
-    val remote:ImmutableFileRemote=GoogleTemplateImmutableRemote5(http,revision)
+    val remote:ImmutableFileRemote=GoogleTemplateImmutableRemote5(http,revision,retain)
     override fun close()=http.close()
 }
 
 /** Creates only captured immutable objects. Same-ID409/lost-ack recovery belongs to GuardedImmutableFile. */
-internal class GoogleTemplateImmutableRemote5(private val http:TemplateHttp5,revision:ImmutableRevisionFiles5):ImmutableFileRemote {
+internal class GoogleTemplateImmutableRemote5(private val http:TemplateHttp5,revision:ImmutableRevisionFiles5,private val retain:(RemoteObjectCapture5)->Unit):ImmutableFileRemote {
     private val namespace=revision.namespace
     private val pins=revision.objects.associateBy {it.objectId}
     private var verified=false
@@ -115,9 +115,10 @@ internal class GoogleTemplateImmutableRemote5(private val http:TemplateHttp5,rev
         if(result.status !in allow)throw DeliveryFailure(when(result.status){401->"authorization";403->"permission";404->"missingRoot";409,412->"conflict";429->"rateLimited";in 500..599->"providerUnavailable";else->"contract"},result.retryAfterMs)
         return result
     }
-    private fun metadata(id:String,missing:Boolean=false):JsonObject? {
+    private fun metadata(id:String,kind:RemoteObjectKind5,missing:Boolean=false):ByteArray? {
         val result=checked(TemplateHttpRequest5("GET","/drive/v2/files/$id?fields=$IMMUTABLE_FILE_FIELDS_5"),if(missing)setOf(200,404)else setOf(200))
-        return if(result.status==404)null else immutableJson5(result.body)
+        retain(RemoteObjectCapture5(kind,id,result.status,if(result.status==404)null else result.body,null))
+        return if(result.status==404)null else result.body
     }
     private fun namespaceObject(data:JsonObject,id:String,parent:String,name:String,mime:String,key:String,marker:String):String {
         return checkedTemplateObject5(data,namespace.permissionId,id,parent,name,mime,key,marker)
@@ -126,16 +127,17 @@ internal class GoogleTemplateImmutableRemote5(private val http:TemplateHttp5,rev
         verified=false
         val user=immutableJson5(checked(TemplateHttpRequest5("GET",ACCOUNT_PATH)).body)["user"]?.jsonObject ?: error("account")
         if(user.immutableString5("permissionId")!=namespace.permissionId)throw DeliveryFailure("accountMismatch")
-        for(pin in namespace.folders)namespaceObject(checkNotNull(metadata(pin.id)),pin.id,pin.parent,pin.name,"application/vnd.google-apps.folder",pin.markerKey,pin.marker)
+        for(pin in namespace.folders)namespaceObject(immutableJson5(checkNotNull(metadata(pin.id,RemoteObjectKind5.NAMESPACE))),pin.id,pin.parent,pin.name,"application/vnd.google-apps.folder",pin.markerKey,pin.marker)
         verified=true
     }
     private fun fileTag(pin:ImmutableFileStep,data:JsonObject)=namespaceObject(data,pin.objectId,pin.folderId,pin.name,pin.mimeType,TEMPLATE_MARKER_KEY_5,pin.marker)
     override fun read(objectId:String):ImmutableFileSnapshot?=immutableSafe5 {
-        check(verified);val pin=checkNotNull(pins[objectId]);val before=metadata(objectId,true) ?: return@immutableSafe5 null
-        val tag=fileTag(pin,before)
+        check(verified);val pin=checkNotNull(pins[objectId]);val before=metadata(objectId,RemoteObjectKind5.IMMUTABLE,true) ?: return@immutableSafe5 null
+        val tag=fileTag(pin,immutableJson5(before))
         val bytes=checked(TemplateHttpRequest5("GET","/drive/v2/files/$objectId?alt=media")).body
+        retain(RemoteObjectCapture5(RemoteObjectKind5.IMMUTABLE,objectId,200,before,bytes))
         require(bytes.size in 1..pin.byteCount);immutableText5(bytes,pin.byteCount)
-        val after=fileTag(pin,checkNotNull(metadata(objectId)));if(tag!=after)throw DeliveryFailure("conflict")
+        val after=fileTag(pin,immutableJson5(checkNotNull(metadata(objectId,RemoteObjectKind5.IMMUTABLE))));if(tag!=after)throw DeliveryFailure("conflict")
         ImmutableFileSnapshot(objectId,setOf(pin.folderId),pin.marker,pin.name,pin.mimeType,tag,false,bytes)
     }
     override fun createReserved(step:ImmutableFileStep)=immutableSafe5 {

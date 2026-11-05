@@ -82,4 +82,17 @@ class TemplatePublicationStore5(private val db:WorkoutDatabase,private val files
     suspend fun acknowledgeImmutable(lease:SyncLease5,receipt:ImmutableReceipt5):SyncIntentFile5=update(lease){files.acknowledgeImmutable(it,receipt)}
     suspend fun observe(lease:SyncLease5,snapshot:PublicationHeadSnapshot?):SyncIntentFile5=update(lease){files.observe(it,snapshot)}
     suspend fun acknowledgePublication(lease:SyncLease5,tag:String):SyncIntentFile5=update(lease){files.acknowledgePublication(it,tag)}
+    suspend fun retainRaw(lease:SyncLease5,observation:PublicationRawObservation5):SyncIntentFile5=update(lease){files.retainRaw(it,observation)}
+    /** Confirm that a caller's pinned native folder roles belong to this exact leased binding. */
+    internal suspend fun requireNativeScope(lease:SyncLease5,permissionId:String,commonRootId:String,folderIds:Set<String>,
+        templateFolderId:String,workingFolderId:String,historyFolderId:String,metadataFolderId:String,revisionFolderId:String)=withContext(Dispatchers.IO) {
+        val checked=load(lease)
+        db.withTransaction {
+            val job=leases.owned(lease,clock());val s=scope(job);validate(checked,job,s);val b=s.binding
+            check(permissionId==s.root.permissionId && commonRootId==s.root.commonRootFolderId &&
+                templateFolderId==b.templateFolderId && workingFolderId==b.workingFolderId && historyFolderId==b.historyFolderId &&
+                metadataFolderId==b.metadataFolderId && revisionFolderId==checked.revisionFolderId &&
+                folderIds.containsAll(setOf(commonRootId,s.connection.rootFolderId,templateFolderId,workingFolderId,historyFolderId,metadataFolderId,revisionFolderId)))
+        }
+    }
 }

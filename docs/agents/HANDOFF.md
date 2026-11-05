@@ -747,3 +747,31 @@ recording, timing or dependency change; no local APK assembly/installation or ne
 live request. All eight approved authorization launches remain used. Preserve
 the exact reviewed live-test plan, CI and fresh-backup/device gates before any
 runtime activation. M1 and native background/screen-off acceptance remain open.
+
+## Durable native publication execution preparation — 2026-11-05
+
+PR47 merged at `e0ac757` after all required checks, the exact owner receipt and
+seven supported Android versions passed on `bbed789`. It adds the bounded native
+head transport; no new live API operation or phone installation has run.
+
+The additive private progress1.1 record retains an origin-bound hash-linked raw
+observation chain separately from semantic head receipts. Original1.0 records
+remain readable. Malformed, empty and missing responses can survive reopening
+without becoming executable sources. Bounds stop instead of discarding earlier
+facts. The existing lease/pointer transaction protects acknowledgement after
+file/fsync work; rollback leaves the prior pointer intact.
+
+The IO executor now bridges immutable and head receipts, with copied capture,
+cancellation and lease rechecks. Native composition verifies folder roles against
+the leased binding and supplies the durable sink to both transports. Same-ID
+recovery cannot recreate an acknowledged missing immutable object. Publication
+does not advance a binding, adopt a source or complete a job. Local131 Android
+JVM/35 adapter JVM checks pass; instrumentation compiles. Six new SQLite cases
+still require current-head CI execution across all seven versions. See
+`docs/milestones/m1-publication-executor.md`.
+
+Next: verified remote capture and full transfer ordering, binding/job completion,
+account/allowance-bound scheduling and source review. The worker/UI remain disabled;
+no schema, dependency, recording or default changes. Preserve all eight used
+authorization launches and exact request accounting. No local APK assembly or
+installation; native/live/background acceptance and M1 remain incomplete.
