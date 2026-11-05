@@ -375,6 +375,24 @@ classic protections were fetched again and verified unchanged. The one-time
 waiver is closed. Current work is the separate lossless-YAML candidate slice;
 future worker/provider/UI work and all physical/live acceptance gates remain.
 
+## Durable working-file progress — 2026-11-05
+
+PR33 merged at `d490bb1` and PR34 at `99af7f3` under the full protections after
+all technical checks and exact owner receipts passed. The current implementation
+adds immutable progress records linked to the original captured source, plus a
+leased compare-and-swap of the private job pointer. Every previous receipt and
+before-image is retained. Duplicate acknowledgements are idempotent; altered
+facts, source/working-ID overlap, changed bindings and expired ownership fail.
+No network or file work runs inside the pointer transaction; all12 pre-existing
+tables and recording meanings remain separate. Schema5 is unchanged.
+
+Local Android81 JVM checks and instrumentation compilation pass. Four additional
+SQLite recovery/rollback/isolation cases await the current-head seven-version CI
+matrix. No APK installation, phone migration, live Drive request, folder move,
+token acquisition or allowance reservation occurred. Durable execution, offline
+queue capture, whole-publication recovery, background scheduling and review UI
+remain open, as do exact private inventory review and physical/live acceptance.
+
 
 ## Native working-file transport continuation — 2026-11-05
 

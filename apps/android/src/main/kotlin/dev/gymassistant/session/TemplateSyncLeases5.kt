@@ -23,6 +23,10 @@ class TemplateSyncLeases5(private val db:WorkoutDatabase) {
         val row=checkNotNull(db.templateSync().job(lease.jobId))
         check(row.leaseOwner==lease.owner && row.leaseGeneration==lease.generation && row.leaseBootId==lease.bootId &&
             row.leaseUntil==lease.until && now>=0 && now<lease.until) { "Sync lease changed or expired" }
+        val binding=checkNotNull(db.templateSync().binding(row.bindingId))
+        val root=checkNotNull(db.templateSync().root(binding.rootBindingId))
+        val connection=checkNotNull(db.deliveries().connection(binding.connectionId))
+        check(binding.enabled && root.state=="active" && root.provider==connection.provider && root.permissionId==connection.permissionId) {"Sync binding is disabled or no longer verified"}
         return row
     }
     suspend fun release(lease:SyncLease5,now:Long,state:SyncJobState5,error:String?=null,nextAttemptAt:Long?=null)=db.withTransaction {

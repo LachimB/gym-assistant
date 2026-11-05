@@ -91,4 +91,6 @@ data class TemplateSyncObservation5(@PrimaryKey val observationId:String,val bin
     suspend fun claim(id:String,owner:String,now:Long,until:Long,boot:String):Int
     @Query("UPDATE template_sync_jobs SET state=:state,errorCode=:error,nextAttemptAt=:next,leaseOwner=NULL,leaseUntil=NULL,leaseBootId=NULL WHERE jobId=:id AND leaseOwner=:owner AND leaseGeneration=:generation")
     suspend fun release(id:String,owner:String,generation:Long,state:String,error:String?,next:Long?):Int
+    @Query("UPDATE template_sync_jobs SET intentPath=:nextPath,intentHash=:nextHash WHERE jobId=:id AND leaseOwner=:owner AND leaseGeneration=:generation AND intentPath=:priorPath AND intentHash=:priorHash AND state='running'")
+    suspend fun advanceIntent(id:String,owner:String,generation:Long,priorPath:String,priorHash:String,nextPath:String,nextHash:String):Int
 }

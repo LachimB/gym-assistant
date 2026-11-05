@@ -34,16 +34,27 @@ it does not enable a live connection or establish background/device acceptance.
   Sync transactions contain no network operation or workout timing mutation.
 - Private backup tooling covers all16 tables plus the sync-file archive. Existing
   database versions and delivery/library archives remain supported.
+- Additive immutable progress records retain the original captured intent and
+  every verified per-file receipt. File sync/readback precedes a transactional
+  compare-and-swap of the job pointer under the same current lease, source and
+  enabled binding. Duplicate acknowledgements reuse the pointer; unknown files,
+  changed receipt facts, source/working-ID overlap and retargeted bindings fail.
+  All working-file receipts still do not mean a head is published or adopted.
 
 ## Local validation and required gates
 
-Android65 JVM, adapter20 JVM and122 Python tests pass. Engine JVM tests pass.
+Android81 JVM checks pass, including native transport and private-progress
+regressions. Adapter20 JVM and122 Python checks passed in the preceding baseline.
 Android migration instrumentation compiles; SQLite execution and the supported
 API31–36/37.0 matrix must pass in CI. No local emulator was configured for this
 check. Migration tests seed all12 old tables, inject4→5 failure, verify rollback,
 then compare all prior rows and retained personal payload bytes after upgrade.
 They also cover worker contention, stale lease rejection, retry deadlines, reboot
 reclaim and inactive/mismatched root refusal.
+Four additional SQLite regressions cover progress after reopen, injected pointer
+commit rollback and retry, lease expiry during verification, stale/disabled
+owners and folder retargeting, comparing all12 pre-existing tables unchanged.
+They require current-head execution across the full CI matrix.
 
 No phone update, root creation/relocation, token acquisition, Drive request or
 budget reservation has run for this implementation. Preserve CI plus a fresh
