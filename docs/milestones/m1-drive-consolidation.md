@@ -61,3 +61,18 @@ M1 remains incomplete. Immutable Template publication/head recovery, external
 candidate review, runtime authorization/budget integration and actual background/
 screen-off/Doze acceptance remain open. Keep review before adoption and the frozen
 Workout Session source independent of subsequent Template changes.
+
+## Retained-source concurrency regression
+
+The cutover-record CI exposed an existing concurrent offline-queue failure: one
+reader could report a retained file missing while another writer temporarily
+restricted the shared directory's permissions. A new two-store read/write
+regression reproduced this locally before the fix. Reads now share the existing
+process-wide writer boundary, including path/stat/open and byte-bound checks.
+Owner-only permissions, immutable files, hash checks, fsync and atomic rename are
+unchanged. This adds no migration, provider request or Template opt-in. The
+corrected local suite passes99 Android JVM and29 adapter JVM checks, and Android
+instrumentation compiles. The27 synthetic Drive/helper checks also pass. The
+existing SQLite concurrent-enqueue/reopen regression and all supported Android
+versions must pass on the corrected head. The installed cutover configurations
+precede this fix; Template queue/runtime bindings remain disabled on the phone.

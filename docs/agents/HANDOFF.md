@@ -594,3 +594,14 @@ in `tools/drive_folder_metadata_probe.*`; CI runs them with the existing probes.
 See `docs/milestones/m1-drive-consolidation.md`. Continue the remaining approved
 Template publication/review/runtime work after these acceptance gates; M1 is
 incomplete. Preserve review before adoption and never reset earlier allowances.
+
+Cutover-record CI also exposed an existing private-source read/write race during
+concurrent offline enqueue. The new two-store regression failed locally before
+the fix. Reads now share the process-wide write boundary so a permission change
+cannot make an existing immutable source appear missing. File permissions,
+hashes, fsync, rename and schema stay unchanged. Run the complete corrected-head
+Android matrix; local99 Android JVM/29 adapter JVM checks pass and instrumentation
+compiles. The27 synthetic Drive/helper safeguards passed. Do not rerun the old
+test merely to mask this failure. Separate
+upstream504 dependency downloads are infrastructure failures. The installed
+cutover builds precede the coordination fix and have no enabled Template queue.

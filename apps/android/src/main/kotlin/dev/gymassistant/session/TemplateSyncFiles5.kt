@@ -54,9 +54,10 @@ class TemplateSyncFiles5(private val root:File,private val contracts:ImportContr
         Files.move(temporary.toPath(),target.toPath(),StandardCopyOption.ATOMIC_MOVE)
         syncDirectory()
     }
-    private fun read(name:String,max:Int):ByteArray {
+    // A concurrent writer briefly restricts directory permissions. Readers share its process-wide boundary.
+    private fun read(name:String,max:Int):ByteArray=synchronized(lock) {
         val target=path(name);check(target.isFile && target.length() in 1..max.toLong()) { "Private sync file missing or outside bounds" }
-        return target.readBytes().also {check(it.size in 1..max)}
+        target.readBytes().also {check(it.size in 1..max)}
     }
     internal fun source(hash:String):ByteArray {
         hash(hash);return read("$hash.yaml",1048576).also {check(hashSourceBytes(it)==hash) { "Private sync source changed" }}
