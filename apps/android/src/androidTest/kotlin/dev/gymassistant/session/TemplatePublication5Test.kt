@@ -29,7 +29,7 @@ class TemplatePublication5Test {
     private fun workingStore()=TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(syncFiles()),{now})
     private fun store(before:suspend ()->Unit={},commit:()->Unit={})=TemplatePublicationStore5(db,TemplatePublicationFiles5(syncFiles()),workingStore(),{now},before,commit)
     private data class Fixture(val lease:SyncLease5,val intent:PublicationHeadIntent,val revision:TemplateRevisionRow)
-    private suspend fun fixture():Fixture {
+    private suspend fun fixture(workingComplete:Boolean=true):Fixture {
         val at="2026-11-05T12:00:00Z";val library=TemplateLibrary3(db,LibraryFiles3(File(root,"library")),contracts)
         val candidate=library.stage(listOf(ImportFile3("template.yaml",asset("timed-runtime-v2.yaml").toByteArray()),ImportFile3("exercise.yaml",asset("bridge-band-family.yaml").toByteArray())),at)
         val revision=library.publish(candidate.candidateId,checkNotNull(candidate.sourceHash),checkNotNull(candidate.compiledPlanHash),at)
@@ -44,7 +44,7 @@ class TemplatePublication5Test {
         val pointer=syncFiles().prepare("job-test","operation-test","binding-test",revision.revisionId,manifest,payloads,steps)
         db.templateSync().insertJob(TemplateSyncJob5("job-test","binding-test","operation-test","push",revision.revisionId,sourceHash=revision.sourceHash,compiledPlanHash=revision.compiledPlanHash,intentPath=pointer.path,intentHash=pointer.sha256))
         val lease=checkNotNull(TemplateSyncLeases5(db).claim("job-test",now,"boot-test"))
-        for(step in steps)workingStore().acknowledge(lease,WorkingReceipt5(step.objectId,"working-tag",step.intendedHash))
+        if(workingComplete)for(step in steps)workingStore().acknowledge(lease,WorkingReceipt5(step.objectId,"working-tag",step.intendedHash))
         val intended=TemplatePublicationHead(revision.templateId,"generation-test","manifest-object","working-folder",revision.sourceHash,null)
         return Fixture(lease,PublicationHeadIntent("operation-test","head-object","metadata-folder","gym-template-test",null,null,intended),revision)
     }
@@ -114,6 +114,7 @@ class TemplatePublication5Test {
     private inner class Provider(val captured:CheckedPublication5) {
         val objects=mutableMapOf<String,ByteArray>();var head:TemplatePublicationHead?=null;var creates=0;var headWrites=0;var closes=0
         var loseFileAck=true;var loseHeadAck=false;var matches=true;var competing=false;var onHeadRead:()->Unit={}
+        val workingBytes=mutableMapOf<String,ByteArray>();var workingCreates=0;var loseWorkingAck=false
         fun open(retain:(PublicationRawObservation5)->Unit):PublicationRemoteSet5 {
             val immutable=object:ImmutableFileRemote {
                 override fun verifyNamespace(){}
@@ -140,7 +141,22 @@ class TemplatePublication5Test {
                     return matches
                 }
             }
-            return PublicationRemoteSet5(immutable,remote){closes++}
+            val working=object:WorkingFileRemote {
+                override fun verifyNamespace(){}
+                override fun read(objectId:String):WorkingFileSnapshot? {
+                    val step=captured.working.captured.steps.single {it.objectId==objectId};val bytes=workingBytes[objectId]
+                    retain(PublicationRawObservation5("WORKING",objectId,if(bytes==null)404 else 200,bytes?.let {"{}".toByteArray()},bytes))
+                    return bytes?.let {WorkingFileSnapshot(objectId,setOf(step.folderId),step.marker,step.name,step.mimeType,"\"working-tag\"",false,it)}
+                }
+                override fun replace(objectId:String,expectedTag:String,bytes:ByteArray)=error("Unexpected replacement")
+                override fun createReserved(step:WorkingFileStep){
+                    // Verify remote immutable content exists before any editable file can be changed.
+                    for(pin in captured.immutableSteps)check(objects[pin.objectId]?.contentEquals(pin.bytes)==true)
+                    check(step.objectId !in workingBytes);workingBytes[step.objectId]=step.intendedBytes;workingCreates++
+                    if(loseWorkingAck){loseWorkingAck=false;error("Synthetic lost working acknowledgement")}
+                }
+            }
+            return PublicationRemoteSet5(immutable,remote,if(captured.historyFirst)working else null){closes++}
         }
     }
     @Test fun executorReopensLostFileAndHeadAcknowledgementsUsingTheOriginalIdentities()=runBlocking {
@@ -186,5 +202,30 @@ class TemplatePublication5Test {
                 if(mode==2)ids-"personal-root" else ids,"template-folder","working-folder","history-folder",if(mode==3)"another-metadata" else "metadata-folder","revision-folder")
         }catch(_:IllegalStateException){failed=true};assertTrue(failed)}
         assertEquals(before,rows())
+    }
+    @Test fun historyFirstTransferReopensAfterALostWorkingAcknowledgementWithoutRepeatingImmutableCreates()=runBlocking {
+        val f=fixture(false);val before=rows();val s=store();s.begin(f.lease,"revision-folder",f.intent,null,true,true)
+        val provider=Provider(s.load(f.lease));provider.loseFileAck=false;provider.loseWorkingAck=true;var failed=false
+        try{TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);val pending=s.load(f.lease);assertTrue(pending.allImmutableAcknowledged);assertTrue(pending.working.receipts.isEmpty())
+        assertEquals(1,provider.workingCreates);assertEquals(0,provider.headWrites);assertNull(pending.publishedTag)
+        val original=pending.originPointer;db.close();db=open()
+        val result=TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}
+        val completed=store().load(f.lease)
+        assertEquals(HeadPublicationResult.PUBLISHED_WORKING_COPY_VERIFIED,result.result)
+        assertEquals(provider.captured.immutableSteps.size,provider.creates);assertEquals(provider.captured.working.captured.steps.size,provider.workingCreates)
+        assertEquals(1,provider.headWrites);assertEquals(original,completed.originPointer);assertTrue(completed.working.allFilesAcknowledged)
+        assertTrue(completed.rawObservations.any {it.kind=="WORKING"});assertEquals(before,rows())
+        assertEquals("running",db.templateSync().job("job-test")!!.state);assertNull(db.templateSync().binding("binding-test")!!.lastRemoteGeneration)
+    }
+    @Test fun historyFirstWorkingReceiptRollbackCannotAdvanceTheTransferPointer()=runBlocking {
+        val f=fixture(false);val before=rows();val s=store();s.begin(f.lease,"revision-folder",f.intent,null,true,true)
+        val step=s.load(f.lease).working.captured.steps.first();val receipt=WorkingReceipt5(step.objectId,"\"working-tag\"",step.intendedHash)
+        var failed=false;try{s.acknowledgeWorking(f.lease,receipt)}catch(_:IllegalStateException){failed=true};assertTrue(failed)
+        for(pin in s.load(f.lease).immutableSteps)s.acknowledgeImmutable(f.lease,ImmutableReceipt5(pin.objectId,"\"immutable-tag\"",pin.sha256))
+        val prior=db.templateSync().job("job-test");failed=false
+        try{store(commit={error("Synthetic working pointer failure")}).acknowledgeWorking(f.lease,receipt)}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertEquals(prior,db.templateSync().job("job-test"));assertTrue(s.load(f.lease).working.receipts.isEmpty())
+        s.acknowledgeWorking(f.lease,receipt);assertEquals(receipt,s.load(f.lease).working.receipts[step.objectId]);assertEquals(before,rows())
     }
 }

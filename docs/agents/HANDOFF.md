@@ -775,3 +775,28 @@ account/allowance-bound scheduling and source review. The worker/UI remain disab
 no schema, dependency, recording or default changes. Preserve all eight used
 authorization launches and exact request accounting. No local APK assembly or
 installation; native/live/background acceptance and M1 remain incomplete.
+
+## History-first transfer preparation — 2026-11-05
+
+PR48 merged at `6786ec9` after all required checks, the exact owner receipt and
+seven supported Android versions passed on `f3d9906`. Its six additional SQLite
+cases executed successfully, including raw-observation rollback/reopen and lost
+file/head acknowledgement recovery. No live batch or physical installation.
+
+The new internal transfer-progress1.2 stage begins before any working receipt.
+It fixes the original source/before-image and audit origin, verifies immutable
+history first, then advances working receipts, rechecks the complete vector and
+permits the guarded head protocol. Both file/store boundaries reject premature
+working acknowledgement. Lost working acknowledgements inspect the same ID;
+already acknowledged objects remain read-only on retry. No local adoption,
+binding advancement or whole-job completion. Older publication records remain
+readable and untouched. Local133 Android JVM/35 adapter JVM checks pass and
+instrumentation compiles; the two new SQLite ordering/recovery cases still require
+current-head seven-version CI. See `docs/milestones/m1-history-first-transfer.md`.
+
+Next: strict native working-response retention and delayed head composition,
+verified initial/base remote capture, account/allowance-bound scheduling,
+binding/job completion and source review. Worker/UI remain disabled. No Room,
+recording, default, dependency or timing change; no new live request, allowance
+reset, APK assembly or phone installation. All eight authorization launches remain
+used. Native/live/background/screen-off acceptance and M1 remain incomplete.
