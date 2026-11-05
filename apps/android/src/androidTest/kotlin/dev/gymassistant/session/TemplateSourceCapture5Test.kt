@@ -6,7 +6,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.gymassistant.engine.v2.*
 import dev.gymassistant.drive.*
-import dev.gymassistant.sync.TemplatePublicationHead
+import dev.gymassistant.sync.*
 import java.io.File
 import java.io.Closeable
 import java.util.UUID
@@ -181,6 +181,80 @@ class TemplateSourceCapture5Test {
         val raw=s.load(f.lease,"observation-test").rawObservations.filter {it.kind=="WORKING" && it.objectId==pins.first().objectId && it.contentBytes!=null}
         assertTrue(raw.any {it.contentBytes!!.contentEquals(http.sources.templateYaml.toByteArray())})
         assertTrue(raw.any {it.contentBytes!!.contentEquals("synthetic changed source".toByteArray())})
+        assertNull(db.templateSync().observation("observation-test")!!.candidateId)
+        assertEquals(f.job,db.templateSync().job("job-test"));assertEquals(before,rows())
+    }
+    private val baseFolder=TemplateFolderPin5("base-revision-folder","history-folder","retained revision","gymTemplateM1","gym-template-test")
+    private fun baseMetadata(id:String,parent:String,name:String,mime:String,key:String,marker:String,tag:String="\"tag\"")=buildJsonObject {
+        put("id",id);put("title",name);put("mimeType",mime);put("etag",tag);put("ownedByMe",true);put("shared",false)
+        put("labels",buildJsonObject {put("trashed",false)});put("parents",buildJsonArray {add(buildJsonObject {put("id",parent)})})
+        put("properties",buildJsonArray {add(buildJsonObject {put("key",key);put("value",marker);put("visibility","PRIVATE")})})
+        put("permissions",buildJsonArray {add(buildJsonObject {put("id","synthetic-owner");put("type","user");put("role","owner")})})
+    }.toString().toByteArray()
+    private suspend fun fixtureWithBase():Pair<Fixture,SyncIntentFile5> {
+        val f=fixture();val sources=sessionJson.decodeFromString<TemplateSources3>(f.revision.sourceSnapshotJson)
+        val payloads=(listOf(sources.templateYaml)+sources.exerciseYamls).mapIndexed {i,s->"base-source-$i" to s.toByteArray()}.toMap()
+        val manifest=TemplateRevisionManifest(f.revision.templateId,f.revision.revisionId,null,f.revision.sourceHash,f.revision.compiledPlanHash,
+            pins.mapIndexed {i,p->val bytes=payloads.getValue("base-source-$i");RevisionFile(if(p.role=="template")SourceRole.TEMPLATE else SourceRole.EXERCISE,p.relativeName,"base-source-$i",hashSourceBytes(bytes),bytes.size)})
+        val steps=pins.mapIndexed {i,p->WorkingFileStep(p.objectId,"working-folder","gym-template-test",p.relativeName,p.mimeType,null,null,payloads.getValue("base-source-$i"))}
+        val files=syncFiles();var prior=files.prepare("prior-job","prior-operation","binding-test",f.revision.revisionId,manifest,payloads,steps)
+        val working=TemplateSyncProgressFiles5(files)
+        for(step in steps)prior=working.acknowledge(prior,WorkingReceipt5(step.objectId,"\"working-tag\"",step.intendedHash))
+        val head=TemplatePublicationHead(f.revision.templateId,"base-generation","base-manifest","working-folder",f.revision.sourceHash,null)
+        val publications=TemplatePublicationFiles5(files);prior=publications.prepare(prior,f.namespace.bindingHash,"synthetic-owner",baseFolder.id,
+            PublicationHeadIntent("prior-operation","head-file","metadata-folder","gym-template-test",null,null,head),null,true)
+        for(pin in publications.load(prior).immutableSteps)prior=publications.acknowledgeImmutable(prior,ImmutableReceipt5(pin.objectId,"\"immutable-tag\"",pin.sha256))
+        prior=publications.observe(prior,PublicationHeadSnapshot("head-file",setOf("metadata-folder"),"gym-template-test","head.json","application/json","\"base-tag\"",false,head,
+            baseMetadata("head-file","metadata-folder","head.json","application/json","gymTemplateM1","gym-template-test","\"base-tag\""),TemplateSyncContracts5.encode(head).toByteArray()))
+        prior=publications.acknowledgePublication(prior,"\"base-tag\"")
+        db.openHelper.writableDatabase.execSQL("UPDATE template_sync_bindings SET lastRemoteGeneration=?,lastRemoteHeadTag=?,baseRevisionId=?,baseSourceHash=? WHERE bindingId='binding-test'",
+            arrayOf(head.generationId,"\"base-tag\"",f.revision.revisionId,f.revision.sourceHash))
+        val binding=db.templateSync().binding("binding-test")!!
+        val origin=queueFiles().prepare("job-test","operation-test",binding,f.namespace.bindingHash,f.revision)
+        db.openHelper.writableDatabase.execSQL("UPDATE template_sync_jobs SET expectedRemoteGeneration=?,expectedRemoteHeadTag=?,intentPath=?,intentHash=? WHERE jobId='job-test'",
+            arrayOf(head.generationId,"\"base-tag\"",origin.path,origin.sha256))
+        return f.copy(job=db.templateSync().job("job-test")!!) to prior
+    }
+    private inner class BaseHttp(val scope:KnownImmutableBaseScope5):TemplateHttp5,Closeable {
+        var calls=0;var closed=false;var corrupt=false;var onMedia:()->Unit={}
+        override fun close(){closed=true}
+        override fun request(request:TemplateHttpRequest5):DeliveryHttpResponse {
+            calls++;check(request.method=="GET")
+            if(request.path==ACCOUNT_PATH)return DeliveryHttpResponse(200,"{\"user\":{\"permissionId\":\"synthetic-owner\"}}".toByteArray())
+            val id=request.path.substringAfter("/drive/v2/files/").substringBefore('?')
+            val pin=scope.revision.objects.singleOrNull {it.objectId==id};val folder=scope.revision.namespace.folders.singleOrNull {it.id==id}
+            if(request.path.endsWith("?alt=media")) {
+                onMedia();val bytes=checkNotNull(pin).bytes
+                return DeliveryHttpResponse(200,if(corrupt)bytes.copyOf().also {it[0]=32}else bytes)
+            }
+            return DeliveryHttpResponse(200,if(folder!=null)baseMetadata(id,folder.parent,folder.name,"application/vnd.google-apps.folder",folder.markerKey,folder.marker)
+                else checkNotNull(pin).let {baseMetadata(id,it.folderId,it.name,it.mimeType,"gymTemplateM1",it.marker)})
+        }
+    }
+    @Test fun knownBaseExecutorRecompilesRetainedPublicationAndPreservesItsReferenceAcrossReopen()=runBlocking {
+        val(f,prior)=fixtureWithBase();val before=rows();val s=store();s.begin(f.lease,"observation-test",f.namespace,pins,at)
+        val publications=TemplatePublicationFiles5(syncFiles());val scope=KnownImmutableBaseScope5(TemplateSourceReadScope5(s.load(f.lease,"observation-test"),readFolders()),publications.load(prior),baseFolder,contracts)
+        val http=BaseHttp(scope);var charged=0
+        val result=TemplateKnownBaseExecutor5(s,publications,contracts,http).read(f.lease,"observation-test",prior,"synthetic",{charged++},readFolders(),baseFolder)
+        assertEquals(f.revision.sourceSnapshotJson,sessionJson.encodeToString(TemplateSources3.serializer(),result))
+        assertEquals(25,http.calls);assertEquals(http.calls,charged);assertTrue(http.closed)
+        db.close();db=open();assertEquals("\"base-tag\"",TemplatePublicationFiles5(syncFiles()).load(prior).publishedTag)
+        val checked=store().load(f.lease,"observation-test");assertEquals(23,checked.rawObservations.size)
+        assertNull(db.templateSync().observation("observation-test")!!.candidateId)
+        assertEquals(f.job,db.templateSync().job("job-test"));assertEquals(before,rows())
+    }
+    @Test fun knownBaseCorruptionBudgetExhaustionAndLeaseExpiryCannotAcknowledgeOrAdopt()=runBlocking {
+        val(f,prior)=fixtureWithBase();val before=rows();val s=store();s.begin(f.lease,"observation-test",f.namespace,pins,at)
+        val publications=TemplatePublicationFiles5(syncFiles());val scope=KnownImmutableBaseScope5(TemplateSourceReadScope5(s.load(f.lease,"observation-test"),readFolders()),publications.load(prior),baseFolder,contracts)
+        suspend fun attempt(http:BaseHttp,reserve:()->Unit):DeliveryFailure {
+            try{TemplateKnownBaseExecutor5(s,publications,contracts,http).read(f.lease,"observation-test",prior,"synthetic",reserve,readFolders(),baseFolder)}
+            catch(error:DeliveryFailure){return error}
+            error("Synthetic failed base read returned a result")
+        }
+        val budget=BaseHttp(scope);assertEquals("budget",attempt(budget){throw DeliveryFailure("budget")}.reason);assertEquals(0,budget.calls);assertTrue(budget.closed)
+        val corrupt=BaseHttp(scope);corrupt.corrupt=true;assertEquals("conflict",attempt(corrupt){}.reason);assertTrue(corrupt.closed)
+        assertTrue(s.load(f.lease,"observation-test").rawObservations.any {it.kind=="IMMUTABLE" && it.contentBytes!=null})
+        val expired=BaseHttp(scope);expired.onMedia={now=f.lease.until};attempt(expired){};assertTrue(expired.closed)
         assertNull(db.templateSync().observation("observation-test")!!.candidateId)
         assertEquals(f.job,db.templateSync().job("job-test"));assertEquals(before,rows())
     }

@@ -940,3 +940,29 @@ review, transfer-intent preparation, completion and authorization/scheduling sta
 open. No schema/default/recording/dependency/live request/allowance/resource/APK
 assembly/phone-installation change. All eight live authorization launches remain
 used. M1 and actual native/provider/background/screen-off acceptance remain open.
+
+## Known immutable-base readback preparation — 2026-11-05
+
+PR54 merged at `ef5e629` after every required check, the exact owner receipt and
+all seven Android versions passed on `646fa10`, including the two additional
+vector/reopen/conflict SQLite cases. Its merged tree matches the reviewed head.
+Existing main and prior branches are retained.
+
+The next explicit known-base scope requires a retained acknowledged publication
+matching the frozen capture's common revision/source, expected head generation/
+tag, account and namespace. A GET-only transport verifies its original immutable
+manifest/files by identity, owner-only access, bracketed tags and exact hash/bytes,
+then recompiles the entire source. Missing/changed objects remain retained and
+blocked. There is no discovery, repair, create or adoption path. The IO executor
+rechecks current Room lease/capture/base context and retained publication files
+before each charged request and commits raw responses through the same journal.
+
+Local169 Android JVM/36 adapter JVM tests pass. Six new JVM cases pass and two
+additional SQLite readback/reopen/failure cases compile, pending actual current-head
+seven-version CI. See `docs/milestones/m1-known-immutable-base.md`. The current head
+and working branch remain distinct facts; durable classification, field-by-field
+review, transfer preparation/completion and account/allowance-bound scheduling
+remain open. No schema/default/recording/dependency/live operation/resource/APK
+assembly/phone-installation change. All eight live authorization launches and both
+diagnostic executions remain used. M1 and actual native/provider/background/
+screen-off acceptance remain incomplete.
