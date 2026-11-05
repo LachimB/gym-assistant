@@ -3,7 +3,7 @@
   "reviewScope": "Source/declared-license metadata only; original code all rights reserved; upstream terms retained",
   "binaryReleaseCleared": false,
   "dependencyInputs": {
-    "apps/android/build.gradle.kts": "075dce52906423ab6b7264de0d050805393814294a5843d4008093bf772729b1",
+    "apps/android/build.gradle.kts": "591f6f1c1337d6a6228b299b1e194a07074f1864890b7bda5b1cec468006fd7e",
     "apps/web/package-lock.json": "60d4b4def0c0ccffcc3c684387276c180aa50a694bf2535a4ff53a065156fba0",
     "apps/web/package.json": "38ad44bdcf3394d119a97e11d2d70aecf93320f8caef28c37ad49b39078d48db",
     "build.gradle.kts": "93b6a9428fba5a3463e59833faaf05273fe35be7d86639265c92750f31fa69dd",

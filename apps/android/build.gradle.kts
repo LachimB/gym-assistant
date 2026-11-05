@@ -18,6 +18,9 @@ android {
         val probeAccount = providers.gradleProperty("syntheticDriveAccount").orElse("").get()
         require(probeAccount.isEmpty() || probeAccount.matches(Regex("[A-Za-z0-9._+@-]+")))
         buildConfigField("String", "SYNTHETIC_DRIVE_ACCOUNT", "\"$probeAccount\"")
+        val projectLayout = providers.gradleProperty("projectDriveLayout").orElse("").get()
+        require(projectLayout.isEmpty() || projectLayout.length<=50000 && projectLayout.matches(Regex("[A-Za-z0-9+/]+={0,2}")))
+        buildConfigField("String", "PROJECT_DRIVE_LAYOUT", "\"$projectLayout\"")
         buildConfigField("boolean", "SYNTHETIC_DELIVERY_BUDGET_RESERVED", providers.gradleProperty("syntheticDeliveryBudgetReserved").orElse("false").get().also { require(it in setOf("true", "false")) })
         buildConfigField("boolean", "PERSONAL_DELIVERY_BUDGET_RESERVED", providers.gradleProperty("personalDeliveryBudgetReserved").orElse("false").get().also { require(it in setOf("true", "false")) })
         // Operational identifiers are private build inputs, never source defaults.

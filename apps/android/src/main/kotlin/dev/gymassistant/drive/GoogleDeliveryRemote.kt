@@ -26,7 +26,7 @@ internal class GoogleDeliveryHttp(private var token: String, private val reserve
     override fun request(request: DeliveryHttpRequest): DeliveryHttpResponse {
         check(token.isNotBlank() && '\r' !in token && '\n' !in token)
         val path = request.path
-        require(path == ACCOUNT_PATH || path == "/drive/v3/files?fields=id" || path == "/drive/v3/files/generateIds?count=1&space=drive" ||
+        require(path == ACCOUNT_PATH || path == "/drive/v3/files/generateIds?count=1&space=drive" ||
             Regex("/drive/v3/files/[-A-Za-z0-9_]+\\?fields=[A-Za-z0-9,()]+").matches(path) ||
             Regex("/drive/v3/files/[-A-Za-z0-9_]+\\?alt=media").matches(path) ||
             path == "/upload/drive/v3/files?uploadType=multipart&fields=id")
@@ -68,7 +68,10 @@ internal class GoogleDeliveryHttp(private var token: String, private val reserve
     }
 }
 
-internal class GoogleDeliveryRemote(private val http: DeliveryHttp) : DeliveryRemote {
+internal class GoogleDeliveryRemote(private val http: DeliveryHttp,private val projectGate:ProjectAreaGate5?,
+    private val checkIdentity:suspend (DeliveryIdentity)->Unit) : DeliveryRemote {
+    constructor(http:DeliveryHttp):this(http,null,{})
+    init {require(projectGate==null || projectGate.pin.kind=="synthetic" && projectGate.pin.id==SYNTHETIC_PARENT && projectGate.pin.marker==SYNTHETIC_MARKER)}
     private fun id(value: String): String { if (!value.matches(Regex("[-A-Za-z0-9_]+"))) throw DeliveryFailure("contract"); return value }
     private fun checked(request: DeliveryHttpRequest, allow: Set<Int> = setOf(200)): DeliveryHttpResponse {
         val result = http.request(request)
@@ -84,12 +87,15 @@ internal class GoogleDeliveryRemote(private val http: DeliveryHttp) : DeliveryRe
     private fun JsonObject.text(key: String) = this[key]?.jsonPrimitive?.content ?: throw DeliveryFailure("contract")
     override suspend fun identity(): DeliveryIdentity {
         val user = json(checked(DeliveryHttpRequest("GET", ACCOUNT_PATH)))["user"]?.jsonObject ?: throw DeliveryFailure("contract")
-        return DeliveryIdentity(user.text("permissionId"), user.text("emailAddress"))
+        val identity=DeliveryIdentity(user.text("permissionId"),user.text("emailAddress"));checkIdentity(identity);projectGate?.identity(identity.permissionId);return identity
     }
     override suspend fun folder(id: String): DeliveryFolder {
         if (id != SYNTHETIC_PARENT) throw DeliveryFailure("contract")
-        val data = json(checked(DeliveryHttpRequest("GET", PARENT_PATH)))
+        val path=if(projectGate==null)PARENT_PATH else "/drive/v3/files/${id(id)}?fields=$PROJECT_FOLDER_FIELDS_5"
+        val data = json(checked(DeliveryHttpRequest("GET",path)))
+        if(projectGate!=null)return projectGate.verify(data){folder->json(checked(DeliveryHttpRequest("GET","/drive/v3/files/${id(folder)}?fields=$PROJECT_FOLDER_FIELDS_5")))}
         val marker = data["appProperties"]?.jsonObject?.text("gymSyntheticM1") ?: throw DeliveryFailure("contract")
+        if(marker!=SYNTHETIC_MARKER || data.text("name")!="Gym Assistant — SYNTHETIC M1 TEST — $marker" || data.text("mimeType")!="application/vnd.google-apps.folder")throw DeliveryFailure("missingRoot")
         return DeliveryFolder(data.text("name"), marker, data.text("mimeType"))
     }
     override suspend fun reserveFileId(): String {
@@ -114,6 +120,7 @@ internal class GoogleDeliveryRemote(private val http: DeliveryHttp) : DeliveryRe
     override suspend fun create(id: String, parent: String, name: String, canonical: ByteArray) {
         id(id)
         if (parent != SYNTHETIC_PARENT || !name.matches(Regex("SYNTHETIC-session-[-A-Za-z0-9_]+\\.json")) || canonical.size > 8 * 1024 * 1024) throw DeliveryFailure("contract")
+        if(projectGate!=null)folder(SYNTHETIC_PARENT)
         val boundary = "gym-synthetic-${java.util.UUID.randomUUID()}"
         val metadata = buildJsonObject {
             put("id", id); put("name", name); put("mimeType", "application/json")

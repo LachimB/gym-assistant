@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { PersonalDriveReader, privateConnection, DriveReadError, type DriveConfig } from './PersonalDrive';
+import { PersonalDriveReader, privateConnection, DriveReadError,personalDestination,type DriveConfig } from './PersonalDrive';
 import { loadDriveDialogs } from './PersonalDriveDialogs';
 import type { ReadHistory } from './SessionHistory';
 
@@ -45,7 +45,7 @@ export function DriveOpen({onStart, onOpen, onClear, register}: {onStart: () => 
   return <section aria-label="Open personal Drive recording">
     <button type="button" disabled={busy} onClick={() => void prepare()}>Open from personal Drive</button>
     {config && <>
-      <p>Account: {config.email}<br/>Destination: Gym Assistant — PERSONAL M1 DEV</p>
+      <p>Account: {config.email}<br/>Destination: {personalDestination(config)}</p>
       <p>Read-only viewer. Google’s specific-files permission also permits changes; this reader only reads the file you choose.</p>
       <button type="button" disabled={busy} onClick={() => void choose()}>Connect and choose recording</button>
     </>}

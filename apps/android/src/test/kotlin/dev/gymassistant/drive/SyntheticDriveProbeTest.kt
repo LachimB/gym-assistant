@@ -1,6 +1,7 @@
 package dev.gymassistant.drive
 
 import kotlin.test.*
+import kotlinx.coroutines.runBlocking
 
 class SyntheticDriveProbeTest {
     private val email = "synthetic-owner@example.invalid"
@@ -8,11 +9,11 @@ class SyntheticDriveProbeTest {
     private val parent = """{"name":"Gym Assistant — SYNTHETIC M1 TEST — fixture","mimeType":"application/vnd.google-apps.folder","appProperties":{"gymSyntheticM1":"fixture"}}"""
     private val child = """{"id":"$SYNTHETIC_CHILD","name":"SYNTHETIC-external-child.json","mimeType":"application/json","parents":["$SYNTHETIC_PARENT"]}"""
     private fun probe(responses: List<ProbeResponse>, seen: MutableList<String> = mutableListOf()): String =
-        runSyntheticDriveProbe("fake-token", email, ProbeTransport { token, path ->
+        runBlocking {runSyntheticDriveProbe("fake-token", email, ProbeTransport { token, path ->
             assertEquals("fake-token", token)
             seen += path
             responses[seen.size - 1]
-        })
+        })}
 
     @Test fun onlyExactFileScopeIsAccepted() {
         assertTrue(exactDriveScope(listOf(DRIVE_FILE_SCOPE)))

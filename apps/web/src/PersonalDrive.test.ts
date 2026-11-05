@@ -1,11 +1,15 @@
 import {describe,it,expect,vi} from 'vitest';
 import {readFileSync} from 'node:fs';
 import {PersonalDriveReader,DRIVE_SCOPE,PERSONAL_FOLDER,checkConfig,privateConnection,type DriveConfig,type BudgetKind,type Grant} from './PersonalDrive';
+import {checkProjectLayout,projectArea,type ProjectDriveLayout} from './ProjectDriveLayout.mjs';
+const layout=checkProjectLayout(JSON.parse(readFileSync(new URL('../../../examples/project-layout/synthetic-layout.json',import.meta.url),'utf8')));
 const config: DriveConfig = {clientId:'900-'+ 'a'.repeat(25)+'.apps.googleusercontent.com',apiKey:'AIza'+'x'.repeat(35),appId:'900',
   email:'owner@example.test',permissionId:'synthetic-account',folderId:'synthetic-folder',marker:'personal-m1-synthetic',allocationId:'synthetic-allocation'};
 const raw=readFileSync(new URL('../../../examples/sessions/synthetic-runtime-v2-session.json',import.meta.url),'utf8');
 const session=JSON.parse(raw);
-function harness(options: {status?:number; failure?:boolean; metadataBody?:string; edit?: (meta: Record<string,unknown>,kind:string) => void; media?: string; grant?: Grant; choose?: () => Promise<string>; consume?: (kind: BudgetKind) => void} = {}) {
+function harness(options: {project?:ProjectDriveLayout;status?:number; failure?:boolean; metadataBody?:string; edit?: (meta: Record<string,unknown>,kind:string) => void; media?: string; grant?: Grant; choose?: () => Promise<string>; consume?: (kind: BudgetKind) => void} = {}) {
+  const area=options.project?projectArea(options.project,'personal'):undefined;
+  const c=checkConfig({...config,...(area?{folderId:area.id,marker:area.marker,projectLayout:options.project}:{})});
   const calls: {url:string;init?:RequestInit}[]=[]; const budgets:BudgetKind[]=[];
   const dialogs={authorize:vi.fn(async()=>options.grant??{token:'synthetic-access',expiresAt:2000,scope:DRIVE_SCOPE}),
     choose:vi.fn(options.choose??(async()=> 'synthetic-file'))};
@@ -15,16 +19,43 @@ function harness(options: {status?:number; failure?:boolean; metadataBody?:strin
     if (options.metadataBody) return new Response(options.metadataBody);
     if (options.status) return new Response('private provider detail',{status:options.status});
     let kind: string;let meta: Record<string,unknown>;
-    if(url.includes('/about?')) {kind='about';meta={user:{permissionId:config.permissionId,emailAddress:config.email}};}
+    if(url.includes('/about?')) {kind='about';meta={user:{permissionId:c.permissionId,emailAddress:c.email}};}
     else if(url.includes('alt=media')) return new Response(options.media??raw);
-    else if(url.includes('/'+config.folderId+'?')) {kind='folder';meta={id:config.folderId,name:PERSONAL_FOLDER,mimeType:'application/vnd.google-apps.folder',trashed:false,appProperties:{gymPersonalM1:config.marker}};}
-    else {kind='file';meta={id:'synthetic-file',name:`PERSONAL-session-${session.sessionId}.json`,mimeType:'application/json',parents:[config.folderId],trashed:false,appProperties:{gymPersonalM1:config.marker}};}
+    else if(url.includes('/'+c.folderId+'?')) {kind='folder';meta={id:c.folderId,name:area?.name??PERSONAL_FOLDER,mimeType:'application/vnd.google-apps.folder',trashed:false,appProperties:{gymPersonalM1:c.marker},
+      ...(area?{parents:[options.project!.dev.id],ownedByMe:true,shared:false,permissions:[{id:c.permissionId,type:'user',role:'owner'}]}:{})};}
+    else if(options.project&&[options.project.root,options.project.dev].some(pin=>url.includes('/'+pin.id+'?'))) {
+      const pin=[options.project.root,options.project.dev].find(pin=>url.includes('/'+pin.id+'?'))!;
+      kind='project';meta={id:pin.id,name:pin.name,parents:[pin.parentId],mimeType:'application/vnd.google-apps.folder',trashed:false,ownedByMe:true,shared:false,
+        appProperties:{[pin.propertyName]:pin.marker},permissions:[{id:c.permissionId,type:'user',role:'owner'}]};
+    }
+    else {kind='file';meta={id:'synthetic-file',name:`PERSONAL-session-${session.sessionId}.json`,mimeType:'application/json',parents:[c.folderId],trashed:false,appProperties:{gymPersonalM1:c.marker}};}
     options.edit?.(meta,kind); return new Response(JSON.stringify(meta));
   }) as typeof fetch;
-  const reader=new PersonalDriveReader(checkConfig(config),async(kind,signal)=>{if(signal.aborted)throw new Error();budgets.push(kind);options.consume?.(kind);},dialogs,fetcher,()=>1000);
+  const reader=new PersonalDriveReader(c,async(kind,signal)=>{if(signal.aborted)throw new Error();budgets.push(kind);options.consume?.(kind);},dialogs,fetcher,()=>1000);
   return {reader,calls,budgets,dialogs,fetcher};
 }
 describe('selected personal Drive reader',()=>{
+  it('reads the same recording after relocation only through pinned owner-only ancestors',async()=>{
+    const h=harness({project:{...layout,phase:'active'}});
+    expect((await h.reader.open(new AbortController().signal)).record.sessionId).toBe(session.sessionId);
+    expect(h.calls).toHaveLength(6);expect(h.calls[2].url).toContain('/'+layout.root.id+'?');expect(h.calls[3].url).toContain('/'+layout.dev.id+'?');
+    expect(h.calls.filter(c=>c.url.includes('alt=media'))).toHaveLength(1);
+  });
+  it('rejects changed hierarchy before recording metadata or content reads',async()=>{
+    for(const [kind,patch] of [['project',{shared:true}],['project',{parents:['outside']}],['folder',{parents:[layout.test.id]}],['folder',{name:projectArea(layout,'personal').sourceName}]] as const) {
+      const h=harness({project:{...layout,phase:'active'},edit:(m,k)=>{if(k===kind)Object.assign(m,patch);}});
+      await expect(h.reader.open(new AbortController().signal)).rejects.toThrow('hierarchy');
+      expect(h.calls.some(c=>c.url.includes('/synthetic-file?'))).toBe(false);
+    }
+  });
+  it('pins browser budget requests to the reviewed layout revision',async()=>{
+    const area=projectArea(layout,'personal');const c={...config,folderId:area.id,marker:area.marker,projectLayout:layout};
+    const fake=vi.fn(async(input:unknown)=>String(input).endsWith('/config')?new Response(JSON.stringify(c)):new Response(null,{status:204}));
+    vi.stubGlobal('fetch',fake);try {
+      const signal=new AbortController().signal;const connection=await privateConnection(signal);await connection.consume('request',signal);
+      expect(JSON.parse((fake.mock.calls[1] as unknown as [unknown,RequestInit])[1].body as string)).toMatchObject({allocationId:c.allocationId,kind:'request',layoutHash:expect.stringMatching(/^[a-f0-9]{64}$/)});
+    }finally {vi.unstubAllGlobals();}
+  });
   it('verifies the selected namespace and canonical recording with only bounded fixed-origin GETs',async()=>{
     const h=harness(); const result=await h.reader.open(new AbortController().signal);
     expect(result.record.sessionId).toBe(session.sessionId);expect(h.calls).toHaveLength(4);

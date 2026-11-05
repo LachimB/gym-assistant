@@ -82,6 +82,8 @@ data class TemplateSyncObservation5(@PrimaryKey val observationId:String,val bin
     @Insert suspend fun insertJob(row:TemplateSyncJob5)
     @Insert suspend fun insertObservation(row:TemplateSyncObservation5)
     @Query("SELECT * FROM project_storage_roots WHERE rootBindingId=:id") suspend fun root(id:String):ProjectStorageRoot5?
+    @Query("SELECT * FROM project_storage_roots WHERE provider=:provider AND permissionId=:permission")
+    suspend fun rootForAccount(provider:String,permission:String):ProjectStorageRoot5?
     @Query("SELECT * FROM template_sync_bindings WHERE bindingId=:id") suspend fun binding(id:String):TemplateSyncBinding5?
     @Query("SELECT * FROM template_sync_bindings WHERE enabled=1 ORDER BY bindingId") suspend fun enabledBindings():List<TemplateSyncBinding5>
     @Query("SELECT b.* FROM template_sync_bindings b JOIN project_storage_roots r ON r.rootBindingId=b.rootBindingId JOIN drive_connections c ON c.connectionId=b.connectionId WHERE b.enabled=1 AND r.state='active' AND r.provider=c.provider AND r.permissionId=c.permissionId ORDER BY b.bindingId")

@@ -54,7 +54,8 @@ class DriveProbeModel(application: Application) : AndroidViewModel(application) 
         viewModelScope.launch {
             try {
                 val result = withContext(Dispatchers.IO) {
-                    val transport = GoogleProbeTransport {
+                    val project=ProjectDriveAccess5(dev.gymassistant.session.WorkoutDatabases.open(getApplication()),projectDriveLayout5(BuildConfig.PROJECT_DRIVE_LAYOUT))
+                    val transport = GoogleProbeTransport(project.layout) {
                         synchronized(preferences) {
                             val used = preferences.getInt("direct-requests", 0)
                             check(used in 0 until 20 && preferences.edit().putInt("direct-requests", used + 1).commit()) {
@@ -62,7 +63,7 @@ class DriveProbeModel(application: Application) : AndroidViewModel(application) 
                             }
                         }
                     }
-                    runSyntheticDriveProbe(token, expectedEmail, transport)
+                    runSyntheticDriveProbe(token, expectedEmail, transport,project)
                 }
                 mutableStatus.value = result
             } catch (cancelled: CancellationException) {

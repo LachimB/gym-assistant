@@ -1,0 +1,12 @@
+export type ProjectPhase = 'reserved'|'verified'|'adopting'|'active'|'blocked';
+export type ProjectFolderPin = Readonly<{id:string;parentId:string;name:string;propertyName:string;marker:string}>;
+export type ProjectAreaPin = Readonly<{kind:'personal'|'synthetic';id:string;sourceName:string;sourceParentId:string;name:string;environment:'dev'|'test';marker:string}>;
+export type ProjectDriveLayout = Readonly<{schemaVersion:'1.0.0';bindingId:string;permissionId:string;phase:ProjectPhase;
+  root:ProjectFolderPin;dev:ProjectFolderPin;test:ProjectFolderPin;prod:ProjectFolderPin;areas:readonly ProjectAreaPin[]}>;
+export function readStrictProjectJSON(text:string):Record<string,unknown>;
+export function checkProjectLayout(value:unknown):ProjectDriveLayout;
+export function projectArea(layout:ProjectDriveLayout,kind:'personal'|'synthetic'):ProjectAreaPin;
+export function projectAreaPath(layout:ProjectDriveLayout,kind:'personal'|'synthetic'):string;
+export function needsProjectAncestors(phase:ProjectPhase):boolean;
+export const PROJECT_FOLDER_FIELDS:string;
+export function verifyProjectArea(layout:ProjectDriveLayout,kind:'personal'|'synthetic',permissionId:string,metadata:unknown,ancestors?:Readonly<Record<string,unknown>>):string;

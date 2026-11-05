@@ -46,6 +46,9 @@ class TemplateSync5Test {
         val template=publish()
         RoomDeliveryStore(db).bind(DriveConnectionRow("connection-test","googleDrive","synthetic-account","owner@example.test","personal-root","personal-m1-test",at,at))
         db.templateSync().insertRoot(ProjectStorageRoot5("project-test",permissionId="synthetic-account",commonRootFolderId="project-root",marker="gym-project-test",state="active"))
+        assertEquals("project-test",db.templateSync().rootForAccount("googleDrive","synthetic-account")?.rootBindingId)
+        assertNull(db.templateSync().rootForAccount("googleDrive","another-account"))
+        assertNull(db.templateSync().rootForAccount("another-provider","synthetic-account"))
         val binding=TemplateSyncBinding5("binding-test","connection-test","project-test",template.templateId,"template-folder","working-folder","history-folder","metadata-folder","gym-template-test","head-object",enabled=true,createdAt=at,updatedAt=at)
         db.templateSync().insertBinding(binding);return binding
     }

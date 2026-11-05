@@ -3,6 +3,8 @@ import {createServer} from 'node:http';
 import {readFileSync,writeFileSync,renameSync,realpathSync,statSync,openSync,fsyncSync,closeSync} from 'node:fs';
 import {resolve,sep,extname,dirname} from 'node:path';
 import {fileURLToPath} from 'node:url';
+import {createHash} from 'node:crypto';
+import {readStrictProjectJSON,checkProjectLayout,projectArea} from '../apps/web/src/ProjectDriveLayout.mjs';
 
 export function consumeBudget(ledger, allocationId, kind) {
   if (!ledger || ledger.version !== 1 || ledger.reservationVerified !== true || ledger.allocationId !== allocationId ||
@@ -17,11 +19,17 @@ export function historyServer({root,configPath,ledgerPath,port=4173}) {
   const publicRoot = realpathSync(root);
   function privateConfig() {
     if (!configPath || !ledgerPath) throw new Error('Disabled');
-    const config=JSON.parse(readFileSync(configPath,'utf8'));
+    if(statSync(configPath).size>32768)throw new Error('Invalid configuration');
+    const config=readStrictProjectJSON(readFileSync(configPath,'utf8'));
     const ledger=JSON.parse(readFileSync(ledgerPath,'utf8'));
     // Validation is also performed in the browser. Check the durable reservation before exposing live config.
     if (config.allocationId !== ledger.allocationId || !ledger.reservationVerified || ledger.version !== 1) throw new Error('Unreserved');
-    if (Object.keys(config).sort().join(',') !== 'allocationId,apiKey,appId,clientId,email,folderId,marker,permissionId') throw new Error('Unexpected configuration');
+    const expected='allocationId,apiKey,appId,clientId,email,folderId,marker,permissionId'+('projectLayout' in config?',projectLayout':'');
+    if (Object.keys(config).sort().join(',') !== expected.split(',').sort().join(',')) throw new Error('Unexpected configuration');
+    if('projectLayout' in config) {
+      config.projectLayout=checkProjectLayout(config.projectLayout);const area=projectArea(config.projectLayout,'personal');
+      if(config.projectLayout.permissionId!==config.permissionId||area.id!==config.folderId||area.marker!==config.marker)throw new Error('Binding differs');
+    }
     return config;
   }
   return createServer(async (request,response) => {
@@ -41,7 +49,9 @@ export function historyServer({root,configPath,ledgerPath,port=4173}) {
         if (!origin || request.headers['x-gym-local-reader'] !== '1' || request.headers['content-type'] !== 'application/json') throw new Error('Rejected');
         let text='';for await (const chunk of request) {text+=chunk.toString();if (text.length>512) throw new Error('Rejected');}
         const body=JSON.parse(text); const config=privateConfig();
-        if (Object.keys(body).sort().join(',')!=='allocationId,kind' || body.allocationId!==config.allocationId) throw new Error('Rejected');
+        const keys=config.projectLayout?'allocationId,kind,layoutHash':'allocationId,kind';
+        if (Object.keys(body).sort().join(',')!==keys || body.allocationId!==config.allocationId) throw new Error('Rejected');
+        if(config.projectLayout && body.layoutHash!==createHash('sha256').update(JSON.stringify(config.projectLayout)).digest('hex'))throw new Error('Layout changed');
         const ledger=consumeBudget(JSON.parse(readFileSync(ledgerPath,'utf8')),body.allocationId,body.kind);
         // Synchronous read/replace serializes counter transitions, before granting permission to transmit.
         const staged=ledgerPath+'.stage';const fd=openSync(staged,'w',0o600);

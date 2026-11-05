@@ -1,9 +1,10 @@
 import { MAX_HISTORY_BYTES, readHistory, type ReadHistory } from './SessionHistory';
+import {checkProjectLayout,projectArea,projectAreaPath,needsProjectAncestors,verifyProjectArea,PROJECT_FOLDER_FIELDS,readStrictProjectJSON,type ProjectDriveLayout} from './ProjectDriveLayout.mjs';
 
 export const DRIVE_SCOPE = 'https://www.googleapis.com/auth/drive.file';
 export const PERSONAL_FOLDER = 'Gym Assistant — PERSONAL M1 DEV';
 export type DriveConfig = Readonly<{ clientId: string; apiKey: string; appId: string; email: string;
-  permissionId: string; folderId: string; marker: string; allocationId: string }>;
+  permissionId: string; folderId: string; marker: string; allocationId: string; projectLayout?:ProjectDriveLayout }>;
 export type BudgetKind = 'request' | 'authorization' | 'picker';
 export type Consume = (kind: BudgetKind, signal: AbortSignal) => Promise<void>;
 export type Grant = { token: string; expiresAt: number; scope: string };
@@ -21,9 +22,17 @@ export function checkConfig(value: unknown): DriveConfig {
       !/^personal-m1-[\w-]{1,128}$/.test(c.marker) || !/^[\w-]{1,128}$/.test(c.allocationId)) {
     throw new DriveReadError('The approved private Drive connection is unavailable.');
   }
+  const expected='allocationId,apiKey,appId,clientId,email,folderId,marker,permissionId'+('projectLayout' in c?',projectLayout':'');
+  if(Object.keys(c).sort().join(',')!==expected.split(',').sort().join(','))throw new DriveReadError('The approved private Drive connection is unavailable.');
+  let projectLayout:ProjectDriveLayout|undefined;
+  if('projectLayout' in c)try {
+    projectLayout=checkProjectLayout(c.projectLayout);const area=projectArea(projectLayout,'personal');
+    if(projectLayout.permissionId!==c.permissionId||area.id!==c.folderId||area.marker!==c.marker)throw new Error();
+  }catch{throw new DriveReadError('The approved project layout is unavailable.');}
   return Object.freeze({ clientId:c.clientId, apiKey:c.apiKey, appId:c.appId, email:c.email,
-    permissionId:c.permissionId, folderId:c.folderId, marker:c.marker, allocationId:c.allocationId });
+    permissionId:c.permissionId, folderId:c.folderId, marker:c.marker, allocationId:c.allocationId,...(projectLayout?{projectLayout}:{}) });
 }
+export const personalDestination=(config:DriveConfig)=>config.projectLayout?projectAreaPath(config.projectLayout,'personal'):PERSONAL_FOLDER;
 async function boundedText(response: Response, limit: number, signal: AbortSignal): Promise<string> {
   const declared = response.headers.get('content-length');
   if (declared !== null && (!/^\d+$/.test(declared) || Number(declared) > limit)) throw new DriveReadError('The selected file exceeds the reader limit.');
@@ -77,7 +86,12 @@ export class PersonalDriveReader {
       if (!/^[\w-]{1,128}$/.test(selectedId) || selectedId === this.config.folderId) throw new DriveReadError('Choose one delivered session JSON file.');
       const folder = await this.metadata('folder', signal);
       const props = folder.appProperties as Record<string, unknown> | undefined;
-      if (folder.id !== this.config.folderId || folder.name !== PERSONAL_FOLDER || folder.trashed !== false ||
+      if(this.config.projectLayout) {
+        const layout=this.config.projectLayout;const ancestors:Record<string,unknown>={};
+        if(needsProjectAncestors(layout.phase))for(const pin of [layout.root,layout.dev])ancestors[pin.id]=await this.metadata('project',signal,pin.id);
+        try {verifyProjectArea(layout,'personal',String(user.permissionId),folder,ancestors);}
+        catch {throw new DriveReadError('The approved project folder hierarchy could not be verified.');}
+      } else if (folder.id !== this.config.folderId || folder.name !== PERSONAL_FOLDER || folder.trashed !== false ||
           folder.mimeType !== 'application/vnd.google-apps.folder' || props?.gymPersonalM1 !== this.config.marker) {
         throw new DriveReadError('The approved personal folder could not be verified.');
       }
@@ -102,7 +116,7 @@ export class PersonalDriveReader {
       throw new DriveReadError(signal.aborted ? 'Operation cancelled.' : 'Unable to open and validate the selected Drive recording.');
     } finally { this.disconnect(); }
   }
-  private async metadata(kind: 'about'|'folder'|'file', signal: AbortSignal, id?: string): Promise<Record<string, unknown>> {
+  private async metadata(kind: 'about'|'folder'|'file'|'project', signal: AbortSignal, id?: string): Promise<Record<string, unknown>> {
     const text = await this.request(kind, signal, id);
     try {
       const value: unknown = JSON.parse(text);
@@ -114,13 +128,15 @@ export class PersonalDriveReader {
       throw new DriveReadError(`Drive returned invalid ${kind === 'about' ? 'account' : kind} metadata (${shape}).`);
     }
   }
-  private async request(kind: 'about'|'folder'|'file'|'media', signal: AbortSignal, id?: string): Promise<string> {
+  private async request(kind: 'about'|'folder'|'file'|'media'|'project', signal: AbortSignal, id?: string): Promise<string> {
     if (signal.aborted) throw stopped();
     if (!this.grant || this.grant.expiresAt <= this.now()) { this.disconnect(); throw new DriveReadError('Authorization expired. Connect again.'); }
     const actualId = kind === 'folder' ? this.config.folderId : id;
     if (kind !== 'about' && (!actualId || !/^[\w-]{1,128}$/.test(actualId))) throw stopped();
+    if(kind==='project'&&(!this.config.projectLayout||![this.config.projectLayout.root.id,this.config.projectLayout.dev.id].includes(actualId!)))throw stopped();
+    const fields=kind==='project'||kind==='folder'&&this.config.projectLayout?PROJECT_FOLDER_FIELDS:'id,name,mimeType,parents,appProperties,trashed,size';
     const path = kind === 'about' ? 'about?fields=user(permissionId,emailAddress)' :
-      `files/${encodeURIComponent(actualId!)}?` + (kind === 'media' ? 'alt=media' : 'fields=id,name,mimeType,parents,appProperties,trashed,size');
+      `files/${encodeURIComponent(actualId!)}?` + (kind === 'media' ? 'alt=media' : 'fields='+fields);
     await this.consume('request', signal);
     if (signal.aborted || !this.grant || this.grant.expiresAt <= this.now()) { this.disconnect(); throw stopped(); }
     // Use the base AbortController API: older embedded browsers lack the static helpers.
@@ -146,10 +162,11 @@ export async function privateConnection(signal: AbortSignal): Promise<{config: D
   try {
     const response = await fetch('/__private/drive-reader/config', {signal, cache:'no-store', credentials:'same-origin', redirect:'error'});
     if (!response.ok) throw new Error();
-    const config = checkConfig(JSON.parse(await boundedText(response, 8192, signal)));
+    const config = checkConfig(readStrictProjectJSON(await boundedText(response, 32768, signal)));
+    const layoutHash=config.projectLayout?Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(JSON.stringify(config.projectLayout))))).map(x=>x.toString(16).padStart(2,'0')).join(''):undefined;
     const consume: Consume = async (kind, requestSignal) => {
       const reply = await fetch('/__private/drive-reader/budget', {method:'POST', signal:requestSignal, cache:'no-store', redirect:'error', credentials:'same-origin',
-        headers:{'Content-Type':'application/json','X-Gym-Local-Reader':'1'}, body:JSON.stringify({allocationId:config.allocationId, kind})});
+        headers:{'Content-Type':'application/json','X-Gym-Local-Reader':'1'}, body:JSON.stringify({allocationId:config.allocationId, kind,...(layoutHash?{layoutHash}:{})})});
       if (!reply.ok) throw new DriveReadError('The approved test allowance is unavailable or exhausted.');
     };
     return {config, consume};
