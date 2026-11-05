@@ -76,7 +76,11 @@ data class TemplateSyncObservation5(@PrimaryKey val observationId:String,val bin
         require(validationCode in setOf("valid","invalid","unsupported","changing","conflict"));require(reviewState in setOf("pending","published","rejected")) }
 }
 
+data class TemplateSourceHashes5(val sourceHash:String,val compiledPlanHash:String)
+
 @Dao interface TemplateSyncDao5 {
+    @Query("SELECT sourceHash,compiledPlanHash FROM template_revisions WHERE templateId=:id AND revisionId=:revision")
+    suspend fun sourceHashes(id:String,revision:String):TemplateSourceHashes5?
     @Insert suspend fun insertRoot(row:ProjectStorageRoot5)
     @Insert suspend fun insertBinding(row:TemplateSyncBinding5)
     @Insert suspend fun insertJob(row:TemplateSyncJob5)

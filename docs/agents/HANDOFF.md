@@ -8,9 +8,9 @@ state on GitHub under the startup rule. Read the latest
 “Approved folder cutover” section below and `docs/milestones/m1-drive-consolidation.md`
 before acting on older pending-gate notes. M1 remains incomplete.
 
-The approved synthetic YAML media proof has now passed. Native immutable-file
-transport preparation follows below; its runtime/journal/head integration remains
-open. All eight currently approved authorization launches are counted.
+The approved synthetic YAML media proof has passed and immutable-file transport
+has merged. Durable publication-journal work follows below; native head/runtime
+integration remains open. All eight approved authorization launches are counted.
 
 ## Verified baseline — 2026-11-04
 
@@ -694,3 +694,31 @@ Implement the durable immutable/head journal, native publication head, verified
 remote capture and the account/allowance-bound worker/source review next. These
 components still cannot publish a whole revision, adopt a local Template or
 finish a job. M1 and actual background/screen-off/Doze acceptance remain open.
+
+## Durable publication journal preparation — 2026-11-05
+
+PR45 merged at `f4acdc1` after all required checks, seven supported Android
+versions and the exact owner receipt passed on `85be15d`. It includes the verified
+YAML provider result and native immutable-file preparation. No further live batch
+or physical installation has run; all eight authorization launches remain used.
+
+The next additive private progress layer links completed working receipts to
+fixed immutable source/manifest IDs and expected/intended head facts. It retains
+original head metadata/content bytes by hash, validates them against the decoded
+head and native owner-only namespace, and appends competing/missing observations
+without erasing a verified publication receipt. File receipts alone cannot
+acknowledge publication; publication cannot adopt a source or finish a job.
+
+The Room5 store keeps file/hash/compiler work outside SQL, then rechecks the same
+lease, pointer, frozen source and enabled root/account/binding before commit.
+Repeated begin/receipt operations reuse the pointer. Rollback retains inert file
+evidence, never a false acknowledgement. No table/schema, recording, library
+default, dependency or timing-engine change. Local114 Android JVM/35 adapter JVM
+checks pass; instrumentation compiles. Four new SQLite regressions require actual
+current-head execution across the full CI matrix before merge. See
+`docs/milestones/m1-publication-journal.md`.
+
+Next: native head transport, durable journal/executor bridging, remote capture,
+account/allowance-bound scheduling and source-review UI. Preserve the complete
+CI/fresh-backup/device gates before runtime activation. Existing live fixtures,
+IDs, earlier allowances and original evidence stay retained; no counter reset.

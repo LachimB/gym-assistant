@@ -14,7 +14,14 @@ class PublicationHeadIntent(val operationId:String,val objectId:String,val metad
     }
 }
 class PublicationHeadSnapshot(val objectId:String,parents:Set<String>,val marker:String,val name:String,val mimeType:String,
-    val tag:String,val trashed:Boolean,val head:TemplatePublicationHead) {val parents=parents.toSet()}
+    val tag:String,val trashed:Boolean,val head:TemplatePublicationHead,metadataBytes:ByteArray,contentBytes:ByteArray) {
+    val parents=parents.toSet()
+    private val metadata=metadataBytes.also {require(it.size in 1..65536)}.copyOf()
+    private val content=contentBytes.also {require(it.size in 1..65536)}.copyOf()
+    /** Original provider bytes are retained separately from the decoded semantic head. */
+    val metadataBytes:ByteArray get()=metadata.copyOf()
+    val contentBytes:ByteArray get()=content.copyOf()
+}
 
 interface PublicationHeadRemote {
     /** Same pinned account/common root/area/Template and exact metadata folder; no root replacement. */

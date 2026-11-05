@@ -8,7 +8,8 @@ class GuardedPublicationHeadTest {
     private fun intent(existing:Boolean=true)=PublicationHeadIntent("operation-test","head-object","metadata-folder","gym-template-test",
         if(existing)prior else null,if(existing)"tag-before" else null,if(existing)next else next.copy(previousGenerationId=null))
     private fun snapshot(head:TemplatePublicationHead=prior,tag:String="tag-before",parent:String="metadata-folder")=
-        PublicationHeadSnapshot("head-object",setOf(parent),"gym-template-test","head.json","application/json",tag,false,head)
+        PublicationHeadSnapshot("head-object",setOf(parent),"gym-template-test","head.json","application/json",tag,false,head,
+            "synthetic provider metadata".toByteArray(),"synthetic provider head bytes".toByteArray())
     private inner class Fake(existing:Boolean=true):PublicationHeadRemote,PublicationHeadJournal {
         var head:PublicationHeadSnapshot?=if(existing)snapshot() else null
         var writes=0;var creates=0;var acknowledged=0;var observed=mutableListOf<PublicationHeadSnapshot?>()
@@ -83,5 +84,13 @@ class GuardedPublicationHeadTest {
         assertEquals(1,fake.writes);assertEquals(1,fake.acknowledged)
         assertEquals("later-tag",fake.head?.tag);assertEquals("later-generation",fake.observed.last()?.head?.generationId)
         assertTrue(fake.observed.any {it?.head==next})
+    }
+    @Test fun rawHeadAndMetadataBytesAreBoundedAndDefensivelyRetained() {
+        val metadata="original metadata".toByteArray();val content="original content".toByteArray()
+        val s=PublicationHeadSnapshot("head-object",setOf("metadata-folder"),"gym-template-test","head.json","application/json","tag",false,prior,metadata,content)
+        metadata[0]=32;content[0]=32;s.metadataBytes[0]=32;s.contentBytes[0]=32
+        assertContentEquals("original metadata".toByteArray(),s.metadataBytes);assertContentEquals("original content".toByteArray(),s.contentBytes)
+        assertFails {PublicationHeadSnapshot("head-object",setOf("metadata-folder"),"gym-template-test","head.json","application/json","tag",false,prior,byteArrayOf(),content)}
+        assertFails {PublicationHeadSnapshot("head-object",setOf("metadata-folder"),"gym-template-test","head.json","application/json","tag",false,prior,metadata,ByteArray(65537))}
     }
 }
