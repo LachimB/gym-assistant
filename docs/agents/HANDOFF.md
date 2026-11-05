@@ -374,3 +374,22 @@ including all seven Android versions, passed on `eb56fca`. Full final ruleset an
 classic protections were fetched again and verified unchanged. The one-time
 waiver is closed. Current work is the separate lossless-YAML candidate slice;
 future worker/provider/UI work and all physical/live acceptance gates remain.
+
+
+## Native working-file transport continuation — 2026-11-05
+
+PR33 merged at `d490bb1` after all technical checks, the seven-version matrix and
+its exact owner receipt passed. The next independent slice adds narrow native
+Drive v2 tagged YAML reads/conditional updates and reserved-ID v3 creates, with
+pinned account/common-root ancestry and private namespace markers. Existing
+session-delivery allowlists are unchanged. Metadata/media/metadata snapshots
+reject changing tags;412 has no unconditional fallback. Failed namespace checks
+revoke access, and malformed ownership types fail before source download.
+
+Local combined Android75 JVM tests pass, including10 new synthetic transport
+regressions; SQLite instrumentation compiles. No real token, Drive request,
+allowance allocation, folder mutation, local APK build or phone update ran.
+See `docs/milestones/m1-drive-working-files.md`. Live YAML conditional-write proof,
+durable progress/head publication, source review UI and background scheduling are
+still open. Preserve exact private inventory approval and phone CI/verified-backup
+gates; use a fresh receipt/current CI before merging this slice.
