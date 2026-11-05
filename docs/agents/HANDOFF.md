@@ -426,6 +426,25 @@ token acquisition, live request, allowance reservation or phone operation occurr
 Verified remote capture for source-only jobs, immutable history/head publication,
 compatible common-root clients, background scheduling and review UI remain open.
 
+## Persistent constrained Template wakeups — 2026-11-05
+
+PR35 merged at `7a0dcdd` and PR36 at `78a8c3a` after all required checks, including
+seven Android versions and exact owner receipts, passed. PR37 is the separate
+captured-file executor. Scheduling preparation pins WorkManager2.12.0, records
+affected declared-license/POM hashes and preserves its original license asset.
+Unique periodic/one-off wakeups use connected network and exponential backoff;
+reconciliation follows enabled same-account active roots and cancels opt-outs.
+Only local binding identity enters WorkData. Owner-action results stop that
+wakeup's automatic retry; missing handler/invalid inputs fail closed.
+
+Local86 JVM checks pass and five WorkManager test-driver/manifest cases compile. Full
+current-head CI remains required. No application handler/startup/UI wiring exists
+yet, and no live background/device behavior is claimed. Unused foreground-service
+and diagnostic components are removed; ordinary network/reboot support remains.
+No phone update, token acquisition, live request, budget reservation or root move.
+See `docs/milestones/m1-template-scheduling.md`; publication/observation integration,
+compatible root clients, source review and physical/live acceptance remain open.
+
 
 ## Native working-file transport continuation — 2026-11-05
 

@@ -52,4 +52,14 @@ ADR-0009's initial sync contracts reuse the existing internal cloud-adapters
 project and existing serialization/YAML dependencies. Java/Kotlin bytecode is
 aligned at17 for Android consumption. This adds no third-party component or
 changes to upstream notices; the dependency-input review pins the wiring change.
-WorkManager and its transitive terms still require review when scheduling is added.
+ADR-0009 scheduling pins AndroidX WorkManager runtime/testing2.12.0. Its selected
+graph retains Room2.8.5 and resolves Kotlin stdlib2.1.20. The runtime/testing,
+tracing, concurrent-futures KTX, lifecycle, startup, JSpecify, ListenableFuture and
+Kotlin POM declarations inspected are Apache2.0; ListenableFuture inherits its
+declaration from Guava parent26.0-android. Exact inspected POM hashes are recorded
+in `docs/operations/third-party-review.json`. Work-testing is instrumentation-only.
+The identical original runtime/testing license text is preserved verbatim at
+`apps/android/src/main/assets/third-party/androidx-work/LICENSE.txt`, for inclusion
+in the app. Existing upstream notice resources remain retained. This source/POM
+review does not clear all transitive notices or general-use binary redistribution;
+the separate artifact-specific release review above remains mandatory.
