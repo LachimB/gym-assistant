@@ -35,7 +35,10 @@ acknowledgements, same-ID recovery, newer working edits, competing/missing heads
 invalid immutable source, stale ownership, bad readback and invalid lineage or
 namespace. All use synthetic in-memory provider/journal state.
 
-Implement the immutable history/manifest transport and durable journal, connect
+Native immutable file-transport preparation now has separate synthetic coverage;
+see [m1-immutable-revision-transport.md](m1-immutable-revision-transport.md). It
+does not supply a durable publication journal, head endpoint or full coordinator.
+Implement those remaining boundaries, connect
 source-only offline capture and the existing working-file executor, then wire the
 approved account/allowance-bound worker and source review. Require current-head
 CI and bounded live conditional-write/interruption evidence before claiming the
