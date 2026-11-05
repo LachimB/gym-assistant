@@ -915,12 +915,14 @@ handoff update. No physical installation or additional live Drive operation ran.
 
 ## Known-source vector capture preparation — 2026-11-05
 
-PR53 retains the read-only transport against verified main after PR51 merged.
-It replaces the older dependent PR52 without rewriting or deleting either branch.
+PR53 merged at `4db5fe8` after all required checks, the exact owner receipt and
+all seven supported Android versions passed on `f56812a`. It includes the two
+additional leased read-only SQLite cases. PR52 is superseded; its branch and
+commits remain retained without rewriting or deletion.
 The unchanged new-branch/current-main publication range passed local guards;
 the older branch update had included an already upstream GitHub merge signature
 that triggered the legacy content detector. No content exception or gate change
-was introduced. Current-head checks and the exact receipt remain required.
+was introduced. The merged tree matches the reviewed transport head.
 
 The next internal component captures the complete known working-file vector
 twice with head brackets and namespace rechecks. Tags, original metadata and bytes
