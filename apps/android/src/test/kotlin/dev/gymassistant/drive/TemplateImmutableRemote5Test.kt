@@ -101,7 +101,7 @@ class TemplateImmutableRemote5Test {
         val count=fake.calls.size;assertFails {remote.read(r.files.first().objectId)};assertEquals(count,fake.calls.size)
     }
     @Test fun immutableSocketGateRejectsReplacementUnknownReadsAndChangedMultipartBeforeBudgetOrNetwork() {
-        val r=revision();var attempts=0;val http=GoogleImmutableHttp5("synthetic",{attempts++},r);val pin=r.files.first()
+        val r=revision();var attempts=0;val http=GoogleImmutableHttp5("synthetic",{attempts++;error("Synthetic socket forbidden")},r);val pin=r.files.first()
         for(request in listOf(
             TemplateHttpRequest5("PUT","/upload/drive/v2/files/${pin.objectId}?uploadType=media&fields=id","text/plain",pin.bytes,"\"tag\""),
             TemplateHttpRequest5("GET","/drive/v2/files/${namespace.commonRootId}?alt=media"),
@@ -109,7 +109,7 @@ class TemplateImmutableRemote5Test {
             TemplateHttpRequest5("POST","/upload/drive/v3/files?uploadType=multipart&fields=id","multipart/related; boundary=gym-template-test","changed".toByteArray()),
         ))assertFails {http.request(request)}
         http.close();assertFails {http.request(TemplateHttpRequest5("GET",ACCOUNT_PATH))};assertEquals(0,attempts)
-        val legacy=GoogleTemplateHttp5("synthetic",{attempts++},setOf(pin.objectId),setOf(pin.objectId))
+        val legacy=GoogleTemplateHttp5("synthetic",{attempts++;error("Synthetic socket forbidden")},setOf(pin.objectId),setOf(pin.objectId))
         assertFails {legacy.request(TemplateHttpRequest5("GET","/drive/v2/files/${pin.objectId}?fields=$IMMUTABLE_FILE_FIELDS_5"))};legacy.close();assertEquals(0,attempts)
     }
     @Test fun onlyTheExactCapturedYamlAndManifestMultipartCanReachRequestReservation() {

@@ -9,25 +9,38 @@ import java.nio.charset.CodingErrorAction
 import kotlinx.serialization.json.*
 
 internal const val IMMUTABLE_FILE_FIELDS_5=TEMPLATE_FILE_FIELDS_5+",shared,permissions(id,type,role,deleted)"
-private fun immutableText5(bytes:ByteArray,limit:Int):String {
+internal fun immutableText5(bytes:ByteArray,limit:Int):String {
     require(bytes.size in 1..limit)
     return Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).onUnmappableCharacter(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(bytes)).toString()
 }
-private fun immutableJson5(bytes:ByteArray):JsonObject {
+internal fun immutableJson5(bytes:ByteArray):JsonObject {
     val text=immutableText5(bytes,65536);readYaml2(text)
     return Json.parseToJsonElement(text).jsonObject
 }
-private fun JsonObject.immutableString5(key:String):String {
+internal fun JsonObject.immutableString5(key:String):String {
     val value=this[key] as? JsonPrimitive ?: error("scalar")
     require(value.isString);return value.content
 }
-private fun JsonObject.immutableFlag5(key:String):Boolean {
+internal fun JsonObject.immutableFlag5(key:String):Boolean {
     val value=this[key] as? JsonPrimitive ?: error("scalar")
     require(!value.isString);return checkNotNull(value.booleanOrNull)
 }
-private fun immutableTag5(tag:String)=require(tag.matches(Regex("\"[\\x21\\x23-\\x7E]{1,1000}\"")))
-private inline fun <T> immutableSafe5(block:()->T):T=try{block()}catch(cancelled:kotlinx.coroutines.CancellationException){throw cancelled}
+internal fun immutableTag5(tag:String)=require(tag.matches(Regex("\"[\\x21\\x23-\\x7E]{1,1000}\"")))
+internal inline fun <T> immutableSafe5(block:()->T):T=try{block()}catch(cancelled:kotlinx.coroutines.CancellationException){throw cancelled}
     catch(failure:DeliveryFailure){throw failure}catch(_:Exception){throw DeliveryFailure("contract")}
+
+internal fun checkedTemplateObject5(data:JsonObject,permissionId:String,id:String,parent:String,name:String,mime:String,key:String,marker:String):String {
+    val parents=data["parents"]?.jsonArray?.map {it.jsonObject.immutableString5("id")}
+    val properties=data["properties"]?.jsonArray?.map {it.jsonObject}?.filter {it.immutableString5("key")==key && it.immutableString5("visibility")=="PRIVATE"}
+    val permissions=data["permissions"]?.jsonArray?.map {it.jsonObject}
+    if(data.immutableString5("id")!=id || data.immutableString5("title")!=name || data.immutableString5("mimeType")!=mime ||
+        parents!=listOf(parent) || !data.immutableFlag5("ownedByMe") || data.immutableFlag5("shared") ||
+        data["labels"]?.jsonObject?.immutableFlag5("trashed")!=false || properties?.size!=1 || properties.single().immutableString5("value")!=marker || permissions?.size!=1)throw DeliveryFailure("conflict")
+    val owner=permissions.single()
+    if(owner.immutableString5("id")!=permissionId || owner.immutableString5("type")!="user" || owner.immutableString5("role")!="owner" ||
+        "deleted" in owner && owner.immutableFlag5("deleted"))throw DeliveryFailure("permission")
+    return data.immutableString5("etag").also(::immutableTag5)
+}
 
 /** Exact reviewed chain from the common root to an immutable revision folder. No folder creation. */
 internal class ImmutableRevisionNamespace5(val permissionId:String,val commonRootId:String,val revisionFolderId:String,folders:List<TemplateFolderPin5>) {
@@ -107,16 +120,7 @@ internal class GoogleTemplateImmutableRemote5(private val http:TemplateHttp5,rev
         return if(result.status==404)null else immutableJson5(result.body)
     }
     private fun namespaceObject(data:JsonObject,id:String,parent:String,name:String,mime:String,key:String,marker:String):String {
-        val parents=data["parents"]?.jsonArray?.map {it.jsonObject.immutableString5("id")}
-        val properties=data["properties"]?.jsonArray?.map {it.jsonObject}?.filter {it.immutableString5("key")==key && it.immutableString5("visibility")=="PRIVATE"}
-        val permissions=data["permissions"]?.jsonArray?.map {it.jsonObject}
-        if(data.immutableString5("id")!=id || data.immutableString5("title")!=name || data.immutableString5("mimeType")!=mime ||
-            parents!=listOf(parent) || !data.immutableFlag5("ownedByMe") || data.immutableFlag5("shared") ||
-            data["labels"]?.jsonObject?.immutableFlag5("trashed")!=false || properties?.size!=1 || properties.single().immutableString5("value")!=marker || permissions?.size!=1)throw DeliveryFailure("conflict")
-        val owner=permissions.single()
-        if(owner.immutableString5("id")!=namespace.permissionId || owner.immutableString5("type")!="user" || owner.immutableString5("role")!="owner" ||
-            "deleted" in owner && owner.immutableFlag5("deleted"))throw DeliveryFailure("permission")
-        return data.immutableString5("etag").also(::immutableTag5)
+        return checkedTemplateObject5(data,namespace.permissionId,id,parent,name,mime,key,marker)
     }
     override fun verifyNamespace()=immutableSafe5 {
         verified=false
