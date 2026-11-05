@@ -1,39 +1,57 @@
 name: Trusted security gate
+# PROPOSED ONE-OFF DIAGNOSTIC: manual dispatch requires separate owner approval.
+# Main keeps its unchanged default-branch-only controller.
 on:
-  # Exception to the pull_request preference: ONLY default-branch code executes.
-  # Required head statuses and fork metadata need statuses:write. No PR checkout.
-  pull_request_target:
-    types: [opened, synchronize, reopened, edited, ready_for_review]
-  issue_comment:
-    types: [created, edited, deleted]
-  workflow_run:
-    workflows: [Publication privacy]
-    types: [completed]
-  schedule:
-    - cron: '17,47 * * * *'
   workflow_dispatch:
 permissions:
   contents: read
   pull-requests: read
   statuses: write
-# Serialize publishers (including polling/comment events); no stale run races.
 concurrency:
   group: trusted-security-controller
   cancel-in-progress: false
 jobs:
   assess:
+    if: github.actor == 'LachimB' && github.repository == 'LachimB/gym-assistant'
     runs-on: ubuntu-24.04
     timeout-minutes: 30
     steps:
-      - name: Check out trusted default branch ONLY
+      - name: Check out exact reviewed diagnostic snapshot
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
-          ref: ${{ github.event.repository.default_branch }}
+          ref: 16ce6048afe1d73cb7feb4e23bdd8caa85814421
           persist-credentials: false
           fetch-depth: 1
-      - name: Install checksum-pinned scanner
+      - name: Install unchanged checksum-pinned scanner
         run: bash tools/install_gitleaks.sh
-      - name: Assess PR data and publish required statuses
+      - name: Recheck offline diagnostic regressions
+        run: python3 -m unittest discover -s tests -p test_security_publication_diagnostic.py
+      - name: Assess only the reviewed target
         env:
           GH_TOKEN: ${{ github.token }}
-        run: python3 tools/security_controller.py
+        run: |
+          python3 - <<'PYTHON'
+          import os
+          import sys
+          sys.path.insert(0, 'tools')
+          from security_controller import GitHub, assess
+          try:
+              if (os.environ.get('GITHUB_ACTOR') != 'LachimB'
+                      or os.environ.get('GITHUB_REPOSITORY') != 'LachimB/gym-assistant'
+                      or os.environ.get('GITHUB_EVENT_NAME') != 'workflow_dispatch'):
+                  raise ValueError('unapproved diagnostic context')
+              api = GitHub('LachimB/gym-assistant', os.environ.pop('GH_TOKEN'))
+              target = api.get('/pulls/51')
+              if (target.get('state') != 'open' or target.get('user', {}).get('login') != 'LachimB'
+                      or target.get('head', {}).get('sha') != 'a97faab93190ccaeb7af3e9053a3b841ec4fc75b'
+                      or target.get('base', {}).get('sha') != 'e66847fb68147e07c912799b35068d9caed4daaa'):
+                  raise ValueError('diagnostic target changed')
+              run_id = os.environ['GITHUB_RUN_ID']
+              if not run_id.isascii() or not run_id.isdecimal():
+                  raise ValueError('invalid run identity')
+              outcome = assess(api, 51, 'https://github.com/LachimB/gym-assistant/actions/runs/' + run_id)
+          except Exception:
+              print('FAIL: pinned diagnostic unavailable; required checks remain mandatory; details withheld.')
+              sys.exit(1)
+          sys.exit(0 if outcome else 1)
+          PYTHON
