@@ -836,3 +836,36 @@ launches remain used. No new service, live request, resource, allowance reset,
 schema/default/dependency change, APK assembly or phone installation. A concrete
 separately reviewed plan and the CI/fresh-backup/device gates precede a native live
 batch. M1 and actual native/background/screen-off/Doze acceptance remain open.
+
+## Incomplete source-capture journal preparation — 2026-11-05
+
+PR50 merged at `e66847f` after all required checks, fresh exact-head owner
+receipts and all seven supported Android versions passed on `f516471`. The strict
+native composed protocol and three additional SQLite preflight/recovery cases
+executed successfully. An emulator archive setup failure required a targeted
+infrastructure retry; no gate was weakened. Canonical hashes and fresh-file
+integrity checks remain unchanged by bounded record-syntax reuse. No live batch
+or physical installation ran.
+
+The next private `sourceCaptureProgress` file fixes the queued local publication,
+unique observation/capture origin, binding/account/folder roles and exact known
+file pins. Its hash-linked raw facts cannot be borrowed from another capture of
+the same job. Empty pins, missing head or malformed received bytes remain unknown/
+unvalidated facts; they cannot claim a valid remote snapshot or adoption.
+
+The existing observation row stays pending/changing with no candidate or known
+remote generation/tag. File/fsync/compiler work precedes the leased SQL pointer
+CAS. Expiry before/after SQL, retarget, stale job origin or changed review state
+cannot acknowledge facts. Repeated begin returns the currently validated pointer.
+No Room schema, recording, library default or job advancement. Local147 Android
+JVM/36 adapter JVM checks pass; instrumentation compiles. Five additional SQLite
+cases still require current-head seven-version execution. See
+`docs/milestones/m1-source-capture-journal.md`.
+
+Next: verified readonly initial/base capture, candidate classification and
+three-way review, transfer-intent preparation, binding/job completion and account/
+allowance-bound authorization/scheduling. Exact known IDs are explicit inputs;
+cold-client discovery is not implemented or guessed from names. No new service,
+live request, allowance, OAuth launch, resource, dependency, APK assembly or phone
+installation. All eight approved launches remain used. M1 and actual native/
+provider/background/screen-off acceptance remain open.
