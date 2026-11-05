@@ -22,6 +22,21 @@ class TemplateSyncFiles5Test {
     private val steps=manifest.files.mapIndexed {i,f->WorkingFileStep("working-file-$i","working-folder","gym-template-test",f.relativeName,"text/plain",null,null,payloads.getValue(f.objectId))}
     @After fun cleanup(){root.deleteRecursively()}
     private fun prepare()=store.prepare("job-test","operation-test","binding-test",manifest.revisionId,manifest,payloads,steps)
+    @Test fun retainedSourceRemainsReadableWhileAnotherStorePublishesPrivateFiles() {
+        val bytes="names: {en: retained synthetic source}\n".toByteArray();val hash=store.retainSource(bytes)
+        val other=TemplateSyncFiles5(root,contracts);val start=java.util.concurrent.CountDownLatch(1)
+        val executor=java.util.concurrent.Executors.newFixedThreadPool(2)
+        try {
+            val writer=executor.submit {start.await();repeat(100){other.retainSource("names: {en: concurrent synthetic $it}\n".toByteArray())}}
+            val reader=executor.submit {start.await();repeat(2000){
+                assertContentEquals(bytes,store.source(hash))
+                assertEquals(java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"),Files.getPosixFilePermissions(root.toPath()))
+            }}
+            start.countDown();writer.get(30,java.util.concurrent.TimeUnit.SECONDS);reader.get(30,java.util.concurrent.TimeUnit.SECONDS)
+            assertContentEquals(bytes,TemplateSyncFiles5(root,contracts).source(hash))
+            for(file in root.listFiles().orEmpty())assertEquals(java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"),Files.getPosixFilePermissions(file.toPath()))
+        }finally {executor.shutdownNow();check(executor.awaitTermination(10,java.util.concurrent.TimeUnit.SECONDS))}
+    }
     @Test fun freshStoreReopensExactIntentSourcesAndBeforeImages() {
         val before="names: {en: old synthetic source}\n".toByteArray()
         val changed=steps.map {WorkingFileStep(it.objectId,it.folderId,it.marker,it.name,it.mimeType,"prior-tag",before,it.intendedBytes)}

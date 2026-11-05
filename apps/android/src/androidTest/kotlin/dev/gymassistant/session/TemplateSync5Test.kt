@@ -177,6 +177,9 @@ class TemplateSync5Test {
         val binding=binding();val revision=selected(binding);val before=rows()
         val jobs=coroutineScope {(1..2).map {n->async {queue().enqueue(binding.bindingId,revision.revisionId,revision.sourceHash,revision.compiledPlanHash,"offline-operation","offline-job-$n")}}.awaitAll()}
         assertEquals(jobs[0],jobs[1]);val job=jobs[0]
+        val retained=File(root,"template-sync")
+        assertEquals(java.nio.file.attribute.PosixFilePermissions.fromString("rwx------"),java.nio.file.Files.getPosixFilePermissions(retained.toPath()))
+        for(file in retained.listFiles().orEmpty())assertEquals(java.nio.file.attribute.PosixFilePermissions.fromString("rw-------"),java.nio.file.Files.getPosixFilePermissions(file.toPath()))
         assertEquals(1,db.openHelper.writableDatabase.query("SELECT count(*) FROM template_sync_jobs").use {it.moveToFirst();it.getInt(0)})
         assertEquals("{}",job.reservedObjectIdsJson);assertEquals("queued",job.state);assertEquals(before,rows())
         db.close();db=open();val lease=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-offline"))

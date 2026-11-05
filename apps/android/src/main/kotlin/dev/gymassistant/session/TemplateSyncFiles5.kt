@@ -10,6 +10,7 @@ import java.nio.charset.CodingErrorAction
 import java.nio.file.Files
 import java.nio.file.StandardCopyOption
 import java.nio.file.StandardOpenOption
+import java.nio.file.attribute.PosixFilePermissions
 import java.util.UUID
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
@@ -40,23 +41,22 @@ class TemplateSyncFiles5(private val root:File,private val contracts:ImportContr
     private fun write(name:String,bytes:ByteArray)=synchronized(lock) {
         require(bytes.size in 1..1048576)
         check(root.mkdirs() || root.isDirectory)
-        root.setReadable(false,false);root.setWritable(false,false);root.setExecutable(false,false)
-        check(root.setReadable(true,true) && root.setWritable(true,true) && root.setExecutable(true,true))
+        Files.setPosixFilePermissions(root.toPath(),PosixFilePermissions.fromString("rwx------"))
         val target=path(name)
         if(target.exists()){check(target.isFile && target.length()==bytes.size.toLong() && target.readBytes().contentEquals(bytes)) { "Immutable sync file changed" };syncDirectory();return@synchronized}
         val temporary=File(root,".stage-${UUID.randomUUID()}")
         FileOutputStream(temporary).use {stream->
-            temporary.setReadable(false,false);temporary.setWritable(false,false)
-            check(temporary.setReadable(true,true) && temporary.setWritable(true,true))
+            Files.setPosixFilePermissions(temporary.toPath(),PosixFilePermissions.fromString("rw-------"))
             stream.write(bytes);stream.fd.sync()
         }
         // One app process serializes writers. No existing retained file is overwritten or cleaned up.
         Files.move(temporary.toPath(),target.toPath(),StandardCopyOption.ATOMIC_MOVE)
         syncDirectory()
     }
-    private fun read(name:String,max:Int):ByteArray {
+    // Coordinate path/stat/open with publication and its owner-only filesystem setup across store instances.
+    private fun read(name:String,max:Int):ByteArray=synchronized(lock) {
         val target=path(name);check(target.isFile && target.length() in 1..max.toLong()) { "Private sync file missing or outside bounds" }
-        return target.readBytes().also {check(it.size in 1..max)}
+        target.readBytes().also {check(it.size in 1..max)}
     }
     internal fun source(hash:String):ByteArray {
         hash(hash);return read("$hash.yaml",1048576).also {check(hashSourceBytes(it)==hash) { "Private sync source changed" }}
