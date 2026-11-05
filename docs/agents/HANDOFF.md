@@ -2,7 +2,8 @@
 
 Current checkpoint — 2026-11-05: baseline before this cutover record was `aea8c75`;
 the approved folder cutover has run and its hierarchy/identity/access checks
-passed. Final owner phone/web checks remain pending. Verify current PR/merge/CI
+passed. Final owner phone probe/retry and web opening/value comparison passed
+after correcting a retired-key reference. Verify current PR/merge/CI
 state on GitHub under the startup rule. Read the latest
 “Approved folder cutover” section below and `docs/milestones/m1-drive-consolidation.md`
 before acting on older pending-gate notes. M1 remains incomplete.
@@ -607,3 +608,29 @@ compiles. The27 synthetic Drive/helper safeguards passed. Do not rerun the old
 test merely to mask this failure. Separate
 upstream504 dependency downloads are infrastructure failures. The installed
 cutover builds precede the coordination fix and have no enabled Template queue.
+
+## Cutover client checks and reader configuration — 2026-11-05
+
+PR42 merged at `cb15d62` after all required checks, all seven supported Android
+versions and the exact owner receipt passed on `c202e4b`. The owner reports that
+the moved synthetic-area phone probe and existing personal-delivery retry passed.
+Do not repeat either successful check or any consolidation operation.
+
+The web Picker stopped before opening a recording. Read-only inspection of the
+approved Cloud project showed that the configured previous key had been deleted
+after rotation. The private localhost configuration now uses the existing
+replacement with the approved restrictions; no new key or Cloud change was made.
+The failed child allocation is retained and reconciled once. The owner approved
+one additional authorization/Picker attempt, raising ADR-0009's batch ceiling
+from6 to7, and transferred one unused desktop metadata request to fund the
+six-request retry alongside the failed batch's five unused requests. The80-request
+consolidation and200/500 parent limits remain unchanged. Exact accounting and
+operational configuration stay private. The owner completed that single retry
+and confirmed successful opening and matching values. All six direct calls and
+the authorization/Picker launch were reconciled once; the retry is exhausted.
+All post-cutover client checks have passed. Do not repeat them, reset counters
+or launch another selection under either retained web allocation.
+
+The installed phone cutover build still precedes the source-read coordination
+fix. No Template/background binding is active; M1 remains incomplete. Continue
+the approved publication/review/runtime work after closing cutover acceptance.
