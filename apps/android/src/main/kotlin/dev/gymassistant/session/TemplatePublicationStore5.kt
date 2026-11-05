@@ -21,7 +21,7 @@ class TemplatePublicationStore5(private val db:WorkoutDatabase,private val files
         return Scope(b,r,c,hashSourceBytes(JsonArray(identity.map(::JsonPrimitive)).toString().toByteArray()))
     }
     private suspend fun validate(checked:CheckedPublication5,job:TemplateSyncJob5,s:Scope) {
-        checked.requireJob(job);val b=s.binding
+        checked.requireJob(job);check(job.state=="running");val b=s.binding
         check(checked.bindingHash==s.hash && checked.permissionId==s.root.permissionId &&
             checked.intent.objectId==b.headFileId && checked.intent.metadataFolderId==b.metadataFolderId && checked.intent.marker==b.marker &&
             checked.intent.intended.templateId==b.templateId && checked.intent.intended.workingFolderId==b.workingFolderId &&
