@@ -14,6 +14,18 @@ test('durable allowance fails closed and preserves other counters',()=>{
    {...initial,used:{request:30,authorization:0,picker:0}}]) assert.throws(()=>consumeBudget(changed,initial.allocationId,'request'));
  assert.throws(()=>consumeBudget(initial,'different','request'));assert.throws(()=>consumeBudget(initial,initial.allocationId,'other'));
 });
+test('a separately reserved verification batch can lower but never raise existing maximum caps',()=>{
+ const old={...fresh(),used:{request:7,authorization:2,picker:2}};
+ const batch={...fresh(),allocationId:'synthetic-new-bounded-batch',caps:{request:6,authorization:1,picker:1},globalAllocated:420};
+ const once=consumeBudget(batch,batch.allocationId,'picker');assert.equal(once.used.picker,1);assert.equal(batch.used.picker,0);
+ assert.throws(()=>consumeBudget(once,batch.allocationId,'picker'));
+ assert.throws(()=>consumeBudget({...batch,used:{request:6,authorization:0,picker:0}},batch.allocationId,'request'));
+ for(const caps of [null,[],{request:31,authorization:1,picker:1},{request:6,authorization:5,picker:1},{request:6,authorization:1,picker:3},
+  {request:6,authorization:1},{request:6,authorization:1,picker:0},{request:6,authorization:1,picker:1,extra:1}])
+  assert.throws(()=>consumeBudget({...batch,caps},batch.allocationId,'request'));
+ assert.throws(()=>consumeBudget(batch,old.allocationId,'request'));
+ assert.throws(()=>consumeBudget(old,old.allocationId,'picker'));assert.equal(old.used.picker,2);
+});
 test('layout cutover invalidates stale browser budget grants without resetting counters',async()=>{
  const dir=mkdtempSync(join(tmpdir(),'gym-synthetic-layout-'));const root=join(dir,'public');mkdirSync(root);
  writeFileSync(join(root,'index.html'),'<h1>Synthetic reader</h1>');

@@ -531,3 +531,29 @@ rename, sharing change, APK installation or root activation ran for this change.
 See `docs/milestones/m1-project-layout-clients.md`. Finish conditional consolidation
 and its private execution review, preserve original identities and allowance,
 and use a fresh verified backup before the approved phone database update.
+
+## Compatible client adoption and next execution gate — 2026-11-05
+
+PR40 merged at `a3cb5ac` after all required checks, including the seven-version
+Android matrix and the exact owner receipt, passed on `dad223b`. The installed
+private compatible build passed physical4→5 integrity/foreign-key checks after
+a fresh verified private backup. All twelve prior tables, retained app-file
+archives and original request counters compared exactly unchanged. Previous APK,
+before/after backups and detailed evidence remain outside Git. App reopen did
+not resume a workout. No root binding was activated or Template opted in.
+
+Bounded metadata-only setup retained future common/environment and labelled
+conditional-proof identities privately. No folders were created, moved/renamed
+or shared. The exact private execution review now includes the existing source
+IDs, reserved target IDs, empty-folder conditional/stale-write proof, preserved
+descendants/connection identities and bounded use of the original reservation.
+Owner execution review still precedes any root creation or relocation. Stop if
+conditional folder metadata updates cannot be proved; do not force a move.
+
+The small reader-helper follow-up supports only equal or lower per-allocation
+caps beneath its existing maxima; it cannot revive an exhausted earlier ledger.
+Four local synthetic helper checks pass. A later verification allocation must
+be explicitly reserved from the approved parent before use, with the original
+allocation/counters retained. No new live allowance was created by this helper
+change. Remaining Template publication/review/worker integration and actual
+background/screen-off/Doze acceptance remain open; M1 is not complete.

@@ -10,7 +10,10 @@ export function consumeBudget(ledger, allocationId, kind) {
   if (!ledger || ledger.version !== 1 || ledger.reservationVerified !== true || ledger.allocationId !== allocationId ||
       !Number.isSafeInteger(ledger.globalAllocated) || ledger.globalAllocated < 30 || ledger.globalAllocated > 500 ||
       !['request','authorization','picker'].includes(kind)) throw new Error('Unavailable allowance');
-  const caps = {request:30,authorization:4,picker:2};
+  const maximum = {request:30,authorization:4,picker:2};
+  const caps=Object.prototype.hasOwnProperty.call(ledger,'caps')?ledger.caps:maximum;
+  if(!caps||typeof caps!=='object'||Array.isArray(caps)||Object.keys(caps).sort().join(',')!=='authorization,picker,request')throw new Error('Invalid allowance caps');
+  for(const key of Object.keys(maximum))if(!Number.isSafeInteger(caps[key])||caps[key]<1||caps[key]>maximum[key])throw new Error('Invalid allowance caps');
   for (const key of Object.keys(caps)) if (!Number.isSafeInteger(ledger.used?.[key]) || ledger.used[key] < 0 || ledger.used[key] > caps[key]) throw new Error('Invalid allowance');
   if (ledger.used[kind] >= caps[kind]) throw new Error('Allowance exhausted');
   return {...ledger,used:{...ledger.used,[kind]:ledger.used[kind]+1}};
