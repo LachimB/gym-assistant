@@ -875,3 +875,40 @@ compilation. Its follow-up increases only the pinned wrapper download timeout
 from10 to60 seconds. URL, version, wrapper bytes and dependency versions/notices
 are unchanged; the broad dependency-input review digest is updated for this
 operational setting. Current-head CI and a fresh receipt remain required.
+
+## Known-ID read-only source transport preparation — 2026-11-05
+
+PR51 merged at `6c3914e` after all required checks, the exact original owner
+receipt and seven supported Android versions passed on `a97faab`. A bounded,
+separately approved diagnostic observed a provider HTTP500 on status publication;
+its additional approved run completed assessment and published statuses. The
+diagnostic snapshot correctly produced a different review fingerprint because
+trusted controller bytes are part of that fingerprint. The original receipt was
+preserved. The unchanged main-branch controller then passed its normal rerun.
+No scanner, policy, permission or branch protection changed; the manual diagnostic
+workflow remains outside main and both approved diagnostic executions are used.
+
+The next source component adds exact known-ID GET-only head/working reads, with
+owner-only access, fixed ancestry/roles, stable bracketed tags and raw retention
+before decoding. No listing, name lookup, folder media or mutation path exists.
+The leased executor obtains marker authority from Room, checks scope before
+constructing a token batch and rechecks capture/lease before each reservation.
+It cannot launch authorization, validate/adopt a candidate or advance a job.
+
+Local153 Android JVM/36 adapter JVM checks pass and instrumentation compiles.
+Six new JVM cases cover scope/read/socket boundaries; two additional SQLite cases
+require current-head seven-version execution. See
+`docs/milestones/m1-source-read-transport.md`. This preparation depends on PR51 and
+is not enabled in the app. No schema/default, dependency, recording, live request,
+allowance, resource, APK assembly or phone installation change. All eight approved
+authorization launches remain used. Complete-vector/base verification, review,
+transfer-intent preparation, completion and authorization/scheduling remain open.
+M1 and actual native/provider/background/screen-off acceptance remain incomplete.
+
+The read-only transport is retained in PR52 and incorporates the verified parent
+merge without rewriting either branch. Its earlier exact-head contract, web,
+privacy and owner-receipt checks passed; six Android jobs concluded successfully
+and the remaining job reported successful steps without a final job conclusion.
+That incomplete platform record is not claimed as a seven-version pass. Fresh
+current-head CI and a new exact-head receipt are required after the baseline and
+handoff update. No physical installation or additional live Drive operation ran.

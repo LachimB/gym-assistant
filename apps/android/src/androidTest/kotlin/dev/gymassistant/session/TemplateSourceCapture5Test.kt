@@ -5,7 +5,10 @@ import androidx.room.Room
 import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import dev.gymassistant.engine.v2.*
+import dev.gymassistant.drive.*
+import dev.gymassistant.sync.TemplatePublicationHead
 import java.io.File
+import java.io.Closeable
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
 import kotlinx.serialization.json.*
@@ -91,5 +94,63 @@ class TemplateSourceCapture5Test {
         assertTrue(failed);assertEquals(prior,db.templateSync().observation("observation-test"));assertEquals(before,rows())
         val next=checkNotNull(TemplateSyncLeases5(db).claim("job-test",now,"boot-test"))
         assertTrue(store().load(next,"observation-test").rawObservations.isEmpty())
+    }
+    private fun readFolders():List<TemplateFolderPin5> {
+        fun pin(id:String,parent:String,name:String,key:String="gymTemplateM1",marker:String="gym-template-test")=TemplateFolderPin5(id,parent,name,key,marker)
+        return listOf(pin("project-root","my-drive-test","Gym Assistant","gymProjectM1","gym-project-test"),
+            pin("dev-folder","project-root","dev","gymEnvironmentM1","env-dev-test"),pin("personal-area","dev-folder","PERSONAL M1","gymPersonalM1","personal-m1-test"),
+            pin("library-folder","personal-area","Templates","gymTemplateLibraryM1","library-test"),pin("template-folder","library-folder","selected fixture"),
+            pin("working-folder","template-folder","Current working copy"),pin("history-folder","template-folder","History"),pin("metadata-folder","template-folder","Sync metadata"))
+    }
+    private inner class ReadHttp(val f:Fixture):TemplateHttp5,Closeable {
+        var calls=0;var closed=false;var onMedia:()->Unit={}
+        val sources=sessionJson.decodeFromString<TemplateSources3>(f.revision.sourceSnapshotJson)
+        override fun close(){closed=true}
+        override fun request(request:TemplateHttpRequest5):DeliveryHttpResponse {
+            calls++;check(request.method=="GET")
+            if(request.path==ACCOUNT_PATH)return DeliveryHttpResponse(200,"{\"user\":{\"permissionId\":\"synthetic-owner\"}}".toByteArray())
+            val id=request.path.substringAfter("/drive/v2/files/").substringBefore('?')
+            if(request.path.endsWith("?alt=media")) {
+                onMedia()
+                val value=if(id=="head-file")TemplateSyncContracts5.encode(TemplatePublicationHead(f.revision.templateId,"generation-test","manifest-test","working-folder",f.revision.sourceHash,null))
+                    else if(id==pins.first().objectId)sources.templateYaml else sources.exerciseYamls.single()
+                return DeliveryHttpResponse(200,value.toByteArray())
+            }
+            val folder=readFolders().singleOrNull {it.id==id};val source=pins.singleOrNull {it.objectId==id}
+            val data=buildJsonObject {
+                put("id",id);put("title",folder?.name?:source?.relativeName?:"head.json")
+                put("mimeType",if(folder!=null)"application/vnd.google-apps.folder" else source?.mimeType?:"application/json")
+                put("etag","\"tag-$id\"");put("ownedByMe",true);put("shared",false)
+                put("labels",buildJsonObject {put("trashed",false)})
+                put("parents",buildJsonArray {add(buildJsonObject {put("id",folder?.parent?:if(source!=null)"working-folder" else "metadata-folder")})})
+                put("properties",buildJsonArray {add(buildJsonObject {put("key",folder?.markerKey?:"gymTemplateM1");put("value",folder?.marker?:"gym-template-test");put("visibility","PRIVATE")})})
+                put("permissions",buildJsonArray {add(buildJsonObject {put("id","synthetic-owner");put("type","user");put("role","owner")})})
+            }
+            return DeliveryHttpResponse(200,data.toString().toByteArray())
+        }
+    }
+    @Test fun readonlyNativeBatchChecksLeaseMarkersAndBudgetThenDurablyRetainsOriginalsWithoutAdoption()=runBlocking {
+        val f=fixture();val before=rows();val s=store();s.begin(f.lease,"observation-test",f.namespace,pins,at)
+        val http=ReadHttp(f);var charged=0
+        val result=TemplateSourceReadExecutor5(s,http).read(f.lease,"observation-test","synthetic",{charged++},readFolders()){reader->
+            reader.verifyNamespace();assertEquals(f.revision.templateId,reader.readHead()!!.head.templateId);reader.readSource(pins.first().objectId)!!
+        }
+        assertArrayEquals(http.sources.templateYaml.toByteArray(),result.contentBytes);assertEquals(http.calls,charged);assertTrue(http.closed)
+        val checked=s.load(f.lease,"observation-test");assertTrue(checked.rawObservations.map {it.kind}.containsAll(listOf("NAMESPACE","HEAD","WORKING")))
+        assertNull(db.templateSync().observation("observation-test")!!.candidateId);assertNull(db.templateSync().observation("observation-test")!!.remoteGeneration)
+        assertEquals(f.job,db.templateSync().job("job-test"));assertEquals(before,rows())
+    }
+    @Test fun wrongMarkersBudgetExhaustionOrLeaseExpiryCannotReturnAReadonlyCapture()=runBlocking {
+        val f=fixture();val before=rows();val s=store();s.begin(f.lease,"observation-test",f.namespace,pins,at)
+        val wrong=ReadHttp(f);var failed=false
+        try{TemplateSourceReadExecutor5(s,wrong).read(f.lease,"observation-test","synthetic",{error("Budget must not be reached")},
+            readFolders().map {if(it.id=="project-root")it.copy(marker="gym-project-other")else it}){it.verifyNamespace()}}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertEquals(0,wrong.calls)
+        val budget=ReadHttp(f);failed=false
+        try{TemplateSourceReadExecutor5(s,budget).read(f.lease,"observation-test","synthetic",{throw DeliveryFailure("budget")},readFolders()){it.verifyNamespace()}}catch(error:DeliveryFailure){assertEquals("budget",error.reason);failed=true}
+        assertTrue(failed);assertEquals(0,budget.calls);assertTrue(budget.closed)
+        val expired=ReadHttp(f);expired.onMedia={now=f.lease.until};failed=false
+        try{TemplateSourceReadExecutor5(s,expired).read(f.lease,"observation-test","synthetic",{},readFolders()){it.verifyNamespace();it.readSource(pins.first().objectId)}}catch(_:DeliveryFailure){failed=true}
+        assertTrue(failed);assertTrue(expired.closed);assertEquals(before,rows());assertEquals(f.job,db.templateSync().job("job-test"))
     }
 }
