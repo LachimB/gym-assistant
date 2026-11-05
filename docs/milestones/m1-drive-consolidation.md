@@ -53,8 +53,9 @@ general v3 tag compatibility, YAML/head publication or multi-object transactions
   parents, markers and owner-only effective access. Production is empty and the
   labelled proof artifacts remain under test. Submitted intents and readbacks
   are durably retained privately; usage stayed within the approved allowance.
-- The hierarchy is verified; final phone probe, existing-delivery retry and the
-  explicit read-only web check remain owner acceptance gates. No Training Template
+- The hierarchy is verified. The owner reports that the final phone metadata
+  probe and existing-delivery retry passed. The explicit read-only web check
+  remains an acceptance gate. No Training Template
   or background sync binding was activated, and no automatic recording upload ran.
 
 M1 remains incomplete. Immutable Template publication/head recovery, external
@@ -75,6 +76,23 @@ regressions verify directory/file modes. Immutable files, hash checks, fsync and
 unchanged. This adds no migration, provider request or Template opt-in. The
 corrected local suite passes99 Android JVM and29 adapter JVM checks, and Android
 instrumentation compiles. The27 synthetic Drive/helper checks also pass. The
-existing SQLite concurrent-enqueue/reopen regression and all supported Android
-versions must pass on the corrected head. The installed cutover configurations
+existing SQLite concurrent-enqueue/reopen regression and all seven supported Android
+versions passed on `c202e4b`; PR42 merged at `cb15d62` after all required checks and
+the exact owner receipt passed. The installed cutover configurations
 precede this fix; Template queue/runtime bindings remain disabled on the phone.
+
+## Client verification follow-up
+
+The web selection stopped before opening a recording because its private local
+configuration still referenced the previous API key. Read-only Cloud Console
+inspection showed a completed rotation and deletion of that previous key. The
+existing replacement retains the approved API/referrer restrictions. Only the
+local reader configuration was corrected; no credential was created/rotated and
+no Cloud setting was changed by this repair.
+
+The failed allocation remains retained and reconciled once into the parent
+ledger. The owner approved one additional authorization/Picker attempt and a
+six-request retry funded from unused reserved requests, with no increase to the
+consolidation or parent direct-request ceilings. The prepared retry uses a new
+explicit child allocation; it does not reset the failed ledger. Owner success
+and value comparison remain required before marking web acceptance passed.

@@ -34,6 +34,13 @@ remain binding before their respective live actions. Confirmed decisions:
   reconciliation, and at most6 explicit Google authorization launches. Preserve
   counters and pending work on exhaustion. Billing remains disabled. Nothing is
   reserved or consumed merely by confirming this design-review decision.
+- On2026-11-05, the owner approved one additional web authorization/Picker attempt
+  after a retired browser key caused the cutover verification to fail. The batch
+  authorization ceiling is now7. Reuse the failed batch's five unused direct
+  requests plus one transferred unused desktop metadata request, for a six-request
+  retry within the unchanged80-request consolidation and200/500 parent limits.
+  Retain the failed attempt and all earlier counters. This adds no resource,
+  spending, Drive scope or API-key restriction change.
 - The additive phone-database migration approach is confirmed: preserve existing
   records, pass required automated/supported-Android checks, create and verify a
   fresh private backup before installation, then verify preservation after update.
@@ -194,7 +201,7 @@ synchronization; never create a replacement folder at My Drive level.
 No new Android broad-storage permission or refresh-token store.
 
 Reserve at most200 additional direct attempts within the existing500 global limit,
-once after reconciling the private ledger; at most6 explicit authorization launches
+once after reconciling the private ledger; at most7 explicit authorization launches
 for this batch. Existing allocations are not reset/refunded. SDK traffic remains
 unmeasured. Stop with pending work on exhaustion, storage/quota problems or a need
 for broader file access. Billing remains disabled; no paid resources/upgrades.
