@@ -15,6 +15,7 @@ import kotlinx.serialization.Serializable
 import kotlinx.serialization.encodeToString
 import kotlinx.serialization.decodeFromString
 import kotlinx.serialization.json.Json
+import kotlinx.serialization.json.jsonObject
 
 @Serializable private data class WorkingStepDto5(val objectId:String,val folderId:String,val marker:String,val name:String,
     val mimeType:String,val expectedTag:String?,val beforeHash:String?,val intendedHash:String)
@@ -65,6 +66,7 @@ class TemplateSyncFiles5(private val root:File,private val contracts:ImportContr
         listOf(jobId,operationId,bindingId,expectedLocalRevisionId).forEach(::id)
         TemplateSyncContracts5.bundle(manifest,payloads,contracts)
         check(steps.size==manifest.files.size && steps.map {it.objectId}.distinct().size==steps.size && steps.map {it.folderId}.distinct().size==1)
+        check(steps.none {step->manifest.files.any {it.objectId==step.objectId}}) {"Immutable source cannot be its editable working file"}
         val descriptors=manifest.files.associateBy {it.relativeName}
         check(steps.map {it.name}.toSet()==descriptors.keys)
         for(step in steps) {
@@ -81,16 +83,14 @@ class TemplateSyncFiles5(private val root:File,private val contracts:ImportContr
         load(result);return result
     }
     fun load(pointer:SyncIntentFile5):CheckedSyncIntent5 {
-        hash(pointer.sha256)
-        val raw=read(pointer.path,65536);check(hashSourceBytes(raw)==pointer.sha256) { "Private sync intent changed" }
-        val text=Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(raw)).toString()
-        dev.gymassistant.engine.v2.readYaml2(text)
+        val text=readRecord(pointer)
         val dto=json.decodeFromString<IntentDto5>(text)
         check(dto.schemaVersion=="1.0.0");listOf(dto.jobId,dto.operationId,dto.bindingId,dto.expectedLocalRevisionId).forEach(::id)
         check(pointer.path=="${dto.jobId}.json")
         val manifest=TemplateSyncContracts5.manifest(dto.manifestJson)
         check(dto.workingFiles.size==manifest.files.size && dto.workingFiles.map {it.objectId}.distinct().size==dto.workingFiles.size)
         val steps=dto.workingFiles.map {step->WorkingFileStep(step.objectId,step.folderId,step.marker,step.name,step.mimeType,step.expectedTag,step.beforeHash?.let(::source),source(step.intendedHash))}
+        check(steps.none {step->manifest.files.any {it.objectId==step.objectId}}) {"Immutable source cannot be its editable working file"}
         val byName=steps.associateBy {it.name};check(byName.size==steps.size && steps.map {it.folderId}.distinct().size==1)
         val payloads=manifest.files.associate {file->
             val step=checkNotNull(byName[file.relativeName]);check(step.intendedHash==file.sha256)
@@ -98,5 +98,21 @@ class TemplateSyncFiles5(private val root:File,private val contracts:ImportContr
         }
         TemplateSyncContracts5.bundle(manifest,payloads,contracts)
         return CheckedSyncIntent5(dto.jobId,dto.operationId,dto.bindingId,dto.expectedLocalRevisionId,manifest,steps)
+    }
+    /** Shared immutable-record boundary for additive progress documents; existing captured intents are unchanged. */
+    internal fun readRecord(pointer:SyncIntentFile5):String {
+        require(pointer.path.matches(Regex("[A-Za-z0-9_-]{3,128}\\.json")))
+        hash(pointer.sha256)
+        val raw=read(pointer.path,65536);check(hashSourceBytes(raw)==pointer.sha256) { "Private sync intent changed" }
+        val text=Charsets.UTF_8.newDecoder().onMalformedInput(CodingErrorAction.REPORT).decode(ByteBuffer.wrap(raw)).toString()
+        Json.parseToJsonElement(text).jsonObject
+        dev.gymassistant.engine.v2.readYaml2(text)
+        return text
+    }
+    internal fun writeRecord(text:String):SyncIntentFile5 {
+        val bytes=text.toByteArray(Charsets.UTF_8);require(bytes.size in 1..65536)
+        Json.parseToJsonElement(text).jsonObject;dev.gymassistant.engine.v2.readYaml2(text)
+        val pointer=SyncIntentFile5("${UUID.randomUUID()}.json",hashSourceBytes(bytes))
+        write(pointer.path,bytes);readRecord(pointer);return pointer
     }
 }

@@ -49,4 +49,59 @@ class TemplateSyncFiles5Test {
         assertFails {store.prepare("job-test","operation-test","binding-test",manifest.revisionId,manifest,payloads,wrong)}
         assertFalse(root.resolve("job-test.json").exists())
     }
+    @Test fun additiveProgressReopensWithoutReplacingCapturedSourceAndDuplicateAckIsIdempotent() {
+        val original=prepare();val capturedBytes=root.resolve(original.path).readBytes();val progress=TemplateSyncProgressFiles5(store)
+        val first=WorkingReceipt5(steps[0].objectId,"tag-after-one",steps[0].intendedHash)
+        val next=progress.acknowledge(original,first)
+        assertNotEquals(original.path,next.path);assertContentEquals(capturedBytes,root.resolve(original.path).readBytes())
+        val reopened=TemplateSyncProgressFiles5(TemplateSyncFiles5(root,contracts));val loaded=reopened.load(next)
+        assertEquals(original,loaded.capturedPointer);assertEquals(first,loaded.receipts[first.objectId]);assertFalse(loaded.allFilesAcknowledged)
+        val count=root.listFiles()!!.size;assertEquals(next,reopened.acknowledge(next,first));assertEquals(count,root.listFiles()!!.size)
+        val second=WorkingReceipt5(steps[1].objectId,"tag-after-two",steps[1].intendedHash)
+        val all=reopened.load(reopened.acknowledge(next,second));assertTrue(all.allFilesAcknowledged);assertEquals(2,all.receipts.size)
+    }
+    @Test fun unknownFileWrongHashOrChangedAcknowledgementCannotReplaceARecordedFact() {
+        val original=prepare();val progress=TemplateSyncProgressFiles5(store)
+        val first=WorkingReceipt5(steps[0].objectId,"tag-after",steps[0].intendedHash)
+        val next=progress.acknowledge(original,first);val priorBytes=root.resolve(next.path).readBytes()
+        for(invalid in listOf(first.copy(objectId="unknown-file"),first.copy(sha256="a".repeat(64)),first.copy(tag="different-observed-tag")))
+            assertFails {progress.acknowledge(next,invalid)}
+        assertContentEquals(priorBytes,root.resolve(next.path).readBytes());assertEquals(first,progress.load(next).receipts[first.objectId])
+    }
+    @Test fun malformedOrRetargetedProgressDoesNotAuthorizeAnotherJobOrCollapseDuplicateReceipts() {
+        val original=prepare();val progress=TemplateSyncProgressFiles5(store)
+        val next=progress.acknowledge(original,WorkingReceipt5(steps[0].objectId,"tag-after",steps[0].intendedHash))
+        val doc=Json.parseToJsonElement(root.resolve(next.path).readText()).jsonObject
+        val receipts=doc.getValue("receipts").jsonArray
+        val duplicate=store.writeRecord(JsonObject(doc+("receipts" to JsonArray(listOf(receipts[0],receipts[0])))).toString())
+        assertFails {progress.load(duplicate)}
+        val other=store.prepare("another-job","another-operation","binding-test",manifest.revisionId,manifest,payloads,steps)
+        val retarget=store.writeRecord(JsonObject(doc+("capturedPath" to JsonPrimitive(other.path))+("capturedHash" to JsonPrimitive(other.sha256))).toString())
+        assertFails {progress.load(retarget)}
+        val newer=store.writeRecord(JsonObject(doc+("schemaVersion" to JsonPrimitive("9.0.0"))).toString());assertFails {progress.load(newer)}
+        assertEquals(1,progress.load(next).receipts.size)
+    }
+    @Test fun legacyCapturedIntentRemainsReadableAndCorruptProgressLeavesItUntouched() {
+        val original=prepare();val progress=TemplateSyncProgressFiles5(store)
+        assertTrue(progress.load(original).receipts.isEmpty())
+        val next=progress.acknowledge(original,WorkingReceipt5(steps[0].objectId,"tag-after",steps[0].intendedHash))
+        root.resolve(next.path).writeText("{}")
+        assertFails {progress.load(next)};assertEquals(manifest.sourceHash,store.load(original).manifest.sourceHash)
+        val unknown=store.writeRecord("{\"kind\":\"unknownFutureFormat\"}");assertFails {progress.load(unknown)}
+    }
+    @Test fun receiptScopeMustMatchTheFrozenJobAndNeverAcceptControlCharacters() {
+        val original=prepare();val checked=TemplateSyncProgressFiles5(store).load(original)
+        val job=TemplateSyncJob5("job-test","binding-test","operation-test","push",manifest.revisionId,
+            sourceHash=manifest.sourceHash,compiledPlanHash=manifest.compiledPlanHash,intentPath=original.path,intentHash=original.sha256)
+        checked.requireJob(job)
+        assertFails {checked.requireJob(job.copy(operationId="another-operation"))}
+        assertFails {checked.requireJob(job.copy(sourceHash="a".repeat(64)))}
+        assertFails {WorkingReceipt5(steps[0].objectId,"tag\r\ninjection",steps[0].intendedHash)}
+    }
+    @Test fun immutableRevisionObjectsCannotDoubleAsEditableWorkingFiles() {
+        val overlapping=steps.mapIndexed {i,step->WorkingFileStep(if(i==0)manifest.files[0].objectId else step.objectId,
+            step.folderId,step.marker,step.name,step.mimeType,step.expectedTag,step.beforeBytes,step.intendedBytes)}
+        assertFails {store.prepare("job-test","operation-test","binding-test",manifest.revisionId,manifest,payloads,overlapping)}
+        assertFalse(root.resolve("job-test.json").exists())
+    }
 }

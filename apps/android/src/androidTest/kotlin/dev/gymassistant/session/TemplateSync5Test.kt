@@ -9,6 +9,7 @@ import androidx.test.core.app.ApplicationProvider
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.platform.app.InstrumentationRegistry
 import dev.gymassistant.engine.v2.*
+import dev.gymassistant.sync.*
 import java.io.File
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
@@ -103,5 +104,62 @@ class TemplateSync5Test {
         assertNull(store.claim("job-test",1000,"boot-test"))
         db.openHelper.writableDatabase.execSQL("UPDATE project_storage_roots SET permissionId='synthetic-account'")
         assertNotNull(store.claim("job-test",1000,"boot-test"))
+    }
+    private suspend fun progressFixture():Pair<TemplateSyncJob5,TemplateSyncFiles5> {
+        val binding=binding();val head=checkNotNull(db.library().head(binding.templateId));val revision=checkNotNull(db.library().revision(binding.templateId,head.revisionId))
+        val raw=listOf(asset("timed-runtime-v2.yaml").toByteArray(),asset("bridge-band-family.yaml").toByteArray())
+        val descriptors=raw.mapIndexed {i,bytes->RevisionFile(if(i==0)SourceRole.TEMPLATE else SourceRole.EXERCISE,if(i==0)"template.yaml" else "exercise.yaml","immutable-source-$i",hashSourceBytes(bytes),bytes.size)}
+        val manifest=TemplateRevisionManifest(binding.templateId,revision.revisionId,null,revision.sourceHash,revision.compiledPlanHash,descriptors)
+        val steps=descriptors.mapIndexed {i,file->WorkingFileStep("working-source-$i",binding.workingFolderId,binding.marker,file.relativeName,"text/plain","prior-tag","source: earlier synthetic bytes\n".toByteArray(),raw[i])}
+        val files=TemplateSyncFiles5(File(root,"template-sync"),contracts)
+        val pointer=files.prepare("job-progress","operation-progress",binding.bindingId,revision.revisionId,manifest,descriptors.mapIndexed {i,file->file.objectId to raw[i]}.toMap(),steps)
+        val job=TemplateSyncJob5("job-progress",binding.bindingId,"operation-progress","push",revision.revisionId,
+            sourceHash=revision.sourceHash,compiledPlanHash=revision.compiledPlanHash,intentPath=pointer.path,intentHash=pointer.sha256)
+        db.templateSync().insertJob(job);return job to files
+    }
+    @Test fun progressSurvivesReopenAndLeavesAllExecutionTablesUnchanged()=runBlocking {
+        val(job,files)=progressFixture();val prior=rows();val leases=TemplateSyncLeases5(db)
+        val lease=checkNotNull(leases.claim(job.jobId,1000,"boot-progress"))
+        val store=TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),{1001})
+        val source=store.load(lease);val first=source.captured.steps[0]
+        val pointer=store.acknowledge(lease,WorkingReceipt5(first.objectId,"verified-one",first.intendedHash))
+        assertNotEquals(job.intentPath,pointer.path);assertEquals(prior,rows());assertEquals("running",db.templateSync().job(job.jobId)?.state)
+        leases.release(lease,1002,SyncJobState5.RETRY);db.close();db=open()
+        val resumed=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1003,"boot-progress"))
+        val restarted=TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(TemplateSyncFiles5(File(root,"template-sync"),contracts)),{1004})
+        val checked=restarted.load(resumed);assertEquals(1,checked.receipts.size);assertFalse(checked.allFilesAcknowledged)
+        val second=checked.captured.steps[1];restarted.acknowledge(resumed,WorkingReceipt5(second.objectId,"verified-two",second.intendedHash))
+        assertTrue(restarted.load(resumed).allFilesAcknowledged);assertEquals("running",db.templateSync().job(job.jobId)?.state);assertEquals(prior,rows())
+        assertEquals(job.sourceHash,files.load(SyncIntentFile5(job.intentPath,job.intentHash)).manifest.sourceHash)
+    }
+    @Test fun failedProgressCommitRollsBackPointerAndCanRetryTheSameVerifiedResult()=runBlocking {
+        val(job,files)=progressFixture();val prior=rows();val lease=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-progress"))
+        val originalRow=checkNotNull(db.templateSync().job(job.jobId));var entered=false
+        val failing=TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),{1001},{entered=true;error("Injected pointer commit failure")})
+        val step=files.load(SyncIntentFile5(job.intentPath,job.intentHash)).steps[0];val receipt=WorkingReceipt5(step.objectId,"verified-one",step.intendedHash)
+        var rejected=false;try{failing.acknowledge(lease,receipt)}catch(_:IllegalStateException){rejected=true}
+        assertTrue(entered && rejected);assertEquals(originalRow,db.templateSync().job(job.jobId));assertEquals(prior,rows())
+        val retry=TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),{1002});assertTrue(retry.load(lease).receipts.isEmpty())
+        val accepted=retry.acknowledge(lease,receipt);assertEquals(accepted,retry.acknowledge(lease,receipt));assertEquals(1,retry.load(lease).receipts.size)
+        assertEquals(prior,rows())
+    }
+    @Test fun expiryDuringVerificationStaleOwnersAndDisabledBindingsCannotAcknowledge()=runBlocking {
+        val(job,files)=progressFixture();val leases=TemplateSyncLeases5(db);val lease=checkNotNull(leases.claim(job.jobId,1000,"boot-progress"))
+        val step=files.load(SyncIntentFile5(job.intentPath,job.intentHash)).steps[0];val receipt=WorkingReceipt5(step.objectId,"verified-one",step.intendedHash)
+        var reads=0;val expiring=TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),{if(++reads==1)1001 else lease.until})
+        var rejected=false;try{expiring.acknowledge(lease,receipt)}catch(_:IllegalStateException){rejected=true};assertTrue(rejected)
+        assertEquals(job.intentPath,db.templateSync().job(job.jobId)?.intentPath)
+        val current=checkNotNull(leases.claim(job.jobId,lease.until,"boot-progress"))
+        val retry=TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),{lease.until+1})
+        rejected=false;try{retry.acknowledge(lease,receipt)}catch(_:IllegalStateException){rejected=true};assertTrue(rejected)
+        db.openHelper.writableDatabase.execSQL("UPDATE template_sync_bindings SET enabled=0")
+        rejected=false;try{retry.acknowledge(current,receipt)}catch(_:IllegalStateException){rejected=true};assertTrue(rejected)
+        assertEquals(job.intentPath,db.templateSync().job(job.jobId)?.intentPath)
+    }
+    @Test fun capturedWorkingFolderCannotBeRetargetedUnderAnExistingLease()=runBlocking {
+        val(job,files)=progressFixture();val lease=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-progress"))
+        db.openHelper.writableDatabase.execSQL("UPDATE template_sync_bindings SET workingFolderId='another-working-folder'")
+        var rejected=false;try{TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),{1001}).load(lease)}catch(_:IllegalStateException){rejected=true}
+        assertTrue(rejected);assertEquals(job.intentPath,db.templateSync().job(job.jobId)?.intentPath);assertEquals(5,db.openHelper.writableDatabase.version)
     }
 }
