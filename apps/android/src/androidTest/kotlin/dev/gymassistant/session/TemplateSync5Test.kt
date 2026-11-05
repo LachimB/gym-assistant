@@ -13,6 +13,9 @@ import dev.gymassistant.sync.*
 import java.io.File
 import java.util.UUID
 import kotlinx.coroutines.runBlocking
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.serialization.json.*
 import org.json.JSONObject
 import org.junit.*
@@ -161,5 +164,53 @@ class TemplateSync5Test {
         db.openHelper.writableDatabase.execSQL("UPDATE template_sync_bindings SET workingFolderId='another-working-folder'")
         var rejected=false;try{TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),{1001}).load(lease)}catch(_:IllegalStateException){rejected=true}
         assertTrue(rejected);assertEquals(job.intentPath,db.templateSync().job(job.jobId)?.intentPath);assertEquals(5,db.openHelper.writableDatabase.version)
+    }
+    private fun queue(hook:()->Unit={})=TemplateSyncQueue5(db,TemplateSyncQueueFiles5(TemplateSyncFiles5(File(root,"template-sync"),contracts),contracts),hook)
+    private suspend fun selected(binding:TemplateSyncBinding5)=checkNotNull(db.library().head(binding.templateId)).let {checkNotNull(db.library().revision(it.templateId,it.revisionId))}
+    @Test fun offlineQueueReopensExactSourceAndConcurrentDuplicateEnqueueKeepsOneLogicalJob()=runBlocking {
+        val binding=binding();val revision=selected(binding);val before=rows()
+        val jobs=coroutineScope {(1..2).map {n->async {queue().enqueue(binding.bindingId,revision.revisionId,revision.sourceHash,revision.compiledPlanHash,"offline-operation","offline-job-$n")}}.awaitAll()}
+        assertEquals(jobs[0],jobs[1]);val job=jobs[0]
+        assertEquals(1,db.openHelper.writableDatabase.query("SELECT count(*) FROM template_sync_jobs").use {it.moveToFirst();it.getInt(0)})
+        assertEquals("{}",job.reservedObjectIdsJson);assertEquals("queued",job.state);assertEquals(before,rows())
+        db.close();db=open();val lease=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-offline"))
+        val checked=queue().load(lease,{1001})
+        assertEquals(revision.sourceSnapshotJson,sessionJson.encodeToString(checked.sources));assertNull(checked.expectedRemoteGeneration)
+        assertNull(checked.expectedRemoteHeadTag);assertEquals(before,rows())
+    }
+    @Test fun failedOfflineEnqueueRollsBackAndRetriesWithoutChangingPublishedOrExecutionRecords()=runBlocking {
+        val binding=binding();val revision=selected(binding);val before=rows();var entered=false
+        var rejected=false;try {queue {entered=true;error("Injected queue commit failure")}.enqueue(binding.bindingId,revision.revisionId,
+            revision.sourceHash,revision.compiledPlanHash,"offline-operation","offline-job")}catch(_:IllegalStateException){rejected=true}
+        assertTrue(entered && rejected);assertNull(db.templateSync().operation("offline-operation"));assertEquals(before,rows())
+        val job=queue().enqueue(binding.bindingId,revision.revisionId,revision.sourceHash,revision.compiledPlanHash,"offline-operation","offline-job")
+        assertEquals(job,db.templateSync().operation("offline-operation"));assertEquals(before,rows())
+    }
+    @Test fun disabledBindingStaleSelectionAndReusedOperationCannotEnqueueAnotherSource()=runBlocking {
+        val binding=binding();val revision=selected(binding);val before=rows()
+        db.openHelper.writableDatabase.execSQL("UPDATE template_sync_bindings SET enabled=0")
+        var rejected=false;try{queue().enqueue(binding.bindingId,revision.revisionId,revision.sourceHash,revision.compiledPlanHash,"offline-operation")}
+        catch(_:IllegalStateException){rejected=true};assertTrue(rejected);assertNull(db.templateSync().operation("offline-operation"))
+        db.openHelper.writableDatabase.execSQL("UPDATE template_sync_bindings SET enabled=1")
+        rejected=false;try{queue().enqueue(binding.bindingId,revision.revisionId,"a".repeat(64),revision.compiledPlanHash,"offline-operation")}
+        catch(_:IllegalStateException){rejected=true};assertTrue(rejected);assertEquals(before,rows())
+        val first=queue().enqueue(binding.bindingId,revision.revisionId,revision.sourceHash,revision.compiledPlanHash,"offline-operation")
+        val library=TemplateLibrary3(db,LibraryFiles3(root),contracts)
+        val changed=asset("timed-runtime-v2.yaml").replace(revision.revisionId,"next-offline-revision")
+        val candidate=library.stage(listOf(ImportFile3("template.yaml",changed.toByteArray()),ImportFile3("exercise.yaml",asset("bridge-band-family.yaml").toByteArray())),at)
+        val next=library.publish(candidate.candidateId,checkNotNull(candidate.sourceHash),checkNotNull(candidate.compiledPlanHash),at)
+        val after=rows()
+        rejected=false;try{queue().enqueue(binding.bindingId,revision.revisionId,revision.sourceHash,revision.compiledPlanHash,"stale-operation")}
+        catch(_:IllegalStateException){rejected=true};assertTrue(rejected)
+        rejected=false;try{queue().enqueue(binding.bindingId,next.revisionId,next.sourceHash,next.compiledPlanHash,"offline-operation")}
+        catch(_:IllegalStateException){rejected=true};assertTrue(rejected);assertEquals(first,db.templateSync().operation("offline-operation"));assertEquals(after,rows())
+    }
+    @Test fun offlineIntentCannotBeClaimedUnderARetargetedWorkingFolder()=runBlocking {
+        val binding=binding();val revision=selected(binding);val before=rows()
+        val job=queue().enqueue(binding.bindingId,revision.revisionId,revision.sourceHash,revision.compiledPlanHash,"offline-operation")
+        val lease=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-offline"))
+        db.openHelper.writableDatabase.execSQL("UPDATE template_sync_bindings SET workingFolderId='retargeted-working-folder'")
+        var rejected=false;try{queue().load(lease,{1001})}catch(_:IllegalStateException){rejected=true}
+        assertTrue(rejected);assertEquals(job.intentPath,db.templateSync().job(job.jobId)?.intentPath);assertEquals(before,rows())
     }
 }

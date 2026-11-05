@@ -58,8 +58,12 @@ class TemplateSyncFiles5(private val root:File,private val contracts:ImportContr
         val target=path(name);check(target.isFile && target.length() in 1..max.toLong()) { "Private sync file missing or outside bounds" }
         return target.readBytes().also {check(it.size in 1..max)}
     }
-    private fun source(hash:String):ByteArray {
+    internal fun source(hash:String):ByteArray {
         hash(hash);return read("$hash.yaml",1048576).also {check(hashSourceBytes(it)==hash) { "Private sync source changed" }}
+    }
+    internal fun retainSource(bytes:ByteArray):String {
+        require(bytes.size in 1..1048576)
+        val hash=hashSourceBytes(bytes);write("$hash.yaml",bytes);source(hash);return hash
     }
     fun prepare(jobId:String,operationId:String,bindingId:String,expectedLocalRevisionId:String,
         manifest:TemplateRevisionManifest,payloads:Map<String,ByteArray>,steps:List<WorkingFileStep>):SyncIntentFile5 {

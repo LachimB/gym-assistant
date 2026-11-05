@@ -40,10 +40,17 @@ it does not enable a live connection or establish background/device acceptance.
   enabled binding. Duplicate acknowledgements reuse the pointer; unknown files,
   changed receipt facts, source/working-ID overlap and retargeted bindings fail.
   All working-file receipts still do not mean a head is published or adopted.
+- Source-only offline publication intents retain an explicitly selected published
+  revision, source/plan hashes and stable binding fingerprint without inventing
+  remote IDs or treating an unknown head as absent. Exact source is recompiled
+  before enqueue/reopen. Transactional insertion checks the selected head and
+  binding; repeated logical operations keep the same job. These intents still
+  require verified remote capture before any working-file operation.
 
 ## Local validation and required gates
 
-Android81 JVM checks pass, including native transport and private-progress
+Android86 JVM checks pass, including native transport, private-progress and
+source-only offline-queue
 regressions. Adapter20 JVM and122 Python checks passed in the preceding baseline.
 Android migration instrumentation compiles; SQLite execution and the supported
 API31–36/37.0 matrix must pass in CI. No local emulator was configured for this
@@ -55,6 +62,8 @@ Four additional SQLite regressions cover progress after reopen, injected pointer
 commit rollback and retry, lease expiry during verification, stale/disabled
 owners and folder retargeting, comparing all12 pre-existing tables unchanged.
 They require current-head execution across the full CI matrix.
+Four further SQLite cases cover offline enqueue/reopen, concurrent duplicate
+requests, rollback/retry, stale selection/reused identity and scope retargeting.
 
 No phone update, root creation/relocation, token acquisition, Drive request or
 budget reservation has run for this implementation. Preserve CI plus a fresh
@@ -63,7 +72,7 @@ inventory still requires owner review before any live consolidation.
 
 ## Remaining implementation and acceptance
 
-Wire durable queue/progress reconciliation, verified
+Wire source-only intents into verified remote capture and durable execution, verified
 Drive hierarchy/conditional endpoints, immutable history/head publication and
 external-candidate review. Add the separately reviewed WorkManager dependency and
 bounded authorization/budget integration, then implement UI and compatible
