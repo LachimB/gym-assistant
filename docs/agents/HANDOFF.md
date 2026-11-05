@@ -445,6 +445,30 @@ No phone update, token acquisition, live request, budget reservation or root mov
 See `docs/milestones/m1-template-scheduling.md`; publication/observation integration,
 compatible root clients, source review and physical/live acceptance remain open.
 
+## Conditional publication-head recovery — 2026-11-05
+
+PR38 merged at `36a2db7` after all checks, including the seven supported Android
+versions and exact owner receipt, passed. WorkManager test-driver/manifest cases
+are synthetic scheduling evidence, not actual screen-off/Doze acceptance.
+
+The next provider-neutral protocol captures exact head lineage/tag and pinned
+namespace, requires verified immutable source and working-file vectors before
+conditional publication, and recovers uncertain writes through the same ID.
+It retains publication separately from later working edits or competing heads;
+no rollback, unconditional fallback, local adoption or whole-job completion.
+Adapter29 JVM/Android86 JVM checks pass and instrumentation compiles. Native
+history/head transport, durable journal and end-to-end integration remain open.
+See `docs/milestones/m1-publication-head.md`.
+
+The approved bounded Template allowance was reserved once after reconciling
+private phone/browser counters and original account/folder bindings. A metadata-
+only inventory of the previously authorized areas passed; no contents were read,
+folders created/moved, sharing changed or APK installed. Exact inventory,
+remaining counters and evidence stay outside Git. The owner has now clarified
+the environment layout below; the exact from/to execution review,
+compatible clients and fresh verified private backup remain gates before moves
+or phone migration. Never reset or reuse the earlier exhausted Picker allowance.
+
 
 ## Native working-file transport continuation — 2026-11-05
 
@@ -463,3 +487,22 @@ See `docs/milestones/m1-drive-working-files.md`. Live YAML conditional-write pro
 durable progress/head publication, source review UI and background scheduling are
 still open. Preserve exact private inventory approval and phone CI/verified-backup
 gates; use a fresh receipt/current CI before merging this slice.
+
+## Environment layout confirmed and work resumed — 2026-11-05
+
+The owner resumed work and requested updating ADR-0009 with one Gym Assistant
+root containing `dev`, `test` and `prod`. Existing areas become children:
+`dev/PERSONAL M1` and `test/SYNTHETIC M1`, with concise display names that omit
+the repeated project/environment labels. Future areas follow the same pattern.
+The environment containers do not replace the existing area identities. Preserve
+IDs, contents, namespace markers, sharing and saved connection/job bindings.
+Production subfolder structure and any data promotion remain deferred.
+
+This supersedes the earlier Personal/Development layout and initial no-rename
+rule. The common root does not currently exist; no additional existing-root link
+is needed. A private metadata inventory is retained, but its older destination
+mapping must be revised. Compatible clients must support the exact captured old
+and reviewed final names/parents for the same IDs during adoption; no prefix/
+wildcard fallback. Exact execution review, current CI and a fresh verified backup
+still precede their live operations. No folder creation, move, rename, sharing
+change or phone update has occurred. Continue the approved implementation.
