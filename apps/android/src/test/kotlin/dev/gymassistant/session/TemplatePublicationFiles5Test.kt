@@ -156,4 +156,29 @@ class TemplatePublicationFiles5Test {
         assertEquals("1.1.0",Json.parseToJsonElement(files.readRecord(next)).jsonObject.getValue("schemaVersion").jsonPrimitive.content)
         assertTrue(publication.load(old).rawObservations.isEmpty());assertEquals(1,publication.load(next).rawObservations.size)
     }
+    private fun transfer(w:SyncIntentFile5=working(false))=publication.prepare(w,"a".repeat(64),"synthetic-owner","revision-folder",intent(),null,true,true)
+    @Test fun historyFirstTransferCannotAcknowledgeEditableFilesBeforeEveryImmutableReceipt() {
+        val first=transfer();val receipt=WorkingReceipt5(steps.first().objectId,"\"working-tag\"",steps.first().intendedHash)
+        assertFails {publication.acknowledgeWorking(first,receipt)}
+        val ready=acknowledgeAll(first);var pointer=publication.retainRaw(ready,PublicationRawObservation5("WORKING",steps.first().objectId,404,null,null))
+        val origin=publication.load(pointer).originPointer
+        for(step in steps)pointer=publication.acknowledgeWorking(pointer,WorkingReceipt5(step.objectId,"\"working-tag\"",step.intendedHash))
+        val checked=publication.load(pointer);assertTrue(checked.historyFirst && checked.working.allFilesAcknowledged && checked.allImmutableAcknowledged)
+        assertEquals(origin,checked.originPointer);assertEquals(1,checked.rawObservations.size);assertTrue(publication.load(first).working.receipts.isEmpty())
+        assertEquals(pointer,publication.acknowledgeWorking(pointer,receipt))
+        assertFails {publication.acknowledgeWorking(pointer,receipt.copy(tag="\"different-tag\""))}
+        pointer=publication.retainRaw(pointer,PublicationRawObservation5("HEAD","head-object",404,null,null))
+        assertEquals(2,publication.load(pointer).rawObservations.size);assertEquals(origin,publication.load(pointer).originPointer)
+        pointer=publication.observe(pointer,snapshot());pointer=publication.acknowledgePublication(pointer,"\"published-tag\"")
+        assertEquals("\"published-tag\"",publication.load(pointer).publishedTag)
+    }
+    @Test fun transferCannotClaimHistoryFirstAfterAWorkingReceiptOrLoseTheOriginalCapture() {
+        assertFails {transfer(working())}
+        val original=working(false);val one=TemplateSyncProgressFiles5(files).acknowledge(original,WorkingReceipt5(steps.first().objectId,"\"working-tag\"",steps.first().intendedHash))
+        assertFails {transfer(one)}
+        val pointer=transfer(original);val d=Json.parseToJsonElement(files.readRecord(pointer)).jsonObject
+        for(changed in listOf(d-"originPath",d+("schemaVersion" to JsonPrimitive("1.1.0")),d+("originPath" to JsonPrimitive(one.path))+("originHash" to JsonPrimitive(one.sha256))))
+            assertFails {publication.load(files.writeRecord(JsonObject(changed).toString()))}
+        assertNull(publication.load(pointer).publishedTag)
+    }
 }

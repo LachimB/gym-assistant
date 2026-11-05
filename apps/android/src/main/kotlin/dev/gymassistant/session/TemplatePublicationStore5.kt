@@ -49,12 +49,12 @@ class TemplatePublicationStore5(private val db:WorkoutDatabase,private val files
         }
     }
     suspend fun begin(lease:SyncLease5,revisionFolderId:String,intent:PublicationHeadIntent,
-        initialObservation:PublicationHeadSnapshot?,headAbsenceVerified:Boolean):SyncIntentFile5=withContext(Dispatchers.IO) {
+        initialObservation:PublicationHeadSnapshot?,headAbsenceVerified:Boolean,historyFirst:Boolean=false):SyncIntentFile5=withContext(Dispatchers.IO) {
         val prior=leases.owned(lease,clock());val s=scope(prior)
         val pointer=SyncIntentFile5(prior.intentPath,prior.intentHash)
         if(files.isPublication(pointer)) {
             val existing=files.load(pointer);validate(existing,prior,s);val captured=existing.intent
-            check(existing.revisionFolderId==revisionFolderId && captured.operationId==intent.operationId && captured.objectId==intent.objectId &&
+            check(existing.historyFirst==historyFirst && existing.revisionFolderId==revisionFolderId && captured.operationId==intent.operationId && captured.objectId==intent.objectId &&
                 captured.metadataFolderId==intent.metadataFolderId && captured.marker==intent.marker && captured.expected==intent.expected &&
                 captured.expectedTag==intent.expectedTag && captured.intended==intent.intended && headAbsenceVerified==(captured.expected==null))
             val original=existing.observations.first()
@@ -63,9 +63,9 @@ class TemplatePublicationStore5(private val db:WorkoutDatabase,private val files
                 initialObservation.metadataBytes.contentEquals(original.metadataBytes) && initialObservation.contentBytes.contentEquals(original.contentBytes))
             commit(lease,prior,s,pointer);return@withContext pointer
         }
-        val completed=working.load(lease);check(completed.allFilesAcknowledged)
+        val completed=working.load(lease);if(historyFirst)check(completed.receipts.isEmpty()) else check(completed.allFilesAcknowledged)
         check(intent.operationId==prior.operationId)
-        val next=files.prepare(pointer,s.hash,s.root.permissionId,revisionFolderId,intent,initialObservation,headAbsenceVerified)
+        val next=files.prepare(pointer,s.hash,s.root.permissionId,revisionFolderId,intent,initialObservation,headAbsenceVerified,historyFirst)
         validate(files.load(next),prior,s);commit(lease,prior,s,next);next
     }
     suspend fun load(lease:SyncLease5):CheckedPublication5=withContext(Dispatchers.IO) {
@@ -83,6 +83,7 @@ class TemplatePublicationStore5(private val db:WorkoutDatabase,private val files
     suspend fun observe(lease:SyncLease5,snapshot:PublicationHeadSnapshot?):SyncIntentFile5=update(lease){files.observe(it,snapshot)}
     suspend fun acknowledgePublication(lease:SyncLease5,tag:String):SyncIntentFile5=update(lease){files.acknowledgePublication(it,tag)}
     suspend fun retainRaw(lease:SyncLease5,observation:PublicationRawObservation5):SyncIntentFile5=update(lease){files.retainRaw(it,observation)}
+    suspend fun acknowledgeWorking(lease:SyncLease5,receipt:WorkingReceipt5):SyncIntentFile5=update(lease){files.acknowledgeWorking(it,receipt)}
     /** Confirm that a caller's pinned native folder roles belong to this exact leased binding. */
     internal suspend fun requireNativeScope(lease:SyncLease5,permissionId:String,commonRootId:String,folderIds:Set<String>,
         templateFolderId:String,workingFolderId:String,historyFolderId:String,metadataFolderId:String,revisionFolderId:String)=withContext(Dispatchers.IO) {
