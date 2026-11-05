@@ -59,3 +59,9 @@ bounded authorization/budget integration, then implement UI and compatible
 single-root readers/writers. Prove process death, background/screen-off/Doze and
 same-ID interrupted recovery on supported emulators and the physical phone.
 The bounded live batch and complete normal-workout acceptance remain open.
+
+
+The isolated native working-file transport now has synthetic contract coverage
+for pinned account/root validation, exact-tag YAML updates and reserved-ID retry.
+See [m1-drive-working-files.md](m1-drive-working-files.md). It is not connected to
+the UI/worker queue and establishes no live or physical-device behavior.
