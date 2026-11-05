@@ -966,3 +966,28 @@ remain open. No schema/default/recording/dependency/live operation/resource/APK
 assembly/phone-installation change. All eight live authorization launches and both
 diagnostic executions remain used. M1 and actual native/provider/background/
 screen-off acceptance remain incomplete.
+
+## Captured source-evidence replay preparation — 2026-11-05
+
+PR55 retains known immutable-base readback on the verified `ef5e629` baseline.
+Its exact-head CI and owner receipt remain required before merge. The next inert
+proof records link the frozen capture/response range and explicit folder pins;
+known-base proofs also link the retained acknowledged publication. Every load
+rechecks hashed files and replays complete namespace/file/tag/byte sequences.
+They perform no provider call and are not account-authorization receipts.
+
+Malformed YAML and an absent head remain observed facts, with no stored valid flag
+or automatic adoption. Skipped/trailing/partial evidence, wrong/nested records,
+retargeted folders and corrupted retained files fail. Preparing proof files does
+not advance the SQL observation; later classification still needs a fresh lease,
+matching capture origin/ranges and exact expected-pointer CAS.
+
+Local174 Android JVM/36 adapter JVM tests pass. Five new JVM cases pass and two
+additional SQLite combined-reopen/tamper cases compile, pending actual current-head
+seven-version CI. See `docs/milestones/m1-captured-source-proofs.md`. The current
+observed head remains separate from the retained common publication. No schema,
+default, recording, dependency, live request, allowance, authorization, resource,
+APK assembly or phone-installation change. All eight live launches and both
+diagnostic executions remain used. Classification, explicit three-way review,
+transfer preparation/completion and authorization/scheduling remain open. M1 and
+actual native/provider/background/screen-off acceptance remain incomplete.
