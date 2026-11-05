@@ -70,9 +70,12 @@ request counters compared exactly unchanged. The prior APK and both verified
 backups remain private. The app was reopened without resuming a workout.
 
 Metadata-only identity preparation reserved fixed future container IDs within
-the existing allowance. No folders were created/moved/renamed, permissions
+the existing allowance. During that preparation step, no folders were created/moved/renamed, permissions
 changed, project-root binding activated or Template opted into synchronization.
 This establishes migration preservation, not live hierarchy or background proof.
+
+The subsequent approved execution and its remaining acceptance gates are recorded
+in [m1-drive-consolidation.md](m1-drive-consolidation.md).
 
 The localhost helper also accepts explicitly smaller caps for a separately
 reserved verification allocation, never above its existing maxima. Synthetic

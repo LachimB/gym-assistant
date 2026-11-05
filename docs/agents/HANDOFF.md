@@ -1,5 +1,11 @@
 # Shared technical handoff
 
+Current checkpoint — 2026-11-05: verified merged baseline `aea8c75`; the approved
+folder cutover has run and its hierarchy/identity/access checks passed. Final
+owner phone/web checks and the cutover-proof PR remain pending. Read the latest
+“Approved folder cutover” section below and `docs/milestones/m1-drive-consolidation.md`
+before acting on older pending-gate notes. M1 remains incomplete.
+
 ## Verified baseline — 2026-11-04
 
 - Repository: `LachimB/gym-assistant`, intentionally public. Confirmed personal
@@ -557,3 +563,34 @@ be explicitly reserved from the approved parent before use, with the original
 allocation/counters retained. No new live allowance was created by this helper
 change. Remaining Template publication/review/worker integration and actual
 background/screen-off/Doze acceptance remain open; M1 is not complete.
+
+## Approved folder cutover — 2026-11-05
+
+PR41 merged at `aea8c75` after all required checks, its seven-version Android
+matrix and exact owner receipt passed. The owner then approved the exact private
+consolidation execution plan. Its bounded desktop/web shares were reserved once
+within the existing parent allowance; the earlier web connection and exhausted
+ledger were retained unchanged.
+
+A complete synthetic runner rehearsal passed before live operations. Metadata
+preflight included nested descendants and owner-only effective access. Reserved
+containers and labelled empty proof folders were created with their previously
+reserved identities.
+The live folder-metadata proof accepted the correct tag and rejected a stale
+parent/name update with412 before either existing area moved. Compatible adopting
+and final phone configurations were verified against fresh private backups with
+all sixteen prior tables, retained files and counters unchanged.
+
+The two existing areas were then conditionally moved/renamed beneath their
+reviewed environments. Final metadata comparison retained original area/child
+identities, markers and access; production is empty. No copies, deletion, sharing
+changes, automatic recording upload or Template/background binding activation.
+Detailed inventories, before-images, exact usage, APKs and backups remain private.
+Final phone probe/retry and explicit web verification are still pending owner
+acceptance; do not claim those passed without results.
+
+The reusable bounded empty-folder metadata probe and four synthetic cases are
+in `tools/drive_folder_metadata_probe.*`; CI runs them with the existing probes.
+See `docs/milestones/m1-drive-consolidation.md`. Continue the remaining approved
+Template publication/review/runtime work after these acceptance gates; M1 is
+incomplete. Preserve review before adoption and never reset earlier allowances.

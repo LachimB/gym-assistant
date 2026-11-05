@@ -119,7 +119,14 @@ move unrelated user files. No live relocation or root creation occurs before the
 existing protected bindings remain authoritative until the
 consolidation and compatible readers/writers are approved and verified.
 
-## Reviewed consolidation sequence — execution approval pending
+## Reviewed consolidation sequence — execution approved 2026-11-05
+
+The owner approved the exact retained private inventory/execution plan on this
+date. That approval covers its reserved containers, labelled empty-folder proof,
+conditional existing-area moves and bounded client verification. It does not
+authorize other objects, sharing changes, deletion, production activation or
+automatic Template opt-in. Technical evidence and remaining acceptance gates are
+recorded in [m1-drive-consolidation.md](../milestones/m1-drive-consolidation.md).
 
 1. Prepare and test compatible phone/web readers and writers before moving or
    renaming existing areas. IDs and namespace markers remain unchanged; support
