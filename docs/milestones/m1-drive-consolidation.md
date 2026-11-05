@@ -67,9 +67,11 @@ Workout Session source independent of subsequent Template changes.
 The cutover-record CI exposed an existing concurrent offline-queue failure: one
 reader could report a retained file missing while another writer temporarily
 restricted the shared directory's permissions. A new two-store read/write
-regression reproduced this locally before the fix. Reads now share the existing
-process-wide writer boundary, including path/stat/open and byte-bound checks.
-Owner-only permissions, immutable files, hash checks, fsync and atomic rename are
+regression reproduced this locally before the fix. Directory/file modes are now
+set atomically to the same owner-only permissions, removing the temporary access
+revocation window. Reads also share the existing process-wide writer boundary,
+including path/stat/open and byte-bound checks. Concurrent JVM and SQLite
+regressions verify directory/file modes. Immutable files, hash checks, fsync and atomic rename are
 unchanged. This adds no migration, provider request or Template opt-in. The
 corrected local suite passes99 Android JVM and29 adapter JVM checks, and Android
 instrumentation compiles. The27 synthetic Drive/helper checks also pass. The
