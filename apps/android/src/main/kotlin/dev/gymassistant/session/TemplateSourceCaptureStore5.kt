@@ -7,6 +7,8 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.*
 
+internal class SourceCaptureReadBinding5(val checked:CheckedSourceCapture5,val rootMarker:String,val areaMarker:String)
+
 /** Incomplete observations use the existing pending/changing row; they confer no candidate or adoption authority. */
 class TemplateSourceCaptureStore5(private val db:WorkoutDatabase,private val files:TemplateSourceCaptureFiles5,private val clock:()->Long,
     private val beforePointerTransaction:suspend ()->Unit={},private val beforePointerCommit:()->Unit={}) {
@@ -72,5 +74,15 @@ class TemplateSourceCaptureStore5(private val db:WorkoutDatabase,private val fil
             beforePointerCommit();leases.owned(lease,clock());check(scope(job)==s)
         }
         next
+    }
+    /** Marker authority comes from the same current Room binding, never from caller-supplied folder labels. */
+    internal suspend fun readBinding(lease:SyncLease5,observationId:String):SourceCaptureReadBinding5=withContext(Dispatchers.IO) {
+        val checked=load(lease,observationId)
+        db.withTransaction {
+            val job=leases.owned(lease,clock());val s=scope(job);val row=checkNotNull(db.templateSync().observation(observationId))
+            validateRow(row,job);validate(checked,job,s)
+            check(SyncIntentFile5(row.observationPath,row.observationHash)==checked.pointer)
+            SourceCaptureReadBinding5(checked,s.root.marker,s.connection.namespaceMarker)
+        }
     }
 }

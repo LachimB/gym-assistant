@@ -875,3 +875,29 @@ compilation. Its follow-up increases only the pinned wrapper download timeout
 from10 to60 seconds. URL, version, wrapper bytes and dependency versions/notices
 are unchanged; the broad dependency-input review digest is updated for this
 operational setting. Current-head CI and a fresh receipt remain required.
+
+## Known-ID read-only source transport preparation — 2026-11-05
+
+PR51's `a97faab` passes all seven Android versions and standard technical/privacy
+CI. Its exact owner receipt is verified by the trusted scanner. Publication of
+the required status still fails after successful assessment; the controller
+correctly resets categories to failure. PR51 remains unmerged. Do not bypass or
+manually mark its required statuses successful. A separate safe diagnostic
+proposal is being prepared; active checks and permissions remain unchanged.
+
+The next source component adds exact known-ID GET-only head/working reads, with
+owner-only access, fixed ancestry/roles, stable bracketed tags and raw retention
+before decoding. No listing, name lookup, folder media or mutation path exists.
+The leased executor obtains marker authority from Room, checks scope before
+constructing a token batch and rechecks capture/lease before each reservation.
+It cannot launch authorization, validate/adopt a candidate or advance a job.
+
+Local153 Android JVM/36 adapter JVM checks pass and instrumentation compiles.
+Six new JVM cases cover scope/read/socket boundaries; two additional SQLite cases
+require current-head seven-version execution. See
+`docs/milestones/m1-source-read-transport.md`. This preparation depends on PR51 and
+is not enabled in the app. No schema/default, dependency, recording, live request,
+allowance, resource, APK assembly or phone installation change. All eight approved
+authorization launches remain used. Complete-vector/base verification, review,
+transfer-intent preparation, completion and authorization/scheduling remain open.
+M1 and actual native/provider/background/screen-off acceptance remain incomplete.
