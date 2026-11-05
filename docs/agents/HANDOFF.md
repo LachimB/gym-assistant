@@ -1,6 +1,15 @@
 # Shared technical handoff
 
-Current checkpoint — 2026-11-05: baseline before this cutover record was `aea8c75`;
+Latest implementation checkpoint — 2026-11-05: PR51/53/54/55 merged through
+normal required checks and seven-version Android validation. Verified main is
+`005621e`; captured-evidence replay preparation follows in the latest section
+below. All eight approved live authorization launches and both diagnostic
+executions remain used. No additional live Drive request or physical update ran.
+An isolated evidence-capacity proposal awaits owner review and is not adopted.
+M1 and actual runtime/background/provider acceptance remain incomplete. Reverify
+current GitHub/worktree state under the startup rule before continuing.
+
+Folder-cutover checkpoint — 2026-11-05: baseline before this record was `aea8c75`;
 the approved folder cutover has run and its hierarchy/identity/access checks
 passed. Final owner phone probe/retry and web opening/value comparison passed
 after correcting a retired-key reference. Verify current PR/merge/CI
@@ -966,3 +975,35 @@ remain open. No schema/default/recording/dependency/live operation/resource/APK
 assembly/phone-installation change. All eight live authorization launches and both
 diagnostic executions remain used. M1 and actual native/provider/background/
 screen-off acceptance remain incomplete.
+
+## Captured source-evidence replay preparation — 2026-11-05
+
+PR55 merged at `005621e` after every required check, the exact owner receipt and
+all seven Android versions passed on `802c351`, including the two additional
+known-base SQLite cases. The merged tree matches the reviewed head. The next inert
+proof records link the frozen capture/response range and explicit folder pins;
+known-base proofs also link the retained acknowledged publication. Every load
+rechecks hashed files and replays complete namespace/file/tag/byte sequences.
+They perform no provider call and are not account-authorization receipts.
+
+Malformed YAML and an absent head remain observed facts, with no stored valid flag
+or automatic adoption. Skipped/trailing/partial evidence, wrong/nested records,
+retargeted folders and corrupted retained files fail. Preparing proof files does
+not advance the SQL observation; later classification still needs a fresh lease,
+matching capture origin/ranges and exact expected-pointer CAS.
+
+Local174 Android JVM/36 adapter JVM tests pass. Five new JVM cases pass and two
+additional SQLite combined-reopen/tamper cases compile, pending actual current-head
+seven-version CI. See `docs/milestones/m1-captured-source-proofs.md`. The current
+observed head remains separate from the retained common publication. No schema,
+default, recording, dependency, live request, allowance, authorization, resource,
+APK assembly or phone-installation change. All eight live launches and both
+diagnostic executions remain used. Classification, explicit three-way review,
+transfer preparation/completion and authorization/scheduling remain open. M1 and
+actual native/provider/background/screen-off acceptance remain incomplete.
+
+The existing16MiB audit cap can stop a supported synthetic source's retained base
+and repeated working reads. A separate reproduced/tested capacity proposal awaits
+owner approval; it is not part of this replay component and no guard was weakened.
+Keep the current bound and pending-work behavior until the approved correction
+passes its own review/CI. Do not claim complete source-size coverage meanwhile.

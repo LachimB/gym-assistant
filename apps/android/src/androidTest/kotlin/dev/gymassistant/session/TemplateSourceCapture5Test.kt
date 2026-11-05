@@ -258,4 +258,43 @@ class TemplateSourceCapture5Test {
         assertNull(db.templateSync().observation("observation-test")!!.candidateId)
         assertEquals(f.job,db.templateSync().job("job-test"));assertEquals(before,rows())
     }
+    private fun proofFiles():TemplateCapturedProofFiles5 {
+        val files=syncFiles()
+        return TemplateCapturedProofFiles5(files,TemplateSourceCaptureFiles5(files,TemplateSyncQueueFiles5(files,contracts)),TemplatePublicationFiles5(files),contracts)
+    }
+    @Test fun retainedBaseAndVectorProofsReplayAfterReopenWhileSqlObservationStaysUnclassified()=runBlocking {
+        val(f,prior)=fixtureWithBase();val before=rows();val s=store();s.begin(f.lease,"observation-test",f.namespace,pins,at)
+        val publications=TemplatePublicationFiles5(syncFiles());val baseScope=KnownImmutableBaseScope5(TemplateSourceReadScope5(s.load(f.lease,"observation-test"),readFolders()),publications.load(prior),baseFolder,contracts)
+        val baseHttp=BaseHttp(baseScope)
+        TemplateKnownBaseExecutor5(s,publications,contracts,baseHttp).read(f.lease,"observation-test",prior,"synthetic",{},readFolders(),baseFolder)
+        val baseCapture=s.load(f.lease,"observation-test");val baseProof=proofFiles().prepareBase(baseCapture.pointer,readFolders(),0,prior,baseFolder)
+        val vectorStart=baseCapture.rawObservations.size;val vectorHttp=ReadHttp(f)
+        TemplateSourceReadExecutor5(s,vectorHttp).read(f.lease,"observation-test","synthetic",{},readFolders()){it.captureKnownVector(pins)}
+        val capture=s.load(f.lease,"observation-test");val vectorProof=proofFiles().prepareVector(capture.pointer,readFolders(),vectorStart)
+        db.close();db=open()
+        val proof=proofFiles();val base=proof.loadBase(baseProof);val vector=proof.loadVector(vectorProof)
+        assertEquals(base.capture.captureOrigin,vector.capture.captureOrigin);assertEquals(60,vector.capture.rawObservations.size)
+        assertEquals(f.revision.sourceSnapshotJson,sessionJson.encodeToString(TemplateSources3.serializer(),base.sources))
+        assertEquals(f.revision.sourceHash,vector.vector.compileWorkingSource(f.revision.templateId,contracts).sourceHash)
+        assertEquals("base-generation",base.scope.source.capture.local.expectedRemoteGeneration)
+        assertEquals("generation-test",vector.vector.head!!.head.generationId)
+        assertEquals(25,baseHttp.calls);assertEquals(39,vectorHttp.calls)
+        val row=db.templateSync().observation("observation-test")!!
+        assertEquals(capture.pointer,SyncIntentFile5(row.observationPath,row.observationHash))
+        assertEquals("changing",row.validationCode);assertEquals("pending",row.reviewState);assertNull(row.candidateId)
+        assertEquals(f.job,db.templateSync().job("job-test"));assertEquals(before,rows())
+    }
+    @Test fun proofReplayRejectsWrongRangesKindsAndChangedRetainedPublicationWithoutAdvancingSql()=runBlocking {
+        val(f,prior)=fixtureWithBase();val before=rows();val s=store();s.begin(f.lease,"observation-test",f.namespace,pins,at)
+        val publications=TemplatePublicationFiles5(syncFiles());val scope=KnownImmutableBaseScope5(TemplateSourceReadScope5(s.load(f.lease,"observation-test"),readFolders()),publications.load(prior),baseFolder,contracts)
+        TemplateKnownBaseExecutor5(s,publications,contracts,BaseHttp(scope)).read(f.lease,"observation-test",prior,"synthetic",{},readFolders(),baseFolder)
+        val capture=s.load(f.lease,"observation-test");val proof=proofFiles();val pointer=proof.prepareBase(capture.pointer,readFolders(),0,prior,baseFolder)
+        var failed=false;try{proof.prepareBase(capture.pointer,readFolders(),1,prior,baseFolder)}catch(_:Exception){failed=true};assertTrue(failed)
+        failed=false;try{proof.loadVector(pointer)}catch(_:Exception){failed=true};assertTrue(failed)
+        val file=File(root,"sync/${prior.path}");file.writeText("synthetic changed publication")
+        failed=false;try{proof.loadBase(pointer)}catch(_:Exception){failed=true};assertTrue(failed)
+        assertEquals(capture.pointer,s.load(f.lease,"observation-test").pointer)
+        assertNull(db.templateSync().observation("observation-test")!!.candidateId)
+        assertEquals(f.job,db.templateSync().job("job-test"));assertEquals(before,rows())
+    }
 }
