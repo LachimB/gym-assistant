@@ -2,6 +2,7 @@
 
 - Status: **Approved by owner in chat on 2026-11-04 — implementation in progress**
 - Date: 2026-11-04
+- Environment layout revised and approved by owner: 2026-11-05
 - Requirements: GA-DOM-006, GA-DATA-001/002/003/004/010/011; ADR-0001/0006/0007.
 
 ## What changes for the owner
@@ -58,37 +59,61 @@ remain binding before their respective live actions. Confirmed decisions:
   personal, session, Template, synthetic-test, metadata, staging or backup folders.
   This rule concerns Drive layout; local private backups remain outside app storage.
 
-The common root is named **Gym Assistant**, confirmed during review. Child names
-below are illustrative; existing app areas will be consolidated under this root
-through the reviewed migration plan.
+## Confirmed environment layout — 2026-11-05
+
+Use one common root named **Gym Assistant**, with lowercase `dev`, `test` and
+`prod` environment containers. Existing areas become children of the appropriate
+container; an existing area must not itself become the environment container.
+The owner confirmed that the common root does not currently exist. The previously
+authorized development/test areas are the folders to consolidate beneath it.
 
 ```text
 My Drive/
   Gym Assistant/
-    Personal/
-      Templates/
-        <Training Template>/
-          Current working copy/
-          History/
-            <revision>/
-          Sync metadata/
-      Sessions/
-    Development/
-      Synthetic tests/
-    Backups/
-    Imported sources/  (only when separately authorized)
+    dev/
+      PERSONAL M1/
+        <existing files retained in place>
+        Templates/
+          <selected Training Template>/
+            Current working copy/
+            History/
+              <revision>/
+            Sync metadata/
+      <future development areas>/
+    test/
+      SYNTHETIC M1/
+        <existing test artifacts retained in place>
+      <future test areas>/
+    prod/
+      <subfolder structure deferred>
 ```
 
-Backups are siblings of active personal data under the common root, outside the
-active data subtree. Imported/source areas remain segregated; reserving a location
-is not authorization to upload PDFs or other source documents. All temporary
-cloud objects and interrupted-operation artifacts stay below this common root too.
+The existing personal development area is moved and renamed to
+`Gym Assistant/dev/PERSONAL M1`; the existing synthetic test area is moved and
+renamed to `Gym Assistant/test/SYNTHETIC M1`. Preserve each area's provider ID,
+namespace marker, contents, sharing and saved connection/job bindings. Remove the
+repeated project-name prefix and redundant environment suffix from the display
+name only; do not regenerate or simplify markers or IDs. Future development/test
+areas follow the same nesting and concise naming convention, with separately
+verified identities. Do not select or merge areas by name alone.
+
+Production subfolders are deferred. This layout decision authorizes neither
+production activation nor copying/promoting development/test data into `prod`.
+Any common-root/environment container creation still follows the exact inventory
+and execution review below.
+
+Cloud backups belong beneath the relevant environment, outside its active data
+area. Imported/source areas remain segregated within that environment. Their
+exact placement requires its own reviewed use; the layout does not authorize new
+backup, PDF or source-document uploads. Local private backups remain outside app
+storage. All authorized staging and interrupted-operation artifacts stay beneath
+the same common root and within their selected environment.
 
 Existing app folders must ultimately fit this layout. Adopting it requires an
 explicitly reviewed consolidation plan: choose/verify the common root, inventory
 only authorized app-owned object metadata, preserve all existing folder/file IDs,
 connection identities, markers and sharing settings, and verify the resulting
-ancestry. Moving an existing personal/synthetic area under the common root must
+ancestry. Moving/renaming an existing area under its environment container must
 not recreate its contents or redirect delivery jobs to another folder. Do not
 move unrelated user files. No live relocation or root creation occurs before the private inventory review;
 existing protected bindings remain authoritative until the
@@ -96,13 +121,17 @@ consolidation and compatible readers/writers are approved and verified.
 
 ## Reviewed consolidation sequence — execution approval pending
 
-1. After whole-ADR approval, prepare and test compatible phone/web readers and
-   writers before moving existing areas. Existing area IDs, names and namespace
-   markers remain valid during adoption; the new common-root binding is explicit.
+1. Prepare and test compatible phone/web readers and writers before moving or
+   renaming existing areas. IDs and namespace markers remain unchanged; support
+   the exact captured old name/parent and reviewed final name/parent only during
+   adoption for that same ID. Do not broaden a legacy name check to a prefix or
+   wildcard. The common-root and environment bindings are explicit; active
+   verification requires the reviewed final hierarchy and names.
    Follow the tested-update/private-backup gates before a phone database update.
 2. Build an owner-visible private inventory of only the previously authorized
    personal delivery and synthetic/test areas: exact IDs, account, current parent,
-   marker, ownership and effective sharing. Record the intended destination of
+   marker, ownership and effective sharing. Record the intended environment,
+   final display name and destination parent of
    each area and the existing connection/job bindings. Do not open unrelated
    documents or select targets by display name alone. Stop on ambiguous ownership,
    unexpected parents, missing access or any effect that would widen sharing.
@@ -111,43 +140,31 @@ consolidation and compatible readers/writers are approved and verified.
    already exists, require its explicit verified selection rather than assuming
    it is the project root or creating a confusing duplicate. Persist the chosen
    or reserved root ID and operation intent before creation, then verify it.
-4. Create only the required children below the verified root. Move the existing
-   personal area beneath it and existing synthetic/test areas under Development,
-   retaining their IDs, names, markers, contents and sharing. Initial consolidation
-   does not rename legacy areas or rearrange the session files inside them.
-   Add Templates beneath the personal area for the selected Template. All new
-   cloud staging and metadata stays within this hierarchy. Backups/imported-source
-   locations in the illustrative tree do not authorize new backup/source uploads.
-5. Before each parent change, recheck the exact source ID, expected parent and
-   sharing; use guarded updates where supported and test that boundary first.
+4. Create only the reviewed root/environment containers. Move and rename the
+   existing personal development area to `dev/PERSONAL M1` and the existing
+   synthetic test area to `test/SYNTHETIC M1`, retaining their IDs, markers,
+   contents and sharing. Do not rearrange files inside these areas as part of
+   consolidation. Add selected-Template children beneath `dev/PERSONAL M1` only
+   after explicit Template opt-in. Future areas use their corresponding environment.
+   Leave production subfolder design and data promotion for later review.
+5. Before each parent/name change, recheck the exact source ID, captured old
+   name/parent, reviewed final name/parent, namespace and effective sharing; use
+   guarded updates where supported and test that boundary first.
    Persist progress and inspect that same ID after an uncertain acknowledgement.
    Do not recreate/copy contents, change permissions, delete old data or redirect
    pending deliveries. A mismatch stops for review; never force a move or undo a
    newer external change automatically.
 6. Verify that every inventoried project area is now below the pinned common
-   root, with the original file/folder identities, namespaces and effective access
+   root through its reviewed environment container, with the original file/folder
+   identities, namespace markers and effective access
    preserved. Verify existing session deliveries/retries and read-only web access
    against those same identities. Activation succeeds only after the hierarchy
    and compatible clients pass these checks. An interrupted consolidation remains
    visibly pending and resumes from persisted steps without duplicate roots.
 
-The initial physical layout retains existing area names for compatibility:
-
-```text
-Gym Assistant/
-  <existing personal area>/
-    <existing session files>
-    Templates/
-      <Training Template>/
-        Current working copy/
-        History/
-        Sync metadata/
-  Development/
-    <existing synthetic/test areas>
-```
-
-The earlier Personal/Sessions labels describe the logical organization. Renaming
-or further rearranging legacy areas is not part of this initial relocation.
+The environment layout above supersedes the earlier Personal/Development plan
+and its initial no-rename restriction. Only the reviewed area display names and
+parents change; all existing identities, contents and markers stay preserved.
 Only the common root belongs at My Drive level; unrelated user files are untouched.
 Whole-ADR approval and the exact private inventory review remain necessary before
 any live root creation/relocation. This sequence is the reviewed plan, not evidence
@@ -156,7 +173,9 @@ that any folder has already moved.
 ## Approved authorization and boundaries
 
 Reuse the approved personal Google project/account, exactly drive.file and the
-existing verified personal area under the single verified common project root.
+existing verified development area at `Gym Assistant/dev/PERSONAL M1` under the
+single verified common project root. Keep synthetic tests within
+`Gym Assistant/test/SYNTHETIC M1`; never retarget existing jobs between environments.
 Create selected-Template child folders, YAML files and small versioned JSON
 manifests only within that hierarchy. Common-root selection/creation and moving
 existing app areas require the reviewed consolidation plan above. Separate editable files

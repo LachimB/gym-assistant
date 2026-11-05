@@ -95,3 +95,8 @@ The isolated native working-file transport now has synthetic contract coverage
 for pinned account/root validation, exact-tag YAML updates and reserved-ID retry.
 See [m1-drive-working-files.md](m1-drive-working-files.md). It is not connected to
 the UI/worker queue and establishes no live or physical-device behavior.
+
+Persistent constrained wakeup preparation is described in
+[m1-template-scheduling.md](m1-template-scheduling.md). The separate conditional
+head/recovery protocol is in [m1-publication-head.md](m1-publication-head.md).
+Both retain explicit integration and physical/live evidence limits.
