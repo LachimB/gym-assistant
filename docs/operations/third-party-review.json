@@ -1,9 +1,9 @@
 {
-  "reviewDate": "2026-11-04",
+  "reviewDate": "2026-11-05",
   "reviewScope": "Source/declared-license metadata only; original code all rights reserved; upstream terms retained",
   "binaryReleaseCleared": false,
   "dependencyInputs": {
-    "apps/android/build.gradle.kts": "8da6d5825f9e6c52f072cd9297b5c62f67828bf04b05eac1ed02c9a1d6d483bb",
+    "apps/android/build.gradle.kts": "075dce52906423ab6b7264de0d050805393814294a5843d4008093bf772729b1",
     "apps/web/package-lock.json": "60d4b4def0c0ccffcc3c684387276c180aa50a694bf2535a4ff53a065156fba0",
     "apps/web/package.json": "38ad44bdcf3394d119a97e11d2d70aecf93320f8caef28c37ad49b39078d48db",
     "build.gradle.kts": "93b6a9428fba5a3463e59833faaf05273fe35be7d86639265c92750f31fa69dd",
@@ -1555,5 +1555,80 @@
         "web"
       ]
     }
-  ]
+  ],
+  "workManagerSourceReview": {
+    "scope": "Pinned runtime/testing and affected declared-license metadata; binary release remains uncleared",
+    "components": [
+      {
+        "coordinate": "androidx.work:work-runtime:2.12.0",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "68544d4ed7062252edc5cbc2540b3e071a31ab045baea017c6684c150d357379"
+      },
+      {
+        "coordinate": "androidx.work:work-testing:2.12.0",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "a60baf4204dbbe1f6069cbfa2c6ec10ee5df08e45751aedc0011720c5c53f87a"
+      },
+      {
+        "coordinate": "androidx.tracing:tracing-ktx:1.2.0",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "8958b5a0153c1a82cb133703d3d11155898738280a354e92ca1817d7ca6f4cb7"
+      },
+      {
+        "coordinate": "androidx.tracing:tracing:1.2.0",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "f34bec4eb58871d31002901377108aaa1ebfe77fa6d882b8b86200b158e26ea1"
+      },
+      {
+        "coordinate": "androidx.concurrent:concurrent-futures-ktx:1.1.0",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "c903f8f51e3f4ea5e7e1f0a6fe3be873c357221227d103d08d7fd042f4b7570c"
+      },
+      {
+        "coordinate": "androidx.lifecycle:lifecycle-service:2.8.7",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "cb32a42e2b15ddd89dd8ba36eb3776f4a356fe89303a021c0dcf472e1fe54d50"
+      },
+      {
+        "coordinate": "androidx.lifecycle:lifecycle-livedata:2.8.7",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "d324cb785134d419757709118f86e2a88f3cc0b222bd8c23495ddbcb7a800cac"
+      },
+      {
+        "coordinate": "androidx.lifecycle:lifecycle-livedata-core-ktx:2.8.7",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "2fe09451b2f9baa68d05c0a549eafdbab4a1e4febd3efa474ab6875d8e6b271c"
+      },
+      {
+        "coordinate": "androidx.startup:startup-runtime:1.1.1",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "f4114b5c6859bb1bc3caf281cb6d6f25998fa7f7292c64ceaea74a93210e746b"
+      },
+      {
+        "coordinate": "org.jspecify:jspecify:1.0.0",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "cdab929a3b95211f43d2090c5e2d0dfe8465960e378bc32b35841dab324433a6"
+      },
+      {
+        "coordinate": "com.google.guava:listenablefuture:1.0",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "53873caf26bc1ed8a567ea6c939ab2aaa3f47a5e32d5cade95ddf5080d23238a",
+        "licenseInheritedFrom": "com.google.guava:guava-parent:26.0-android",
+        "parentPomSha256": "f8698ab46ca996ce889c1afc8ca4f25eb8ac6b034dc898d4583742360016cc04"
+      },
+      {
+        "coordinate": "org.jetbrains.kotlin:kotlin-stdlib:2.1.20",
+        "declaredLicense": "Apache-2.0",
+        "pomSha256": "6750e1799ee502077dae5c3d599796f667606f60d35e95cb790448dc7912b40b"
+      }
+    ],
+    "retainedOriginalLicense": {
+      "path": "apps/android/src/main/assets/third-party/androidx-work/LICENSE.txt",
+      "sha256": "809fa1ed21450f59827d1e9aec720bbc4b687434fa22283c6cb5dd82a47ab9c0",
+      "components": [
+        "androidx.work:work-runtime:2.12.0",
+        "androidx.work:work-testing:2.12.0"
+      ]
+    }
+  }
 }
