@@ -393,6 +393,23 @@ token acquisition or allowance reservation occurred. Durable execution, offline
 queue capture, whole-publication recovery, background scheduling and review UI
 remain open, as do exact private inventory review and physical/live acceptance.
 
+## Source-only offline publication queue — 2026-11-05
+
+The next slice freezes an explicitly selected published revision into private
+content-addressed source files and a bounded versioned local-publication intent.
+It retains reviewed source/plan hashes, the existing base expectation and pinned
+binding identity. It contains no reserved provider IDs or captured remote tags;
+unknown remote state does not authorize creation. Enqueue checks enabled/active
+account scope and the same selected head transactionally. Duplicate logical
+operations keep one job; stale selection and reused identities fail. Reopening
+recompiles exact bytes. This does not enqueue the whole library or alter sessions.
+
+Local Android86 JVM checks pass and instrumentation compiles. Four added SQLite
+cases require current-head matrix execution. Room schema5 is unchanged. The
+queue is not wired to UI/background scheduling or remote capture. That capture,
+reserved-ID persistence, immutable publication/head recovery and source review
+remain open. No phone operation, live request, token or budget change occurred.
+
 
 ## Native working-file transport continuation — 2026-11-05
 
