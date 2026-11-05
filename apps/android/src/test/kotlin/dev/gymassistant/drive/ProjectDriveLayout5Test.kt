@@ -126,4 +126,14 @@ class ProjectDriveLayout5Test {
         wrongParent=true;seen.clear();assertFails {runSyntheticDriveProbe("fake-token","owner@example.test",transport,access)}
         assertFalse(CHILD_PATH in seen)
     }
+    @Test fun reservedClientFollowsTheDurableActivePhaseWithoutBroadeningItsProbeEndpoints()=runBlocking<Unit> {
+        val synthetic=config.areas.single {it.kind=="synthetic"}.copy(id=SYNTHETIC_PARENT,marker=SYNTHETIC_MARKER)
+        val reserved=config.copy(areas=listOf(area,synthetic))
+        assertEquals(setOf(ACCOUNT_PATH,CHILD_PATH,projectFolderPath5(synthetic.id),projectFolderPath5(config.root.id),projectFolderPath5(config.test.id)),probePaths5(reserved))
+        assertFalse(projectFolderPath5(config.dev.id) in probePaths5(reserved));assertFalse(projectFolderPath5(config.prod.id) in probePaths5(reserved))
+        val stored=ProjectStorageRoot5(config.bindingId,permissionId=config.permissionId,commonRootFolderId=config.root.id,marker=config.root.marker,state="active")
+        val gate=ProjectDriveAccess5(reserved,{stored}).gate("personal")!!;gate.identity(config.permissionId)
+        var reads=0;assertTrue(gate.verify(leaf(true)){reads++;folders().getValue(it)}.projectVerified);assertEquals(2,reads)
+        assertFails {gate.verify(leaf(false)){folders().getValue(it)}}
+    }
 }

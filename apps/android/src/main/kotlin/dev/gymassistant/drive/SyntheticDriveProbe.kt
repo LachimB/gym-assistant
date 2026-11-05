@@ -14,21 +14,19 @@ internal val CHILD_PATH = "/drive/v3/files/$SYNTHETIC_CHILD?fields=id,name,mimeT
 
 internal data class ProbeResponse(val code: Int, val body: String = "", val etagPresent: Boolean = false)
 internal fun interface ProbeTransport { fun get(token: String, path: String): ProbeResponse }
+internal fun probePaths5(project:ProjectDriveLayout5?):Set<String> {
+    if(project==null)return setOf(ACCOUNT_PATH,PARENT_PATH,CHILD_PATH)
+    val area=project.areas.single {it.kind=="synthetic"}
+    require(area.id==SYNTHETIC_PARENT && area.marker==SYNTHETIC_MARKER)
+    // The durable root phase can advance without rebuilding. The gate decides when ancestors must be read.
+    return setOf(ACCOUNT_PATH,CHILD_PATH,projectFolderPath5(area.id),projectFolderPath5(project.root.id),projectFolderPath5(project.test.id))
+}
 
 /** Experiment-only read transport; never send a token to a supplied URL or follow a redirect. */
 internal class GoogleProbeTransport(private val project:ProjectDriveLayout5?=null, private val reserveRequest: () -> Unit) : ProbeTransport {
     override fun get(token: String, path: String): ProbeResponse {
         check(syntheticResourcesConfigured()) { "Private synthetic configuration required" }
-        val allowed=mutableSetOf(ACCOUNT_PATH,CHILD_PATH)
-        if(project==null)allowed+=PARENT_PATH else {
-            val area=project.areas.single {it.kind=="synthetic"}
-            require(area.id==SYNTHETIC_PARENT && area.marker==SYNTHETIC_MARKER)
-            allowed+=projectFolderPath5(area.id)
-            if(project.phase in setOf("verified","adopting","active")) {
-                allowed+=projectFolderPath5(project.root.id);allowed+=projectFolderPath5(project.test.id)
-            }
-        }
-        require(path in allowed) { "Unsupported probe endpoint" }
+        require(path in probePaths5(project)) { "Unsupported probe endpoint" }
         require(token.isNotBlank() && '\n' !in token && '\r' !in token)
         reserveRequest() // Persist the experiment request before transmission; failures consume budget.
         val connection = URL("https://www.googleapis.com$path").openConnection() as HttpsURLConnection

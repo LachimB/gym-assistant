@@ -524,7 +524,7 @@ localhost budget grants that reject stale configuration without resetting usage.
 No dependency or Room schema changes; the Gradle inventory hash changes only for
 the private layout configuration field.
 
-Local Android97 JVM, adapter29 JVM, web45 and helper3 checks pass, along with web
+Local Android98 JVM, adapter29 JVM, web45 and helper3 checks pass, along with web
 build and instrumentation compilation. Current-head CI and the full emulator
 matrix remain required. No live request, token acquisition, folder creation/move/
 rename, sharing change, APK installation or root activation ran for this change.

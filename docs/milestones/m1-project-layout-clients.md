@@ -56,7 +56,7 @@ configured APKs remain outside public Git and release artifacts.
 
 ## Validation and remaining gates
 
-Local validation: Android97 JVM checks, adapter29 JVM checks, web45 checks and
+Local validation: Android98 JVM checks, adapter29 JVM checks, web45 checks and
 three localhost-helper checks pass. The web production build and Android
 instrumentation compilation pass. These are synthetic contract/regression
 results, not evidence of live relocation or physical-device behavior.
