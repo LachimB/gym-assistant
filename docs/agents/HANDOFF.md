@@ -1,5 +1,17 @@
 # Shared technical handoff
 
+## Proposed status-publication diagnostic — owner review required
+
+Source checks and exact-head owner review pass for the capture-journal PR, but
+the trusted publisher repeatedly fails while posting the resulting statuses.
+Required checks remain blocked; no protection or scanner policy was changed.
+A separate, unapproved diagnostic patch adds content-free error categories and
+preserves original exceptions and failure behavior. All 41 security regressions
+pass locally, including three new diagnostic cases. See
+`docs/operations/status-publication-diagnostic.md`. No privileged diagnostic has
+run. The read-only source transport is saved in a dependent draft; full runtime,
+source reconciliation and M1 acceptance remain incomplete.
+
 Current checkpoint — 2026-11-05: baseline before this cutover record was `aea8c75`;
 the approved folder cutover has run and its hierarchy/identity/access checks
 passed. Final owner phone probe/retry and web opening/value comparison passed

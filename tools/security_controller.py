@@ -6,6 +6,7 @@ from pathlib import Path
 import re
 import sys
 import tempfile
+import urllib.error
 import urllib.request
 
 from security_gate import HERE, CONTEXTS, SHA, Scanner, apply_review, git, load_policy, scan_range, summary
@@ -50,10 +51,26 @@ class GitHub:
     def status(self, sha, context, state, run_url):
         if not SHA.fullmatch(sha) or context not in CONTEXTS or state not in {'pending', 'failure', 'success'}:
             raise ValueError('invalid status')
-        self.request('/repos/' + self.repo + '/statuses/' + sha,
-                     {'state': state, 'context': PREFIX + context,
-                      'description': 'Inspection pending' if state == 'pending' else 'See redacted security assessment',
-                      'target_url': run_url})
+        try:
+            self.request('/repos/' + self.repo + '/statuses/' + sha,
+                         {'state': state, 'context': PREFIX + context,
+                          'description': 'Inspection pending' if state == 'pending' else 'See redacted security assessment',
+                          'target_url': run_url})
+        except Exception as error:
+            # Never print exception text, URLs, response bodies, headers or credentials.
+            # Diagnostics do not authorize a retry or change the fail-closed outcome.
+            category = 'unexpected'
+            if isinstance(error, urllib.error.HTTPError):
+                code = error.code
+                category = f'http-{code}' if type(code) is int and 100 <= code <= 599 else 'http'
+            elif isinstance(error, json.JSONDecodeError):
+                category = 'invalid-json'
+            elif isinstance(error, TimeoutError):
+                category = 'timeout'
+            elif isinstance(error, urllib.error.URLError):
+                category = 'transport'
+            print(f'STATUS PUBLICATION FAILED: context={context} state={state} category={category}')
+            raise
 
 
 class NoRedirect(urllib.request.HTTPRedirectHandler):
