@@ -132,7 +132,7 @@ class TemplateWorkingRemote5Test {
     }
     @Test fun nativeTransportRejectsUnknownPathsWildcardTagsAndFolderWritesBeforeAnySocket() {
         var attempts=0
-        val http=GoogleTemplateHttp5("synthetic",{attempts++},setOf("file-fixture","folder-fixture"),setOf("file-fixture"))
+        val http=GoogleTemplateHttp5("synthetic",{attempts++;error("Synthetic socket forbidden")},setOf("file-fixture","folder-fixture"),setOf("file-fixture"))
         for(request in listOf(
             TemplateHttpRequest5("GET","https://outside.example.test/"),
             TemplateHttpRequest5("GET","/drive/v2/files/unknown-fixture?alt=media"),

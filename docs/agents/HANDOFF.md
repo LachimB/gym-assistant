@@ -722,3 +722,28 @@ Next: native head transport, durable journal/executor bridging, remote capture,
 account/allowance-bound scheduling and source-review UI. Preserve the complete
 CI/fresh-backup/device gates before runtime activation. Existing live fixtures,
 IDs, earlier allowances and original evidence stay retained; no counter reset.
+
+## Native publication-head transport preparation — 2026-11-05
+
+PR46 merged at `aefb171` after all required checks, the exact owner receipt and
+all seven supported Android versions passed on `6d3341b`. Its four new SQLite
+cases executed successfully across that matrix; local compilation is no longer
+the only evidence for the durable journal. No phone installation or live batch.
+
+The native head transport now pins the shared namespace and complete source
+vector, retains original bounded responses through a required sink before
+decoding, verifies immutable content and working receipts, and permits only the
+captured JSON head write. Existing YAML transport defaults remain narrow. Twelve
+new synthetic cases cover exact socket bytes, same-ID recovery, stale writes,
+later edits, malformed observations, retention failure and expired leases.
+Local126 Android JVM/35 adapter JVM checks pass and instrumentation compiles;
+current-head CI remains required. See
+`docs/milestones/m1-native-publication-head.md`.
+
+Next: durable raw-observation storage and executor/journal bridging, verified
+remote capture, account/allowance-bound scheduling and source review. The current
+transport is not wired to a production sink or enabled worker. No schema/default,
+recording, timing or dependency change; no local APK assembly/installation or new
+live request. All eight approved authorization launches remain used. Preserve
+the exact reviewed live-test plan, CI and fresh-backup/device gates before any
+runtime activation. M1 and native background/screen-off acceptance remain open.

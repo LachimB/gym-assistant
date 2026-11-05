@@ -22,10 +22,13 @@ internal fun interface TemplateHttp5 {fun request(request:TemplateHttpRequest5):
 
 /** Dedicated narrow transport; legacy delivery endpoints/permissions are not broadened. */
 internal class GoogleTemplateHttp5(@Volatile private var token:String,private val reserveRequest:()->Unit,
-    readableIds:Set<String>,writableIds:Set<String>,private val fileFields:String=TEMPLATE_FILE_FIELDS_5):TemplateHttp5,Closeable {
+    readableIds:Set<String>,writableIds:Set<String>,private val fileFields:String=TEMPLATE_FILE_FIELDS_5,
+    private val jsonWritableId:String?=null,private val maxReadableIds:Int=40):TemplateHttp5,Closeable {
     private val reads=readableIds.toSet();private val writes=writableIds.toSet()
     @Volatile private var active:HttpsURLConnection?=null
-    init {require(reads.size in 1..40 && writes.size in 1..16 && reads.containsAll(writes));reads.forEach(::handle5)
+    init {require(maxReadableIds in 1..64 && reads.size in 1..maxReadableIds && writes.size in 0..16 && reads.containsAll(writes))
+        require(writes.isNotEmpty() || jsonWritableId!=null);reads.forEach(::handle5)
+        jsonWritableId?.let {handle5(it);require(it in reads && it !in writes)}
         require(fileFields in setOf(TEMPLATE_FILE_FIELDS_5,IMMUTABLE_FILE_FIELDS_5))}
     override fun close(){token="";active?.disconnect()}
     override fun request(request:TemplateHttpRequest5):DeliveryHttpResponse {
@@ -34,8 +37,9 @@ internal class GoogleTemplateHttp5(@Volatile private var token:String,private va
             "GET" -> request.body==null && request.ifMatch==null && request.contentType==null && (request.path==ACCOUNT_PATH || reads.any {id->
                 request.path=="/drive/v3/files/$id?fields=$TEMPLATE_FOLDER_FIELDS_5" ||
                 request.path=="/drive/v2/files/$id?fields=$fileFields" || request.path=="/drive/v2/files/$id?alt=media"})
-            "PUT" -> writes.any {request.path=="/upload/drive/v2/files/$it?uploadType=media&fields=id"} &&
-                request.contentType in yamlMimes5 && request.body?.size in 1..1048576 && request.ifMatch!=null
+            "PUT" -> request.ifMatch!=null && (
+                writes.any {request.path=="/upload/drive/v2/files/$it?uploadType=media&fields=id"} && request.contentType in yamlMimes5 && request.body?.size in 1..1048576 ||
+                jsonWritableId!=null && request.path=="/upload/drive/v2/files/$jsonWritableId?uploadType=media&fields=id" && request.contentType=="application/json" && request.body?.size in 1..65536)
             "POST" -> request.path=="/upload/drive/v3/files?uploadType=multipart&fields=id" && request.ifMatch==null &&
                 request.body?.size in 1..1114112 && request.contentType?.matches(Regex("multipart/related; boundary=gym-template-[A-Za-z0-9-]{1,64}"))==true
             else -> false
