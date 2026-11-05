@@ -17,7 +17,8 @@ import kotlinx.serialization.json.*
 @Serializable private data class PublicationDocument5(val kind:String,val schemaVersion:String,val jobId:String,val operationId:String,val bindingId:String,
     val workingPath:String,val workingHash:String,val bindingHash:String,val permissionId:String,val revisionFolderId:String,
     val headObjectId:String,val metadataFolderId:String,val marker:String,val expectedHead:String?,val expectedTag:String?,val intendedHead:String,
-    val immutableReceipts:List<ImmutableReceipt5>,val observations:List<HeadObservation5>,val publication:HeadReceipt5?)
+    val immutableReceipts:List<ImmutableReceipt5>,val observations:List<HeadObservation5>,val publication:HeadReceipt5?,
+    val rawAudit:PublicationAuditPointer5?=null)
 
 private fun publicationId5(id:String)=require(id.matches(Regex("[A-Za-z0-9_-]{1,160}")))
 private fun publicationHash5(hash:String)=require(hash.matches(Regex("[a-f0-9]{64}")))
@@ -35,8 +36,9 @@ private fun JsonObject.publicationFlag5(key:String):Boolean {
 
 class CheckedPublication5 internal constructor(val workingPointer:SyncIntentFile5,val working:CheckedSyncProgress5,val bindingHash:String,
     val permissionId:String,val revisionFolderId:String,val intent:PublicationHeadIntent,steps:List<ImmutableFileStep>,receipts:List<ImmutableReceipt5>,
-    observations:List<PublicationHeadSnapshot?>,val publishedTag:String?) {
+    observations:List<PublicationHeadSnapshot?>,val publishedTag:String?,rawObservations:List<PublicationRawObservation5>) {
     val immutableSteps=steps.toList();val receipts=receipts.associateBy {it.objectId};val observations=observations.toList()
+    val rawObservations=rawObservations.toList()
     val allImmutableAcknowledged get()=this.receipts.size==immutableSteps.size
     fun requireJob(job:TemplateSyncJob5) {
         working.requireJob(job)
@@ -48,10 +50,12 @@ class CheckedPublication5 internal constructor(val workingPointer:SyncIntentFile
 class TemplatePublicationFiles5(private val files:TemplateSyncFiles5) {
     private val json=Json {encodeDefaults=true;ignoreUnknownKeys=false}
     private val workingFiles=TemplateSyncProgressFiles5(files)
+    private val audit=TemplatePublicationAudit5(files)
     internal fun isPublication(pointer:SyncIntentFile5):Boolean=
         Json.parseToJsonElement(files.readRecord(pointer)).jsonObject["kind"]?.jsonPrimitive?.content=="publicationProgress"
     private fun read(pointer:SyncIntentFile5):PublicationDocument5=json.decodeFromString<PublicationDocument5>(files.readRecord(pointer)).also {
-        check(it.kind=="publicationProgress" && it.schemaVersion=="1.0.0")
+        check(it.kind=="publicationProgress" && it.schemaVersion in setOf("1.0.0","1.1.0"))
+        if(it.schemaVersion=="1.0.0")check(it.rawAudit==null)
     }
     private fun head(d:PublicationDocument5)=PublicationHeadIntent(d.operationId,d.headObjectId,d.metadataFolderId,d.marker,
         d.expectedHead?.let(TemplateSyncContracts5::head),d.expectedTag,TemplateSyncContracts5.head(d.intendedHead))
@@ -93,7 +97,7 @@ class TemplatePublicationFiles5(private val files:TemplateSyncFiles5) {
         check(headAbsenceVerified==(intent.expected==null) && (initialObservation==null)==headAbsenceVerified)
         if(initialObservation!=null)check(initialObservation.head==intent.expected && initialObservation.tag==intent.expectedTag)
         intent.expectedTag?.let(::publicationTag5)
-        val d=PublicationDocument5("publicationProgress","1.0.0",w.captured.jobId,w.captured.operationId,w.captured.bindingId,
+        val d=PublicationDocument5("publicationProgress","1.1.0",w.captured.jobId,w.captured.operationId,w.captured.bindingId,
             workingPointer.path,workingPointer.sha256,bindingHash,permissionId,revisionFolderId,intent.objectId,intent.metadataFolderId,intent.marker,
             intent.expected?.let(TemplateSyncContracts5::encode),intent.expectedTag,TemplateSyncContracts5.encode(intent.intended),emptyList(),
             listOf(retainObservation(intent,permissionId,initialObservation)),null)
@@ -121,7 +125,8 @@ class TemplatePublicationFiles5(private val files:TemplateSyncFiles5) {
         check(observations.first()?.head==intent.expected && observations.first()?.tag==intent.expectedTag)
         d.publication?.let {r->publicationTag5(r.tag);check(d.immutableReceipts.size==steps.size)
             val observation=checkNotNull(observations.getOrNull(r.observationIndex));check(observation.head==intent.intended && observation.tag==r.tag)}
-        return CheckedPublication5(wp,w,d.bindingHash,d.permissionId,d.revisionFolderId,intent,steps,d.immutableReceipts,observations,d.publication?.tag)
+        val raw=audit.load(d.rawAudit,wp,d.bindingHash,d.permissionId,intent.objectId)
+        return CheckedPublication5(wp,w,d.bindingHash,d.permissionId,d.revisionFolderId,intent,steps,d.immutableReceipts,observations,d.publication?.tag,raw)
     }
     fun acknowledgeImmutable(pointer:SyncIntentFile5,receipt:ImmutableReceipt5):SyncIntentFile5 {
         val checked=load(pointer);check(checked.immutableSteps.singleOrNull {it.objectId==receipt.objectId}?.sha256==receipt.sha256)
@@ -141,5 +146,10 @@ class TemplatePublicationFiles5(private val files:TemplateSyncFiles5) {
         check(checked.allImmutableAcknowledged)
         val observation=checkNotNull(checked.observations.last());check(observation.head==checked.intent.intended && observation.tag==tag)
         val d=read(pointer);val next=files.writeRecord(json.encodeToString(d.copy(publication=HeadReceipt5(tag,d.observations.lastIndex))));load(next);return next
+    }
+    fun retainRaw(pointer:SyncIntentFile5,observation:PublicationRawObservation5):SyncIntentFile5 {
+        val checked=load(pointer);val d=read(pointer)
+        val raw=audit.append(d.rawAudit,checked.workingPointer,d.bindingHash,d.permissionId,checked.intent.objectId,observation)
+        val next=files.writeRecord(json.encodeToString(d.copy(schemaVersion="1.1.0",rawAudit=raw)));load(next);return next
     }
 }

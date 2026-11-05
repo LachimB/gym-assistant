@@ -109,4 +109,51 @@ class TemplatePublicationFiles5Test {
         ))assertFails {publication.load(files.writeRecord(JsonObject(changed).toString()))}
         assertTrue(publication.load(pointer).allImmutableAcknowledged);assertNull(publication.load(pointer).publishedTag)
     }
+    @Test fun malformedEmptyAndMissingRawObservationsReopenWithoutBecomingSemanticHeads() {
+        val original=prepare();val metadata="{\"id\":\"first\",\"id\":\"duplicate\"}".toByteArray();val content=byteArrayOf(0xC3.toByte(),0x28)
+        val observation=PublicationRawObservation5("HEAD","head-object",200,metadata,content)
+        metadata.fill(32);content.fill(32)
+        var pointer=publication.retainRaw(original,observation)
+        pointer=publication.retainRaw(pointer,PublicationRawObservation5("HEAD","head-object",200,byteArrayOf(),byteArrayOf()))
+        pointer=publication.retainRaw(pointer,PublicationRawObservation5("WORKING","working-file-0",404,null,null))
+        val reopened=TemplatePublicationFiles5(TemplateSyncFiles5(root,contracts)).load(pointer)
+        assertEquals(3,reopened.rawObservations.size);assertContentEquals(byteArrayOf(0xC3.toByte(),0x28),reopened.rawObservations.first().contentBytes)
+        assertTrue(reopened.rawObservations.first().metadataBytes!!.toString(Charsets.UTF_8).contains("duplicate"))
+        assertContentEquals(byteArrayOf(),reopened.rawObservations[1].metadataBytes);assertNull(reopened.rawObservations.last().metadataBytes)
+        val copy=reopened.rawObservations.first().contentBytes!!;copy.fill(32)
+        assertContentEquals(byteArrayOf(0xC3.toByte(),0x28),publication.load(pointer).rawObservations.first().contentBytes)
+        assertEquals(1,reopened.observations.size);assertNull(reopened.publishedTag);assertTrue(publication.load(original).rawObservations.isEmpty())
+    }
+    @Test fun rawAuditHashLinksAndOriginCannotBeRetargetedOrTampered() {
+        val original=prepare();val pointer=publication.retainRaw(original,PublicationRawObservation5("HEAD","head-object",200,"{bad".toByteArray(),null))
+        val d=Json.parseToJsonElement(files.readRecord(pointer)).jsonObject
+        val audit=d.getValue("rawAudit").jsonObject;val auditPointer=SyncIntentFile5(audit.getValue("path").jsonPrimitive.content,audit.getValue("sha256").jsonPrimitive.content)
+        val record=Json.parseToJsonElement(files.readRecord(auditPointer)).jsonObject
+        for(changed in listOf(record+("permissionId" to JsonPrimitive("another-owner")),record+("sequence" to JsonPrimitive(2)),
+            record+("byteCount" to JsonPrimitive(999)),record+("workingHash" to JsonPrimitive("f".repeat(64))))) {
+            val candidate=files.writeRecord(JsonObject(changed).toString())
+            val link=JsonObject(audit+mapOf("path" to JsonPrimitive(candidate.path),"sha256" to JsonPrimitive(candidate.sha256)))
+            assertFails {publication.load(files.writeRecord(JsonObject(d+("rawAudit" to link)).toString()))}
+        }
+        root.resolve(hashSourceBytes("{bad".toByteArray())+".yaml").writeText("edited")
+        assertFails {publication.load(pointer)};assertNull(publication.load(original).publishedTag)
+    }
+    @Test fun rawObservationLimitsRejectInvalidShapesAndNeverTrimOriginalFacts() {
+        assertFails {PublicationRawObservation5("unknown","head-object",200,byteArrayOf(),null)}
+        assertFails {PublicationRawObservation5("HEAD","head-object",404,byteArrayOf(),null)}
+        assertFails {PublicationRawObservation5("HEAD","head-object",200,null,byteArrayOf())}
+        assertFails {PublicationRawObservation5("HEAD","head-object",200,ByteArray(65537),null)}
+        assertFails {PublicationRawObservation5("HEAD","head-object",200,byteArrayOf(),ByteArray(1048577))}
+        val audit=TemplatePublicationAudit5(files);val working=working();val raw=PublicationRawObservation5("HEAD","head-object",200,byteArrayOf(),null)
+        assertFails {audit.append(PublicationAuditPointer5("unused.json","a".repeat(64),1024,0),working,"a".repeat(64),"synthetic-owner","head-object",raw)}
+        assertFails {audit.append(PublicationAuditPointer5("unused.json","a".repeat(64),1,16777216),working,"a".repeat(64),"synthetic-owner","head-object",PublicationRawObservation5("HEAD","head-object",200,byteArrayOf(1),null))}
+    }
+    @Test fun originalVersionReopensAndOnlyAnExplicitNewRecordAddsTheRawAudit() {
+        val original=prepare();val d=Json.parseToJsonElement(files.readRecord(original)).jsonObject
+        val old=files.writeRecord(JsonObject(d-"rawAudit"+("schemaVersion" to JsonPrimitive("1.0.0"))).toString())
+        assertTrue(publication.load(old).rawObservations.isEmpty())
+        val next=publication.retainRaw(old,PublicationRawObservation5("HEAD","head-object",404,null,null))
+        assertEquals("1.1.0",Json.parseToJsonElement(files.readRecord(next)).jsonObject.getValue("schemaVersion").jsonPrimitive.content)
+        assertTrue(publication.load(old).rawObservations.isEmpty());assertEquals(1,publication.load(next).rawObservations.size)
+    }
 }

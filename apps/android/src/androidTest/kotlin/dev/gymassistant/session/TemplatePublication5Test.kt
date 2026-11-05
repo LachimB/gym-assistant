@@ -92,4 +92,99 @@ class TemplatePublication5Test {
         assertTrue(failed);assertEquals(prior,db.templateSync().job("job-test"));assertEquals(before,rows())
         failed=false;try{store().begin(f.lease,"revision-folder",f.intent,null,true)}catch(_:IllegalStateException){failed=true};assertTrue(failed)
     }
+    @Test fun rawQuarantineReopensWithoutChangingLegacyRowsAndFailedCommitRetainsPriorPointer()=runBlocking {
+        val f=fixture();val before=rows();val s=store();s.begin(f.lease,"revision-folder",f.intent,null,true)
+        val raw=PublicationRawObservation5("HEAD","head-object",200,"{bad-json".toByteArray(),byteArrayOf())
+        val prior=db.templateSync().job("job-test")!!;var failed=false
+        try{store(commit={error("Injected raw pointer failure")}).retainRaw(f.lease,raw)}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertEquals(prior,db.templateSync().job("job-test"));assertTrue(s.load(f.lease).rawObservations.isEmpty())
+        s.retainRaw(f.lease,raw);db.close();db=open();val reopened=store().load(f.lease)
+        assertEquals(1,reopened.rawObservations.size);assertArrayEquals(raw.metadataBytes,reopened.rawObservations.single().metadataBytes)
+        assertArrayEquals(byteArrayOf(),reopened.rawObservations.single().contentBytes);assertNull(reopened.publishedTag)
+        assertEquals(before,rows());assertEquals("running",db.templateSync().job("job-test")!!.state)
+    }
+    @Test fun expiredLeaseCannotAcknowledgeRawObservations()=runBlocking {
+        val f=fixture();val s=store();s.begin(f.lease,"revision-folder",f.intent,null,true)
+        val prior=db.templateSync().job("job-test")!!;val before=rows();var failed=false
+        try{store(before={now=f.lease.until}).retainRaw(f.lease,PublicationRawObservation5("HEAD","head-object",404,null,null))}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertEquals(prior,db.templateSync().job("job-test"));assertEquals(before,rows())
+        val next=checkNotNull(TemplateSyncLeases5(db).claim("job-test",now,"boot-test"))
+        assertTrue(store().load(next).rawObservations.isEmpty())
+    }
+    private inner class Provider(val captured:CheckedPublication5) {
+        val objects=mutableMapOf<String,ByteArray>();var head:TemplatePublicationHead?=null;var creates=0;var headWrites=0;var closes=0
+        var loseFileAck=true;var loseHeadAck=false;var matches=true;var competing=false;var onHeadRead:()->Unit={}
+        fun open(retain:(PublicationRawObservation5)->Unit):PublicationRemoteSet5 {
+            val immutable=object:ImmutableFileRemote {
+                override fun verifyNamespace(){}
+                override fun read(objectId:String):ImmutableFileSnapshot? {
+                    val step=captured.immutableSteps.single {it.objectId==objectId};val bytes=objects[objectId]
+                    retain(PublicationRawObservation5("IMMUTABLE",objectId,if(bytes==null)404 else 200,bytes?.let {"{}".toByteArray()},bytes))
+                    return bytes?.let {ImmutableFileSnapshot(objectId,setOf(step.folderId),step.marker,step.name,step.mimeType,"\"immutable-tag\"",false,it)}
+                }
+                override fun createReserved(step:ImmutableFileStep){check(step.objectId !in objects);objects[step.objectId]=step.bytes;creates++
+                    if(loseFileAck){loseFileAck=false;error("Synthetic lost file acknowledgement")}}
+            }
+            val remote=object:PublicationHeadRemote {
+                override fun verifyNamespace(){}
+                override fun read(objectId:String):PublicationHeadSnapshot? {
+                    onHeadRead();val s=head?.let {snapshot(it)}
+                    retain(PublicationRawObservation5("HEAD",objectId,if(s==null)404 else 200,s?.metadataBytes,s?.contentBytes));return s
+                }
+                override fun replace(objectId:String,expectedTag:String,head:TemplatePublicationHead)=error("Unexpected replacement")
+                override fun createReserved(intent:PublicationHeadIntent){check(head==null);head=intent.intended;headWrites++
+                    if(loseHeadAck){loseHeadAck=false;error("Synthetic lost head acknowledgement")}}
+                override fun verifyImmutablePublication(head:TemplatePublicationHead){check(head==captured.intent.intended);for(step in captured.immutableSteps)check(objects[step.objectId]?.contentEquals(step.bytes)==true)}
+                override fun workingVectorMatches():Boolean {
+                    if(competing)head=captured.intent.intended.copy(generationId="later-generation",previousGenerationId=captured.intent.intended.generationId)
+                    return matches
+                }
+            }
+            return PublicationRemoteSet5(immutable,remote){closes++}
+        }
+    }
+    @Test fun executorReopensLostFileAndHeadAcknowledgementsUsingTheOriginalIdentities()=runBlocking {
+        val f=fixture();val before=rows();store().begin(f.lease,"revision-folder",f.intent,null,true)
+        val provider=Provider(store().load(f.lease));var failed=false
+        try{TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertEquals(1,provider.creates);assertEquals(1,provider.closes);assertTrue(store().load(f.lease).receipts.isEmpty())
+        db.close();db=open();provider.loseHeadAck=true;failed=false
+        try{TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertTrue(store().load(f.lease).allImmutableAcknowledged);assertNull(store().load(f.lease).publishedTag)
+        db.close();db=open()
+        val result=TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}
+        assertEquals(HeadPublicationResult.PUBLISHED_WORKING_COPY_VERIFIED,result.result);assertEquals(provider.captured.immutableSteps.size,provider.creates)
+        assertEquals(1,provider.headWrites);assertEquals(3,provider.closes);assertTrue(store().load(f.lease).rawObservations.isNotEmpty())
+        assertEquals(before,rows());assertEquals("running",db.templateSync().job("job-test")!!.state);assertNull(db.templateSync().binding("binding-test")!!.lastRemoteGeneration)
+    }
+    @Test fun executorRetainsPublicationWhenLaterWorkingCopyOrHeadDiffersAndNeverRecreatesMissingReceipts()=runBlocking {
+        val f=fixture();val before=rows();store().begin(f.lease,"revision-folder",f.intent,null,true)
+        val provider=Provider(store().load(f.lease));provider.loseFileAck=false;provider.matches=false
+        // Initial publication needs a matching working vector; begin this recovery with an already committed head.
+        provider.head=f.intent.intended
+        val result=TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}
+        assertEquals(HeadPublicationResult.PUBLISHED_WITH_PENDING_WORKING_CHANGE,result.result);assertEquals("\"head-tag\"",store().load(f.lease).publishedTag)
+        provider.competing=true
+        val later=TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}
+        assertEquals(HeadPublicationResult.PUBLISHED_WITH_COMPETING_HEAD,later.result);assertEquals("\"head-tag\"",store().load(f.lease).publishedTag)
+        val count=provider.creates;provider.objects.remove(provider.captured.immutableSteps.first().objectId);var failed=false
+        try{TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertEquals(count,provider.creates);assertEquals(before,rows())
+    }
+    @Test fun executorCannotWriteAfterRawRetentionLosesTheLease()=runBlocking {
+        val f=fixture();val before=rows();store().begin(f.lease,"revision-folder",f.intent,null,true)
+        val provider=Provider(store().load(f.lease));provider.loseFileAck=false;provider.onHeadRead={now=f.lease.until};var failed=false
+        try{TemplatePublicationExecutor5(store()).execute(f.lease){_,retain->provider.open(retain)}}catch(_:IllegalStateException){failed=true}
+        assertTrue(failed);assertEquals(0,provider.headWrites);assertEquals(1,provider.closes);assertEquals(before,rows())
+    }
+    @Test fun nativeScopeMustMatchTheCurrentLeasedBindingBeforeAnyTokenBatchOpens()=runBlocking {
+        val f=fixture();val s=store();s.begin(f.lease,"revision-folder",f.intent,null,true);val before=rows()
+        val ids=setOf("project-root","personal-root","template-folder","working-folder","history-folder","metadata-folder","revision-folder")
+        s.requireNativeScope(f.lease,"synthetic-owner","project-root",ids,"template-folder","working-folder","history-folder","metadata-folder","revision-folder")
+        for(mode in 0..3){var failed=false;try {
+            s.requireNativeScope(f.lease,if(mode==0)"another-owner" else "synthetic-owner",if(mode==1)"another-root" else "project-root",
+                if(mode==2)ids-"personal-root" else ids,"template-folder","working-folder","history-folder",if(mode==3)"another-metadata" else "metadata-folder","revision-folder")
+        }catch(_:IllegalStateException){failed=true};assertTrue(failed)}
+        assertEquals(before,rows())
+    }
 }
