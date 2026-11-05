@@ -18,6 +18,8 @@ internal data class PersonalSessionChoice4(val id:String,val revision:Long,val h
 class PersonalDeliveryModel4(application:Application):AndroidViewModel(application) {
     private val preferences=application.getSharedPreferences("personal-session-delivery-v1",0)
     private val db by lazy {WorkoutDatabases.open(application)}
+    val destinationLabel:String get()=try {projectDriveLayout5(BuildConfig.PROJECT_DRIVE_LAYOUT)?.let {"Gym Assistant/dev/"+it.areas.single {area->area.kind=="personal"}.name}?:PERSONAL_FOLDER_NAME_4}
+        catch(_:Exception){"Project layout unavailable"}
     private val store by lazy {
         fun schema(n:String)=Json.parseToJsonElement(application.assets.open(n).bufferedReader().use {it.readText()}).jsonObject
         PersonalDeliveryStore4(db,DeliveryPayloadFiles4(File(application.filesDir,"delivery-payloads")),ImportContracts2(mapOf("1.0.0" to schema("template.v1.schema.json"),"1.1.0" to schema("template.v1.1.schema.json")),schema("exercise.v1.schema.json")))
@@ -64,7 +66,8 @@ class PersonalDeliveryModel4(application:Application):AndroidViewModel(applicati
                     GoogleDeliveryHttp(token){synchronized(preferences){val used=preferences.getInt("direct-requests",0)
                         if(used !in 0 until 50 || !preferences.edit().putInt("direct-requests",used+1).commit())throw DeliveryFailure("budget")}}.use {http->
                         mutableStatus.value="Verifying the personal account and saved destination…"
-                        val (setup,remote)=ensurePersonalRoot4(PersonalSetupFiles4(File(getApplication<Application>().filesDir,"personal-drive/setup.json")),http,BuildConfig.SYNTHETIC_DRIVE_ACCOUNT)
+                        val project=ProjectDriveAccess5(db,projectDriveLayout5(BuildConfig.PROJECT_DRIVE_LAYOUT))
+                        val (setup,remote)=ensurePersonalRoot4(PersonalSetupFiles4(File(getApplication<Application>().filesDir,"personal-drive/setup.json")),http,BuildConfig.SYNTHETIC_DRIVE_ACCOUNT,project)
                         val at=Instant.now().toString()
                         val binding=RoomDeliveryStore(db).bind(DriveConnectionRow(UUID.randomUUID().toString(),"googleDrive",setup.permissionId,setup.email,setup.folderId,setup.marker,at,at))
                         mutableStatus.value="Saving the exact recording and its retry identity…"

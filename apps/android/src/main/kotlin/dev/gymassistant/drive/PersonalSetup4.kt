@@ -26,19 +26,19 @@ internal class PersonalSetupFiles4(private val file:File) {
         try {FileOutputStream(stage).use {it.write(Json.encodeToString(next).toByteArray(Charsets.UTF_8));it.fd.sync()};Files.move(stage.toPath(),file.toPath(),StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING)}finally {stage.delete()}
     }
 }
-/** Interrupted create reuses its reserved ID. A verified root is never silently recreated. */
-internal suspend fun ensurePersonalRoot4(files:PersonalSetupFiles4,http:DeliveryHttp,email:String):Pair<PersonalSetupIntent4,PersonalDeliveryRemote4> {
-    val bootstrap=PersonalDeliveryRemote4(http,"unreserved","personal-m1-bootstrap")
-    val identity=bootstrap.identity()
-    if(!identity.email.equals(email,ignoreCase=true) || identity.permissionId.isBlank())throw DeliveryFailure("accountMismatch")
+/** Only captured existing areas may be adopted. Creation belongs to reviewed project-layout setup. */
+internal suspend fun ensurePersonalRoot4(files:PersonalSetupFiles4,http:DeliveryHttp,email:String,project:ProjectDriveAccess5?=null):Pair<PersonalSetupIntent4,PersonalDeliveryRemote4> {
     var saved=files.read()
-    if(saved==null){
-        val proposed=PersonalSetupIntent4(identity.permissionId,identity.email,bootstrap.reserveFileId(),"personal-m1-${java.util.UUID.randomUUID()}")
-        files.save(null,proposed);saved=proposed
-    }
-    if(saved.permissionId!=identity.permissionId || !saved.email.equals(identity.email,ignoreCase=true))throw DeliveryFailure("accountMismatch")
-    val remote=PersonalDeliveryRemote4(http,saved.folderId,saved.marker)
-    if(remote.inspectRoot()==null){if(saved.state=="verified")throw DeliveryFailure("missingRoot");remote.createRoot();remote.folder(saved.folderId)}
+    val gate=project?.gate("personal")
+    if(saved==null && gate==null)throw DeliveryFailure("missingRoot")
+    val root=saved?.folderId?:checkNotNull(gate).pin.id;val marker=saved?.marker?:checkNotNull(gate).pin.marker
+    val remote=PersonalDeliveryRemote4(http,root,marker,gate,{project?.identity(it)})
+    val identity=remote.identity()
+    if(!identity.email.equals(email,ignoreCase=true) || identity.permissionId.isBlank())throw DeliveryFailure("accountMismatch")
+    // Reuse only an already inventoried exact ID. Common-root/area creation belongs to reviewed layout setup.
+    if(saved!=null && (saved.permissionId!=identity.permissionId || !saved.email.equals(identity.email,ignoreCase=true)))throw DeliveryFailure("accountMismatch")
+    if(remote.inspectRoot()==null)throw DeliveryFailure("missingRoot")
+    if(saved==null){val proposed=PersonalSetupIntent4(identity.permissionId,identity.email,root,marker,"verified");files.save(null,proposed);saved=proposed}
     if(saved.state!="verified"){val verified=saved.copy(state="verified");files.save(saved,verified);saved=verified}
     return saved to remote
 }

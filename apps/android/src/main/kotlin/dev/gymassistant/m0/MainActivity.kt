@@ -296,7 +296,7 @@ class MainActivity : ComponentActivity() {
         if(show) AlertDialog(onDismissRequest={if(!busy)show=false},title={Text("Personal session delivery")},
             text={Column(modifier=Modifier.verticalScroll(rememberScrollState()),verticalArrangement=Arrangement.spacedBy(12.dp)) {
                 Text("Account: ${BuildConfig.SYNTHETIC_DRIVE_ACCOUNT}")
-                Text("Destination: Gym Assistant — PERSONAL M1 DEV. Created privately on the first send. No automatic uploads.")
+                Text("Destination: ${personalDelivery.destinationLabel}. No automatic uploads.")
                 if(selected==null)choices.forEach {choice->TextButton(onClick={selected=choice;personalDelivery.select(choice)}) {Text(choice.label)}}
                 selected?.let {choice->
                     Text(choice.label);Text(reviewNote);Text("${choice.bytes} bytes. Includes frozen workout instructions, meaningful events, dates and timing. Internal ticks and the original PDF stay off Drive.")

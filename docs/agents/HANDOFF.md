@@ -506,3 +506,28 @@ and reviewed final names/parents for the same IDs during adoption; no prefix/
 wildcard fallback. Exact execution review, current CI and a fresh verified backup
 still precede their live operations. No folder creation, move, rename, sharing
 change or phone update has occurred. Continue the approved implementation.
+
+## Compatible environment clients — 2026-11-05
+
+PR39 merged at `a6c4e41` after all required checks, the seven-version Android
+matrix and the exact owner receipt passed. ADR-0009 now records the approved
+dev/test/prod structure and simplified existing-area names. Work continues from
+that verified baseline without changing any existing provider identities.
+
+The compatible-client change adds a bounded private layout with exact account,
+root/environment/area pins and reserved/verified/adopting/active/blocked phases.
+Phone personal/synthetic delivery and metadata probes verify that hierarchy;
+simplified names require verified project evidence. Existing setup/job identities
+remain fixed and ordinary recording delivery cannot create a new top-level area.
+The web reader verifies root/dev before recording reads, with layout-hash-bound
+localhost budget grants that reject stale configuration without resetting usage.
+No dependency or Room schema changes; the Gradle inventory hash changes only for
+the private layout configuration field.
+
+Local Android98 JVM, adapter29 JVM, web45 and helper3 checks pass, along with web
+build and instrumentation compilation. Current-head CI and the full emulator
+matrix remain required. No live request, token acquisition, folder creation/move/
+rename, sharing change, APK installation or root activation ran for this change.
+See `docs/milestones/m1-project-layout-clients.md`. Finish conditional consolidation
+and its private execution review, preserve original identities and allowance,
+and use a fresh verified backup before the approved phone database update.

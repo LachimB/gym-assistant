@@ -1,0 +1,14 @@
+{
+  "schemaVersion": "1.0.0",
+  "bindingId": "project-binding-test",
+  "permissionId": "synthetic-account",
+  "phase": "reserved",
+  "root": {"id":"project-root-test","parentId":"drive-root-test","name":"Gym Assistant","propertyName":"gymProjectM1","marker":"gym-project-synthetic-root"},
+  "dev": {"id":"dev-folder-test","parentId":"project-root-test","name":"dev","propertyName":"gymEnvironmentM1","marker":"gym-environment-synthetic-dev"},
+  "test": {"id":"test-folder-test","parentId":"project-root-test","name":"test","propertyName":"gymEnvironmentM1","marker":"gym-environment-synthetic-test"},
+  "prod": {"id":"prod-folder-test","parentId":"project-root-test","name":"prod","propertyName":"gymEnvironmentM1","marker":"gym-environment-synthetic-prod"},
+  "areas": [
+    {"kind":"personal","id":"personal-area-test","sourceName":"Gym Assistant — PERSONAL M1 DEV","sourceParentId":"drive-root-test","name":"PERSONAL M1","environment":"dev","marker":"personal-m1-synthetic-area"},
+    {"kind":"synthetic","id":"synthetic-area-test","sourceName":"Gym Assistant — SYNTHETIC M1 TEST — synthetic-test-marker","sourceParentId":"drive-root-test","name":"SYNTHETIC M1","environment":"test","marker":"synthetic-test-marker"}
+  ]
+}

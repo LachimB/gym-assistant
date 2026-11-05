@@ -100,3 +100,8 @@ Persistent constrained wakeup preparation is described in
 [m1-template-scheduling.md](m1-template-scheduling.md). The separate conditional
 head/recovery protocol is in [m1-publication-head.md](m1-publication-head.md).
 Both retain explicit integration and physical/live evidence limits.
+
+Compatible personal/synthetic delivery and web-reader preparation for the approved
+environment hierarchy is described in
+[m1-project-layout-clients.md](m1-project-layout-clients.md). Exact private execution
+review and verified client/device adoption still precede live consolidation.

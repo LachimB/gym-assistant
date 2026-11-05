@@ -14,12 +14,19 @@ internal val CHILD_PATH = "/drive/v3/files/$SYNTHETIC_CHILD?fields=id,name,mimeT
 
 internal data class ProbeResponse(val code: Int, val body: String = "", val etagPresent: Boolean = false)
 internal fun interface ProbeTransport { fun get(token: String, path: String): ProbeResponse }
+internal fun probePaths5(project:ProjectDriveLayout5?):Set<String> {
+    if(project==null)return setOf(ACCOUNT_PATH,PARENT_PATH,CHILD_PATH)
+    val area=project.areas.single {it.kind=="synthetic"}
+    require(area.id==SYNTHETIC_PARENT && area.marker==SYNTHETIC_MARKER)
+    // The durable root phase can advance without rebuilding. The gate decides when ancestors must be read.
+    return setOf(ACCOUNT_PATH,CHILD_PATH,projectFolderPath5(area.id),projectFolderPath5(project.root.id),projectFolderPath5(project.test.id))
+}
 
 /** Experiment-only read transport; never send a token to a supplied URL or follow a redirect. */
-internal class GoogleProbeTransport(private val reserveRequest: () -> Unit) : ProbeTransport {
+internal class GoogleProbeTransport(private val project:ProjectDriveLayout5?=null, private val reserveRequest: () -> Unit) : ProbeTransport {
     override fun get(token: String, path: String): ProbeResponse {
         check(syntheticResourcesConfigured()) { "Private synthetic configuration required" }
-        require(path in setOf(ACCOUNT_PATH, PARENT_PATH, CHILD_PATH)) { "Unsupported probe endpoint" }
+        require(path in probePaths5(project)) { "Unsupported probe endpoint" }
         require(token.isNotBlank() && '\n' !in token && '\r' !in token)
         reserveRequest() // Persist the experiment request before transmission; failures consume budget.
         val connection = URL("https://www.googleapis.com$path").openConnection() as HttpsURLConnection
@@ -53,7 +60,8 @@ internal class GoogleProbeTransport(private val reserveRequest: () -> Unit) : Pr
 internal fun exactDriveScope(scopes: Collection<String>) = scopes.toSet() == setOf(DRIVE_FILE_SCOPE)
 
 /** Reads only identity metadata and two already-approved synthetic artifacts; never Workout Sessions. */
-internal fun runSyntheticDriveProbe(token: String, expectedEmail: String, transport: ProbeTransport): String {
+internal fun projectFolderPath5(id:String)="/drive/v3/files/$id?fields=$PROJECT_FOLDER_FIELDS_5"
+internal suspend fun runSyntheticDriveProbe(token: String, expectedEmail: String, transport: ProbeTransport, project:ProjectDriveAccess5?=null): String {
     fun read(path: String): Pair<ProbeResponse, JsonObject?> {
         val response = transport.get(token, path)
         return response to if (response.code == 200) Json.parseToJsonElement(response.body).jsonObject else null
@@ -65,10 +73,19 @@ internal fun runSyntheticDriveProbe(token: String, expectedEmail: String, transp
         !user?.get("permissionId")?.jsonPrimitive?.content.isNullOrBlank()) {
         "The authorized account differs from the personal account entered. No file read."
     }
-    val (parentResponse, parent) = read(PARENT_PATH)
+    project?.identity(DeliveryIdentity(checkNotNull(user?.get("permissionId")?.jsonPrimitive?.content),checkNotNull(user?.get("emailAddress")?.jsonPrimitive?.content)))
+    val gate=project?.gate("synthetic")
+    if(gate!=null) {
+        check(gate.pin.id==SYNTHETIC_PARENT && gate.pin.marker==SYNTHETIC_MARKER)
+        gate.identity(checkNotNull(user?.get("permissionId")?.jsonPrimitive?.content))
+    }
+    val (parentResponse, parent) = read(if(gate==null)PARENT_PATH else projectFolderPath5(SYNTHETIC_PARENT))
     check(parentResponse.code == 200 && parent != null) { "The synthetic test folder is not accessible. No wider access requested." }
     val marker = parent["appProperties"]?.jsonObject?.get("gymSyntheticM1")?.jsonPrimitive?.content
-    check(!marker.isNullOrBlank() && parent["name"]?.jsonPrimitive?.content == "Gym Assistant — SYNTHETIC M1 TEST — $marker" &&
+    if(gate!=null)gate.verify(parent) {id->
+        val (response,folder)=read(projectFolderPath5(id))
+        check(response.code==200 && folder!=null) {"Project folder verification failed"};folder
+    } else check(!marker.isNullOrBlank() && parent["name"]?.jsonPrimitive?.content == "Gym Assistant — SYNTHETIC M1 TEST — $marker" &&
         parent["mimeType"]?.jsonPrimitive?.content == "application/vnd.google-apps.folder") {
         "The folder is not the approved synthetic fixture. Probe stopped."
     }

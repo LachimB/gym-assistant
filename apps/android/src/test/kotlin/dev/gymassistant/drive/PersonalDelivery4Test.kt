@@ -40,17 +40,22 @@ class PersonalDelivery4Test {
             }
         }
     }
-    @Test fun lostRootCreateAcknowledgementReusesIdentityAndNeverRecreatesVerifiedMissingFolder()=runBlocking {
+    @Test fun capturedRootRecoveryNeverCreatesOrRecreatesATopLevelArea()=runBlocking {
         val root=Files.createTempDirectory("personal-root-test").toFile()
         try {
-            val files=PersonalSetupFiles4(root.resolve("setup.json"));val http=SetupHttp();http.loseAck=true
-            assertFailsWith<DeliveryFailure>{ensurePersonalRoot4(files,http,"fixture@example.test")}
+            val files=PersonalSetupFiles4(root.resolve("setup.json"));val http=SetupHttp()
+            assertEquals("missingRoot",assertFailsWith<DeliveryFailure>{ensurePersonalRoot4(files,http,"fixture@example.test")}.reason)
+            assertNull(files.read());assertEquals(0,http.reservations);assertEquals(0,http.creates)
+            // An earlier uncertain create can be read back, but it cannot recreate a missing folder outside the common root.
+            files.save(null,PersonalSetupIntent4("id","fixture@example.test",http.folderId,"personal-m1-test"))
+            assertEquals("missingRoot",assertFailsWith<DeliveryFailure>{ensurePersonalRoot4(files,http,"fixture@example.test")}.reason)
             assertEquals("reserved",files.read()?.state)
+            http.folderExists=true;http.marker="personal-m1-test"
             ensurePersonalRoot4(files,http,"fixture@example.test")
-            assertEquals("verified",files.read()?.state);assertEquals(1,http.reservations);assertEquals(1,http.creates)
+            assertEquals("verified",files.read()?.state);assertEquals(0,http.reservations);assertEquals(0,http.creates)
             http.folderExists=false
             assertEquals("missingRoot",assertFailsWith<DeliveryFailure>{ensurePersonalRoot4(files,http,"fixture@example.test")}.reason)
-            assertEquals(1,http.creates)
+            assertEquals(0,http.creates)
             http.wrongAccount=true
             assertEquals("accountMismatch",assertFailsWith<DeliveryFailure>{ensurePersonalRoot4(files,http,"fixture@example.test")}.reason)
         }finally {root.deleteRecursively()}

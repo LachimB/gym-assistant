@@ -42,7 +42,7 @@ class DriveDeliveryModel(application: Application) : AndroidViewModel(applicatio
         }
     }
     fun preview(): String = runCatching { "Generated example: Synthetic alternating pyramid · 50 seconds · reached planned end. " +
-        "${sample.canonicalJson.toByteArray(Charsets.UTF_8).size} bytes. Destination: labelled SYNTHETIC M1 TEST folder. " +
+        "${sample.canonicalJson.toByteArray(Charsets.UTF_8).size} bytes. Destination: ${projectDriveLayout5(BuildConfig.PROJECT_DRIVE_LAYOUT)?.let {"Gym Assistant/test/SYNTHETIC M1"}?:"labelled SYNTHETIC M1 TEST folder"}. " +
         "This sample contains no activity recorded from you. Your unfinished workout stays paused." }.getOrDefault("Synthetic example unavailable. Nothing will be sent.")
     fun awaitingAuthorization() = mutableBusy.value && !sending
     fun begin(): Boolean {
@@ -78,14 +78,17 @@ class DriveDeliveryModel(application: Application) : AndroidViewModel(applicatio
                             if (used !in 0 until 20 || !preferences.edit().putInt("direct-requests",used+1).commit()) throw DeliveryFailure("budget")
                         }
                     }.use { http ->
-                        val remote=GoogleDeliveryRemote(http)
+                        val database=WorkoutDatabases.open(getApplication())
+                        val project=ProjectDriveAccess5(database,projectDriveLayout5(BuildConfig.PROJECT_DRIVE_LAYOUT))
+                        val remote=GoogleDeliveryRemote(http,project.gate("synthetic"),project::identity)
                         val identity=remote.identity()
                         if (!identity.email.equals(BuildConfig.SYNTHETIC_DRIVE_ACCOUNT,ignoreCase=true) || identity.permissionId.isBlank()) throw DeliveryFailure("accountMismatch")
                         val folder=remote.folder(SYNTHETIC_PARENT)
                         val marker=SYNTHETIC_MARKER
-                        if (folder.marker != marker || folder.name != "Gym Assistant — SYNTHETIC M1 TEST — $marker" ||
+                        val names=if(folder.projectVerified)setOf("Gym Assistant — SYNTHETIC M1 TEST — $marker","SYNTHETIC M1") else setOf("Gym Assistant — SYNTHETIC M1 TEST — $marker")
+                        if (folder.marker != marker || folder.name !in names ||
                             folder.mimeType != "application/vnd.google-apps.folder") throw DeliveryFailure("missingRoot")
-                        val local=RoomDeliveryStore(WorkoutDatabases.open(getApplication()))
+                        val local=RoomDeliveryStore(database)
                         val at=Instant.now().toString()
                         val binding=local.bind(DriveConnectionRow(UUID.randomUUID().toString(),"googleDrive",identity.permissionId,
                             identity.email,SYNTHETIC_PARENT,marker,at,at))

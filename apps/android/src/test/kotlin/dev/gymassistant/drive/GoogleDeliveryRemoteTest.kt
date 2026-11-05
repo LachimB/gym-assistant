@@ -5,6 +5,10 @@ import kotlin.test.*
 
 class GoogleDeliveryRemoteTest {
     private val marker = SYNTHETIC_MARKER
+    @Test fun simplifiedNameWithoutProjectVerificationIsNotALegacyFallback()=runBlocking<Unit> {
+        val remote=GoogleDeliveryRemote {DeliveryHttpResponse(200,"""{"name":"SYNTHETIC M1","mimeType":"application/vnd.google-apps.folder","appProperties":{"gymSyntheticM1":"$marker"}}""".toByteArray())}
+        assertEquals("missingRoot",assertFailsWith<DeliveryFailure>{remote.folder(SYNTHETIC_PARENT)}.reason)
+    }
     @Test fun exact404IsAbsenceBut403NeverCreatesOrReadsContent() = runBlocking {
         for (status in listOf(404,403)) {
             var calls = 0

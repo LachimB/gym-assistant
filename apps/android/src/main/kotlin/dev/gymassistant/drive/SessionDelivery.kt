@@ -14,7 +14,7 @@ internal interface DeliveryPersistence {
     suspend fun save(expected: SessionDeliveryRow, next: SessionDeliveryRow)
 }
 internal data class DeliveryIdentity(val permissionId: String, val email: String)
-internal data class DeliveryFolder(val name: String, val marker: String, val mimeType: String)
+internal data class DeliveryFolder(val name: String, val marker: String, val mimeType: String,val projectVerified:Boolean=false)
 internal data class RemoteDelivery(val id: String, val mimeType: String, val parents: List<String>, val content: ByteArray)
 internal class DeliveryFailure(val reason: String, val retryAfterMs: Long? = null) : Exception(reason)
 internal interface DeliveryRemote {
@@ -56,7 +56,8 @@ internal class SessionDeliverySender(
             val identity=remote.identity()
             if(identity.permissionId!=connection.permissionId || !identity.email.equals(expectedPersonalEmail,ignoreCase=true))throw DeliveryFailure("accountMismatch")
             val folder=remote.folder(connection.rootFolderId)
-            if(folder.marker!=connection.namespaceMarker || folder.name!=PERSONAL_FOLDER_NAME_4 || folder.mimeType!="application/vnd.google-apps.folder")throw DeliveryFailure("missingRoot")
+            val names=if(folder.projectVerified)setOf(PERSONAL_FOLDER_NAME_4,"PERSONAL M1") else setOf(PERSONAL_FOLDER_NAME_4)
+            if(folder.marker!=connection.namespaceMarker || folder.name !in names || folder.mimeType!="application/vnd.google-apps.folder")throw DeliveryFailure("missingRoot")
             val fileId=frozen.remoteFileId?:throw DeliveryFailure("contract")
             verify(remote.inspect(fileId,connection.rootFolderId)?:throw DeliveryFailure("conflict"),fileId,connection.rootFolderId,frozen.canonicalJson.toByteArray(Charsets.UTF_8))
             return@withLock "delivered"
@@ -83,8 +84,9 @@ internal class SessionDeliverySender(
                 if (identity.permissionId != connection.permissionId ||
                     !identity.email.equals(expectedPersonalEmail, ignoreCase = true)) throw DeliveryFailure("accountMismatch")
                 val folder = request { remote.folder(connection.rootFolderId) }
-                if (folder.marker != connection.namespaceMarker ||
-                    folder.name != (if(personal!=null) PERSONAL_FOLDER_NAME_4 else "Gym Assistant — SYNTHETIC M1 TEST — ${connection.namespaceMarker}") ||
+                val legacyName=if(personal!=null)PERSONAL_FOLDER_NAME_4 else "Gym Assistant — SYNTHETIC M1 TEST — ${connection.namespaceMarker}"
+                val names=if(folder.projectVerified)setOf(legacyName,if(personal!=null)"PERSONAL M1" else "SYNTHETIC M1") else setOf(legacyName)
+                if (folder.marker != connection.namespaceMarker || folder.name !in names ||
                     folder.mimeType != "application/vnd.google-apps.folder") throw DeliveryFailure("missingRoot")
                 if (job.remoteFileId == null) {
                     val reserved = request { remote.reserveFileId() }
