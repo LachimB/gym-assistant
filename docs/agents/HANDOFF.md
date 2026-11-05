@@ -2,7 +2,7 @@
 
 Current checkpoint — 2026-11-05: baseline before this cutover record was `aea8c75`;
 the approved folder cutover has run and its hierarchy/identity/access checks
-passed. Final owner phone probe/retry passed; web verification remains pending
+passed. Final owner phone probe/retry and web opening/value comparison passed
 after correcting a retired-key reference. Verify current PR/merge/CI
 state on GitHub under the startup rule. Read the latest
 “Approved folder cutover” section below and `docs/milestones/m1-drive-consolidation.md`
@@ -625,9 +625,11 @@ one additional authorization/Picker attempt, raising ADR-0009's batch ceiling
 from6 to7, and transferred one unused desktop metadata request to fund the
 six-request retry alongside the failed batch's five unused requests. The80-request
 consolidation and200/500 parent limits remain unchanged. Exact accounting and
-operational configuration stay private. The prepared retry is awaiting the
-owner's explicit selection/result; do not launch another attempt or claim web
-acceptance passed without that evidence.
+operational configuration stay private. The owner completed that single retry
+and confirmed successful opening and matching values. All six direct calls and
+the authorization/Picker launch were reconciled once; the retry is exhausted.
+All post-cutover client checks have passed. Do not repeat them, reset counters
+or launch another selection under either retained web allocation.
 
 The installed phone cutover build still precedes the source-read coordination
 fix. No Template/background binding is active; M1 remains incomplete. Continue

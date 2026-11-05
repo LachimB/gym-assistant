@@ -54,8 +54,8 @@ general v3 tag compatibility, YAML/head publication or multi-object transactions
   labelled proof artifacts remain under test. Submitted intents and readbacks
   are durably retained privately; usage stayed within the approved allowance.
 - The hierarchy is verified. The owner reports that the final phone metadata
-  probe and existing-delivery retry passed. The explicit read-only web check
-  remains an acceptance gate. No Training Template
+  probe and existing-delivery retry passed. The owner also confirmed explicit
+  read-only web opening with matching values. No Training Template
   or background sync binding was activated, and no automatic recording upload ran.
 
 M1 remains incomplete. Immutable Template publication/head recovery, external
@@ -94,5 +94,8 @@ The failed allocation remains retained and reconciled once into the parent
 ledger. The owner approved one additional authorization/Picker attempt and a
 six-request retry funded from unused reserved requests, with no increase to the
 consolidation or parent direct-request ceilings. The prepared retry uses a new
-explicit child allocation; it does not reset the failed ledger. Owner success
-and value comparison remain required before marking web acceptance passed.
+explicit child allocation; it does not reset the failed ledger. The owner
+confirmed successful opening and matching values. Its six direct requests and
+single authorization/Picker launch were reconciled once; this retry is exhausted.
+The consolidation's hierarchy and client checks are accepted. This does not
+establish Template synchronization or complete M1.
