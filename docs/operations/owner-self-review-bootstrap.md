@@ -3,7 +3,7 @@
 Status: activated with owner approval on2026-11-04. PR32 merged at `02103c8`;
 all four required contexts were immediately restored and classic protection was
 verified unchanged. Only the policy PR merged during the bootstrap window.
-Live receipt validation follows separately on the M1 foundation PR. The sequence
+Live receipt validation passed on the M1 foundation PR. The sequence
 below records the reviewed activation plan. See `continuous-security.md` for the
 final exact-receipt rules.
 
@@ -64,3 +64,21 @@ Local validation:118 Python tests pass, including38 trusted-gate regressions.
 The new cases cover owner-only COMMENTED receipts, exact head/digest, administrator
 permission, repository binding, cancellation/stale reviews, no-review failure
 even without findings, and unchanged required-check/protection configuration.
+
+
+## Completed live validation — 2026-11-04
+
+An intentionally invalid owner receipt remained blocked with complete successful
+secret/hygiene scans. A receipt on the old head could not authorize the updated
+head. An exact current-head/digest owner COMMENTED receipt was accepted by the
+trusted default-branch controller. Both historical failed assessments were rerun
+successfully; all technical checks, including the seven-version Android matrix,
+passed before PR31 merged normally at `f0cbd6a`. No administrator merge bypass or
+additional waiver was used.
+
+After that merge, the full ruleset was fetched and compared to the approved final
+configuration: all four required contexts/publisher pins, strict up-to-date rules,
+no bypass actors and force-push/deletion protection remain. Classic protection
+was separately compared and unchanged. Private exact snapshots and operational
+evidence remain outside Git. The bootstrap window is closed; future PRs use the
+normal trusted receipt/check gates. No phone installation or Drive operation ran.
