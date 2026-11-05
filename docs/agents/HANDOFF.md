@@ -869,3 +869,9 @@ cold-client discovery is not implemented or guessed from names. No new service,
 live request, allowance, OAuth launch, resource, dependency, APK assembly or phone
 installation. All eight approved launches remain used. M1 and actual native/
 provider/background/screen-off acceptance remain open.
+
+The capture-journal CI encountered repeated bootstrap-download timeouts before
+compilation. Its follow-up increases only the pinned wrapper download timeout
+from10 to60 seconds. URL, version, wrapper bytes and dependency versions/notices
+are unchanged; the broad dependency-input review digest is updated for this
+operational setting. Current-head CI and a fresh receipt remain required.

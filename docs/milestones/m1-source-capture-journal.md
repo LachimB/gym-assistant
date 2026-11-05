@@ -37,6 +37,11 @@ pointer rollback/retry, lease expiry before/after SQL, retarget and stale origin
 comparing all twelve pre-sync tables unchanged. Those cases still require actual
 current-head seven-version CI; compilation is not execution evidence.
 
+Repeated CI bootstrap downloads timed out before compilation. The pinned wrapper
+download now allows60 seconds instead of10; URL, version, wrapper bytes and all
+library versions/licenses/notices remain unchanged. The reviewed input digest
+records this operational-only change. No binary release clearance is added.
+
 Verified readonly head/working capture, prior immutable-base verification,
 candidate classification/three-way review, transfer-intent preparation,
 binding/job completion and authorization/scheduling remain open. Exact known

@@ -1,6 +1,6 @@
 {
   "reviewDate": "2026-11-05",
-  "reviewScope": "Source/declared-license metadata only; original code all rights reserved; upstream terms retained",
+  "reviewScope": "Source/declared-license metadata only; original code all rights reserved; upstream terms retained; wrapper timeout-only setting reviewed with versions, wrapper bytes and notices unchanged",
   "binaryReleaseCleared": false,
   "dependencyInputs": {
     "apps/android/build.gradle.kts": "591f6f1c1337d6a6228b299b1e194a07074f1864890b7bda5b1cec468006fd7e",
@@ -8,7 +8,7 @@
     "apps/web/package.json": "38ad44bdcf3394d119a97e11d2d70aecf93320f8caef28c37ad49b39078d48db",
     "build.gradle.kts": "93b6a9428fba5a3463e59833faaf05273fe35be7d86639265c92750f31fa69dd",
     "gradle/wrapper/gradle-wrapper.jar": "2db75c40782f5e8ba1fc278a5574bab070adccb2d21ca5a6e5ed840888448046",
-    "gradle/wrapper/gradle-wrapper.properties": "d7010368a34c1c06df2bae1a85d8b24c39b2499c74ac892fc7e66d005dbd7b8a",
+    "gradle/wrapper/gradle-wrapper.properties": "697470de4156fe8a8f815967353d17fb1154e1c779b441135bd60ddaa4930c31",
     "gradle.properties": "016152bdc5be932df56f73bec3b9eee7807a07cd7cd5e7d689a93c7e1b282a64",
     "kotlin-js-store/yarn.lock": "39f353d998595d6fafebcb0d738f81d3ec407faaa2c34665087c8ab081a9d8af",
     "packages/cloud-adapters/build.gradle.kts": "ce201bc47c0ce911ec28b2fbb5d0e71200e18ed6f8eb607eb6738ab2a6836c1e",
