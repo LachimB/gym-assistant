@@ -943,10 +943,10 @@ used. M1 and actual native/provider/background/screen-off acceptance remain open
 
 ## Known immutable-base readback preparation — 2026-11-05
 
-PR54 retains the complete-vector/compile component on the verified read-only
-transport baseline. All seven Android jobs pass on `646fa10`, including the two
-additional vector/reopen/conflict SQLite cases; its owner-receipt CI reconciliation
-must finish before protected merge. Existing main and prior branches are retained.
+PR54 merged at `ef5e629` after every required check, the exact owner receipt and
+all seven Android versions passed on `646fa10`, including the two additional
+vector/reopen/conflict SQLite cases. Its merged tree matches the reviewed head.
+Existing main and prior branches are retained.
 
 The next explicit known-base scope requires a retained acknowledged publication
 matching the frozen capture's common revision/source, expected head generation/
