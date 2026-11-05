@@ -8,6 +8,9 @@ state on GitHub under the startup rule. Read the latest
 “Approved folder cutover” section below and `docs/milestones/m1-drive-consolidation.md`
 before acting on older pending-gate notes. M1 remains incomplete.
 
+Next preparation: the synthetic YAML media proof below follows the accepted
+cutover. It has no live approval/reservation yet; preserve that boundary.
+
 ## Verified baseline — 2026-11-04
 
 - Repository: `LachimB/gym-assistant`, intentionally public. Confirmed personal
@@ -634,3 +637,26 @@ or launch another selection under either retained web allocation.
 The installed phone cutover build still precedes the source-read coordination
 fix. No Template/background binding is active; M1 remains incomplete. Continue
 the approved publication/review/runtime work after closing cutover acceptance.
+
+## Synthetic YAML media proof preparation — 2026-11-05
+
+PR43 merged at `58d4d94` after all required checks, its seven-version Android
+matrix and exact owner receipt passed on `11fe326`. The folder consolidation and
+all three client checks are accepted. The failed and successful web attempts
+remain counted; both allocations are exhausted. No further authorization is
+available under ADR-0009's current seven-launch batch ceiling.
+
+The next required provider proof covers actual YAML content with the native
+v2 media PUT/header shape and `text/plain` MIME, separately from the earlier
+JSON and folder-metadata results. The new synthetic-only helper validates pinned
+account/root/test/fixture identities, access, tags and exact fixed public bytes;
+persists the original intent before writes; requires current-tag acceptance and
+stale-tag412; and verifies retained bytes/tag. Lost acknowledgements inspect the
+same ID, never invent another object or overwrite an external edit.
+
+Eight new synthetic cases and all35 Drive/helper checks pass locally. CI includes
+the new tests. See `docs/milestones/m1-yaml-conditional-proof.md`. Current-head CI,
+the concrete private fixture/execution review and an explicit additional-launch
+approval precede any live operation. No new reservation, live request, resource,
+credential change, APK build or phone installation ran for this preparation.
+Native publication/review/runtime and background acceptance remain open.
