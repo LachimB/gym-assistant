@@ -104,6 +104,7 @@ class TemplateSourceCapture5Test {
     }
     private inner class ReadHttp(val f:Fixture):TemplateHttp5,Closeable {
         var calls=0;var closed=false;var onMedia:()->Unit={}
+        var replacementTemplate:String?=null
         val sources=sessionJson.decodeFromString<TemplateSources3>(f.revision.sourceSnapshotJson)
         override fun close(){closed=true}
         override fun request(request:TemplateHttpRequest5):DeliveryHttpResponse {
@@ -113,7 +114,7 @@ class TemplateSourceCapture5Test {
             if(request.path.endsWith("?alt=media")) {
                 onMedia()
                 val value=if(id=="head-file")TemplateSyncContracts5.encode(TemplatePublicationHead(f.revision.templateId,"generation-test","manifest-test","working-folder",f.revision.sourceHash,null))
-                    else if(id==pins.first().objectId)sources.templateYaml else sources.exerciseYamls.single()
+                    else if(id==pins.first().objectId)replacementTemplate?:sources.templateYaml else sources.exerciseYamls.single()
                 return DeliveryHttpResponse(200,value.toByteArray())
             }
             val folder=readFolders().singleOrNull {it.id==id};val source=pins.singleOrNull {it.objectId==id}
@@ -152,5 +153,35 @@ class TemplateSourceCapture5Test {
         val expired=ReadHttp(f);expired.onMedia={now=f.lease.until};failed=false
         try{TemplateSourceReadExecutor5(s,expired).read(f.lease,"observation-test","synthetic",{},readFolders()){it.verifyNamespace();it.readSource(pins.first().objectId)}}catch(_:DeliveryFailure){failed=true}
         assertTrue(failed);assertTrue(expired.closed);assertEquals(before,rows());assertEquals(f.job,db.templateSync().job("job-test"))
+    }
+    @Test fun completeKnownVectorRetainsBothPassesAcrossReopenWithoutClassifyingOrAdopting()=runBlocking {
+        val f=fixture();val before=rows();val s=store();s.begin(f.lease,"observation-test",f.namespace,pins,at)
+        val http=ReadHttp(f);var charged=0
+        val vector=TemplateSourceReadExecutor5(s,http).read(f.lease,"observation-test","synthetic",{charged++},readFolders()){it.captureKnownVector(pins)}
+        assertEquals(39,http.calls);assertEquals(http.calls,charged);assertTrue(http.closed)
+        assertEquals(f.revision.templateId,vector.head!!.head.templateId)
+        assertEquals(pins,vector.files.map {it.pin});assertArrayEquals(http.sources.templateYaml.toByteArray(),vector.files.first().contentBytes)
+        val compiled=vector.compileWorkingSource(f.revision.templateId,contracts)
+        assertEquals(f.revision.sourceHash,compiled.sourceHash);assertEquals(f.revision.compiledPlanHash,compiled.compiledPlanHash)
+        db.close();db=open();val checked=store().load(f.lease,"observation-test")
+        assertEquals(37,checked.rawObservations.size)
+        assertEquals(4,checked.rawObservations.count {it.kind=="WORKING" && it.contentBytes!=null})
+        val row=db.templateSync().observation("observation-test")!!
+        assertEquals("changing",row.validationCode);assertEquals("pending",row.reviewState);assertNull(row.candidateId);assertNull(row.remoteHeadTag)
+        assertEquals(f.job,db.templateSync().job("job-test"));assertEquals(before,rows())
+    }
+    @Test fun changedFileInSecondPassIsRetainedButCannotReturnACompleteKnownVector()=runBlocking {
+        val f=fixture();val before=rows();val s=store();s.begin(f.lease,"observation-test",f.namespace,pins,at)
+        val http=ReadHttp(f);var media=0
+        http.onMedia={media++;if(media==5)http.replacementTemplate="synthetic changed source"}
+        var failed=false
+        try{TemplateSourceReadExecutor5(s,http).read(f.lease,"observation-test","synthetic",{},readFolders()){it.captureKnownVector(pins)}}
+        catch(error:DeliveryFailure){assertEquals("conflict",error.reason);failed=true}
+        assertTrue(failed);assertTrue(http.closed)
+        val raw=s.load(f.lease,"observation-test").rawObservations.filter {it.kind=="WORKING" && it.objectId==pins.first().objectId && it.contentBytes!=null}
+        assertTrue(raw.any {it.contentBytes!!.contentEquals(http.sources.templateYaml.toByteArray())})
+        assertTrue(raw.any {it.contentBytes!!.contentEquals("synthetic changed source".toByteArray())})
+        assertNull(db.templateSync().observation("observation-test")!!.candidateId)
+        assertEquals(f.job,db.templateSync().job("job-test"));assertEquals(before,rows())
     }
 }

@@ -912,3 +912,31 @@ and the remaining job reported successful steps without a final job conclusion.
 That incomplete platform record is not claimed as a seven-version pass. Fresh
 current-head CI and a new exact-head receipt are required after the baseline and
 handoff update. No physical installation or additional live Drive operation ran.
+
+## Known-source vector capture preparation — 2026-11-05
+
+PR53 merged at `4db5fe8` after all required checks, the exact owner receipt and
+all seven supported Android versions passed on `f56812a`. It includes the two
+additional leased read-only SQLite cases. PR52 is superseded; its branch and
+commits remain retained without rewriting or deletion.
+The unchanged new-branch/current-main publication range passed local guards;
+the older branch update had included an already upstream GitHub merge signature
+that triggered the legacy content detector. No content exception or gate change
+was introduced. The merged tree matches the reviewed transport head.
+
+The next internal component captures the complete known working-file vector
+twice with head brackets and namespace rechecks. Tags, original metadata and bytes
+must agree; changes remain durably retained but cannot return a completed vector.
+The existing compiler checks the complete observed source and bound Template,
+preserving original bytes/revision identity and canonical hashes. An absent head
+is unknown publication state; differing working/head hashes remain visible.
+No candidate/adoption/job completion or immutable-base proof is claimed.
+
+Local163 Android JVM/36 adapter JVM checks pass. Ten new JVM cases pass and two
+additional SQLite composition cases compile, pending actual current-head execution
+on all seven versions. See `docs/milestones/m1-known-source-vector.md`. A later edit
+remains possible; base verification, durable classification, explicit three-way
+review, transfer-intent preparation, completion and authorization/scheduling stay
+open. No schema/default/recording/dependency/live request/allowance/resource/APK
+assembly/phone-installation change. All eight live authorization launches remain
+used. M1 and actual native/provider/background/screen-off acceptance remain open.
