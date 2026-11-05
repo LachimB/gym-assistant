@@ -8,8 +8,9 @@ state on GitHub under the startup rule. Read the latest
 “Approved folder cutover” section below and `docs/milestones/m1-drive-consolidation.md`
 before acting on older pending-gate notes. M1 remains incomplete.
 
-Next preparation: the synthetic YAML media proof below follows the accepted
-cutover. It has no live approval/reservation yet; preserve that boundary.
+The approved synthetic YAML media proof has now passed. Native immutable-file
+transport preparation follows below; its runtime/journal/head integration remains
+open. All eight currently approved authorization launches are counted.
 
 ## Verified baseline — 2026-11-04
 
@@ -660,3 +661,36 @@ the concrete private fixture/execution review and an explicit additional-launch
 approval precede any live operation. No new reservation, live request, resource,
 credential change, APK build or phone installation ran for this preparation.
 Native publication/review/runtime and background acceptance remain open.
+
+## Verified YAML provider proof and native immutable files — 2026-11-05
+
+PR44 merged at `6cd73dd` after all required checks, seven supported Android
+versions and the exact owner receipt passed on `a50e5b3`. The owner reviewed and
+then approved the private labelled fixture plan,40 existing reserved requests
+and one additional authorization launch. The live run used38 requests and one
+launch, accepted the current-tag YAML media write, rejected a different stale-tag
+write with412, and verified retained bytes/tag. Exact namespace/access checks,
+all receipts and the completed journal are retained privately. Earlier counters
+were preserved and each attempt was already counted; do not recount or refund.
+The token was forgotten, proof runner stopped and the normal localhost reader
+restored with its unchanged exhausted selection ledger. No existing content,
+permissions, phone data or Template/background binding was changed. See
+`docs/milestones/m1-yaml-conditional-proof.md`. The eight-launch ceiling is now
+exhausted; remaining direct-request slots do not authorize another login.
+
+The next source component adds immutable per-file create/readback with a durable
+pending-create/lease contract, exact-ID recovery and refusal to replace differing
+objects or recreate acknowledged missing ones. Native construction first verifies
+the entire manifest/source bundle with the existing compiler. Its separate
+socket gate accepts only captured metadata/media reads and exact reserved-ID
+multipart bytes; no update/delete route exists. Namespace checks include
+owner-only effective access and revoke source reads after failed revalidation.
+Local107 Android JVM/34 adapter JVM checks pass and instrumentation compiles.
+Current-head CI remains required. No local APK assembly/phone installation,
+schema change, native live request, additional reservation or enabled worker/UI.
+See `docs/milestones/m1-immutable-revision-transport.md`.
+
+Implement the durable immutable/head journal, native publication head, verified
+remote capture and the account/allowance-bound worker/source review next. These
+components still cannot publish a whole revision, adopt a local Template or
+finish a job. M1 and actual background/screen-off/Doze acceptance remain open.

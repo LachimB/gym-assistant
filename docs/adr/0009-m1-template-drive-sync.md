@@ -41,6 +41,12 @@ remain binding before their respective live actions. Confirmed decisions:
   retry within the unchanged80-request consolidation and200/500 parent limits.
   Retain the failed attempt and all earlier counters. This adds no resource,
   spending, Drive scope or API-key restriction change.
+- On2026-11-05, after reviewing the concrete synthetic YAML fixture plan, the
+  owner approved one further authorization launch (batch ceiling8) and up to40
+  direct requests from the existing reservation. The live run used38 requests
+  and one launch, accepted the current-tag YAML update, rejected the stale-tag
+  update with412 and verified the retained bytes/tag. Earlier usage remains
+  counted; no global allocation, scope, permission or billing expansion.
 - The additive phone-database migration approach is confirmed: preserve existing
   records, pass required automated/supported-Android checks, create and verify a
   fresh private backup before installation, then verify preservation after update.
@@ -201,7 +207,7 @@ synchronization; never create a replacement folder at My Drive level.
 No new Android broad-storage permission or refresh-token store.
 
 Reserve at most200 additional direct attempts within the existing500 global limit,
-once after reconciling the private ledger; at most7 explicit authorization launches
+once after reconciling the private ledger; at most8 explicit authorization launches
 for this batch. Existing allocations are not reset/refunded. SDK traffic remains
 unmeasured. Stop with pending work on exhaustion, storage/quota problems or a need
 for broader file access. Billing remains disabled; no paid resources/upgrades.

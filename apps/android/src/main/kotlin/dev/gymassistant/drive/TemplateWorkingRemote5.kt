@@ -22,17 +22,18 @@ internal fun interface TemplateHttp5 {fun request(request:TemplateHttpRequest5):
 
 /** Dedicated narrow transport; legacy delivery endpoints/permissions are not broadened. */
 internal class GoogleTemplateHttp5(@Volatile private var token:String,private val reserveRequest:()->Unit,
-    readableIds:Set<String>,writableIds:Set<String>):TemplateHttp5,Closeable {
+    readableIds:Set<String>,writableIds:Set<String>,private val fileFields:String=TEMPLATE_FILE_FIELDS_5):TemplateHttp5,Closeable {
     private val reads=readableIds.toSet();private val writes=writableIds.toSet()
     @Volatile private var active:HttpsURLConnection?=null
-    init {require(reads.size in 1..40 && writes.size in 1..16 && reads.containsAll(writes));reads.forEach(::handle5)}
+    init {require(reads.size in 1..40 && writes.size in 1..16 && reads.containsAll(writes));reads.forEach(::handle5)
+        require(fileFields in setOf(TEMPLATE_FILE_FIELDS_5,IMMUTABLE_FILE_FIELDS_5))}
     override fun close(){token="";active?.disconnect()}
     override fun request(request:TemplateHttpRequest5):DeliveryHttpResponse {
         check(token.isNotBlank() && token.none {it.isISOControl()})
         val allowed=when(request.method){
             "GET" -> request.body==null && request.ifMatch==null && request.contentType==null && (request.path==ACCOUNT_PATH || reads.any {id->
                 request.path=="/drive/v3/files/$id?fields=$TEMPLATE_FOLDER_FIELDS_5" ||
-                request.path=="/drive/v2/files/$id?fields=$TEMPLATE_FILE_FIELDS_5" || request.path=="/drive/v2/files/$id?alt=media"})
+                request.path=="/drive/v2/files/$id?fields=$fileFields" || request.path=="/drive/v2/files/$id?alt=media"})
             "PUT" -> writes.any {request.path=="/upload/drive/v2/files/$it?uploadType=media&fields=id"} &&
                 request.contentType in yamlMimes5 && request.body?.size in 1..1048576 && request.ifMatch!=null
             "POST" -> request.path=="/upload/drive/v3/files?uploadType=multipart&fields=id" && request.ifMatch==null &&

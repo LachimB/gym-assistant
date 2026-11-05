@@ -37,3 +37,26 @@ all earlier ledgers and limits. No live YAML request, new reservation, fixture
 creation, credential change, APK build or phone installation has run as part of
 this preparation. This does not establish native runtime/background behavior,
 immutable-history/head integration, Template review or M1 completion.
+
+## Approved live provider result — 2026-11-05
+
+PR44 merged at `6cd73dd` after all required checks, seven supported Android
+versions and the exact owner receipt passed on `a50e5b3`. After the private plan
+walkthrough, the owner approved the labelled synthetic fixture,40 requests from
+the existing reservation and one additional authorization launch. No provider
+operation ran during the review.
+
+The live batch used38 direct requests and one launch. It created only the
+reviewed test folder and fixed synthetic YAML, verified their exact identities,
+hierarchy, private markers and owner-only effective access, accepted the exact
+current-tag media PUT with200, rejected different content with the stale tag
+with412, and verified the accepted bytes and unchanged resulting tag. All request
+receipts and the completed journal are retained privately. Earlier usage was
+preserved; accounting occurred before each attempt, with no subsequent recount
+or refund. Two unused request slots remain retained, not silently reallocated.
+
+The runner forgot its in-memory token and was stopped. Existing source/session
+content, permissions and phone data were untouched. This establishes the tested
+provider `text/plain` YAML media boundary through the browser harness. Native
+Android authorization/transport, immutable publication, interruption and actual
+background/screen-off acceptance remain separate gates.
