@@ -46,6 +46,12 @@ it does not enable a live connection or establish background/device acceptance.
   before enqueue/reopen. Transactional insertion checks the selected head and
   binding; repeated logical operations keep the same job. These intents still
   require verified remote capture before any working-file operation.
+- A leased IO executor now bridges that captured intent to the guarded provider
+  protocol and durable receipts. Reopening after an uncertain write reads the
+  same ID. Already acknowledged files are read-only during retry; a newer edit
+  blocks rather than being repaired. A final vector recheck catches an earlier
+  edit during a later transfer. The result verifies only working files, without
+  declaring the job complete, committing a remote head or adopting a Template.
 
 ## Local validation and required gates
 
@@ -64,6 +70,10 @@ owners and folder retargeting, comparing all12 pre-existing tables unchanged.
 They require current-head execution across the full CI matrix.
 Four further SQLite cases cover offline enqueue/reopen, concurrent duplicate
 requests, rollback/retry, stale selection/reused identity and scope retargeting.
+Five executor cases cover same-ID lost-ack recovery after reopen, read-only retry
+after an external edit, final-vector divergence, lease expiry in flight and
+cancellation before mutation. They use a synthetic in-memory provider with the
+real Room/filesystem progress store, not live Drive.
 
 No phone update, root creation/relocation, token acquisition, Drive request or
 budget reservation has run for this implementation. Preserve CI plus a fresh

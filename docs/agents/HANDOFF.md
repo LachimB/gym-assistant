@@ -410,6 +410,22 @@ queue is not wired to UI/background scheduling or remote capture. That capture,
 reserved-ID persistence, immutable publication/head recovery and source review
 remain open. No phone operation, live request, token or budget change occurred.
 
+## Captured working-file execution — 2026-11-05
+
+The leased IO executor connects the guarded per-file protocol to the immutable
+progress store. Same-ID readback recovers an uncertain write; acknowledged files
+are only verified on retry, never repaired over an external edit. Every result
+retains source/binding/lease checks, and a final vector recheck precedes returning
+working-file verification. Cancellation propagates through the synchronous
+provider/Room bridge. This result does not mark a job complete or publish/adopt
+an immutable revision/head. Five synthetic SQLite/provider regressions compile;
+full current-head matrix execution is required. Local86 JVM checks pass.
+
+Room schema5 and all previous tables are unchanged. No UI/worker activation,
+token acquisition, live request, allowance reservation or phone operation occurred.
+Verified remote capture for source-only jobs, immutable history/head publication,
+compatible common-root clients, background scheduling and review UI remain open.
+
 
 ## Native working-file transport continuation — 2026-11-05
 

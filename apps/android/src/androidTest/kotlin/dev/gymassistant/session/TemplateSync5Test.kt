@@ -16,6 +16,9 @@ import kotlinx.coroutines.runBlocking
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
+import kotlinx.coroutines.CoroutineStart
+import kotlinx.coroutines.Deferred
+import kotlinx.coroutines.CancellationException
 import kotlinx.serialization.json.*
 import org.json.JSONObject
 import org.junit.*
@@ -212,5 +215,73 @@ class TemplateSync5Test {
         db.openHelper.writableDatabase.execSQL("UPDATE template_sync_bindings SET workingFolderId='retargeted-working-folder'")
         var rejected=false;try{queue().load(lease,{1001})}catch(_:IllegalStateException){rejected=true}
         assertTrue(rejected);assertEquals(job.intentPath,db.templateSync().job(job.jobId)?.intentPath);assertEquals(before,rows())
+    }
+    private class MemoryWorkingRemote(steps:List<WorkingFileStep>):WorkingFileRemote {
+        val objects=steps.associate {step->step.objectId to WorkingFileSnapshot(step.objectId,setOf(step.folderId),step.marker,step.name,step.mimeType,
+            checkNotNull(step.expectedTag),false,checkNotNull(step.beforeBytes))}.toMutableMap()
+        var writes=0;var verifications=0;var afterWrite:(String)->Unit={};var afterRead:(String)->Unit={}
+        override fun verifyNamespace(){verifications++}
+        override fun read(objectId:String)=objects[objectId].also {afterRead(objectId)}
+        override fun replace(objectId:String,expectedTag:String,bytes:ByteArray) {
+            val prior=checkNotNull(objects[objectId]);check(prior.tag==expectedTag)
+            writes++;objects[objectId]=WorkingFileSnapshot(prior.objectId,prior.parents,prior.marker,prior.name,prior.mimeType,"result-$writes",false,bytes)
+            afterWrite(objectId)
+        }
+        override fun createReserved(step:WorkingFileStep){error("Unexpected create in existing-file fixture")}
+        fun edit(id:String) {val prior=checkNotNull(objects[id]);objects[id]=WorkingFileSnapshot(prior.objectId,prior.parents,prior.marker,prior.name,prior.mimeType,"external-tag",false,"source: external synthetic edit\n".toByteArray())}
+    }
+    private fun executor(files:TemplateSyncFiles5,clock:()->Long)=TemplateWorkingExecutor5(TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),clock))
+    @Test fun interruptedWorkingWriteReopensAndAcknowledgesSameFileWithoutAnotherWrite()=runBlocking {
+        val(job,files)=progressFixture();val before=rows();val steps=files.load(SyncIntentFile5(job.intentPath,job.intentHash)).steps
+        val remote=MemoryWorkingRemote(steps);var interrupted=false
+        remote.afterWrite={if(!interrupted){interrupted=true;throw java.io.IOException("Synthetic lost acknowledgement")}}
+        val first=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-execute"))
+        var failed=false;try{executor(files,{1001}).execute(first,remote)}catch(_:java.io.IOException){failed=true};assertTrue(failed)
+        assertEquals(1,remote.writes);assertEquals(job.intentPath,db.templateSync().job(job.jobId)?.intentPath)
+        TemplateSyncLeases5(db).release(first,1002,SyncJobState5.RETRY);db.close();db=open()
+        val resumed=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1003,"boot-execute"))
+        val verified=executor(TemplateSyncFiles5(File(root,"template-sync"),contracts),{1004}).execute(resumed,remote)
+        assertEquals(job.operationId,verified.operationId);assertEquals(2,verified.receipts.size);assertEquals(2,remote.writes)
+        assertEquals("running",db.templateSync().job(job.jobId)?.state);assertEquals(before,rows())
+    }
+    @Test fun acknowledgedExternalEditIsNeverOverwrittenOrForgottenOnRetry()=runBlocking {
+        val(job,files)=progressFixture();val before=rows();val steps=files.load(SyncIntentFile5(job.intentPath,job.intentHash)).steps
+        val remote=MemoryWorkingRemote(steps);val lease=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-execute"))
+        val checked=executor(files,{1001}).execute(lease,remote);remote.edit(steps[0].objectId)
+        val altered=remote.objects.getValue(steps[0].objectId).bytes
+        var failed=false;try{executor(files,{1002}).execute(lease,remote)}catch(_:IllegalStateException){failed=true};assertTrue(failed)
+        assertEquals(2,remote.writes);assertArrayEquals(altered,remote.objects.getValue(steps[0].objectId).bytes)
+        val retained=TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),{1003}).load(lease)
+        assertEquals(checked.receipts.associateBy {it.objectId},retained.receipts);assertEquals(before,rows())
+    }
+    @Test fun finalVectorRecheckDetectsAnEarlierEditDuringALaterFileWrite()=runBlocking {
+        val(job,files)=progressFixture();val steps=files.load(SyncIntentFile5(job.intentPath,job.intentHash)).steps;val remote=MemoryWorkingRemote(steps)
+        remote.afterWrite={id->if(id==steps[1].objectId)remote.edit(steps[0].objectId)}
+        val lease=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-execute"))
+        var failed=false;try{executor(files,{1001}).execute(lease,remote)}catch(_:IllegalStateException){failed=true};assertTrue(failed)
+        assertEquals(2,remote.writes);assertEquals("external-tag",remote.objects.getValue(steps[0].objectId).tag)
+        assertTrue(TemplateSyncProgressStore5(db,TemplateSyncProgressFiles5(files),{1002}).load(lease).allFilesAcknowledged)
+        assertEquals("running",db.templateSync().job(job.jobId)?.state)
+    }
+    @Test fun leaseExpiryDuringAWriteCannotAcknowledgeButReclaimRecoversTheSameObject()=runBlocking {
+        val(job,files)=progressFixture();val before=rows();val steps=files.load(SyncIntentFile5(job.intentPath,job.intentHash)).steps;val remote=MemoryWorkingRemote(steps)
+        val first=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-execute"));var now=1001L
+        remote.afterWrite={now=first.until}
+        var failed=false;try{executor(files,{now}).execute(first,remote)}catch(_:IllegalStateException){failed=true};assertTrue(failed)
+        assertEquals(job.intentPath,db.templateSync().job(job.jobId)?.intentPath);assertEquals(1,remote.writes)
+        val current=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,now,"boot-execute"));now++;remote.afterWrite={}
+        val priorVerifications=remote.verifications
+        failed=false;try{executor(files,{now}).execute(first,remote)}catch(_:IllegalStateException){failed=true};assertTrue(failed)
+        assertEquals(priorVerifications,remote.verifications)
+        assertEquals(2,executor(files,{now}).execute(current,remote).receipts.size);assertEquals(2,remote.writes);assertEquals(before,rows())
+    }
+    @Test fun cancellationAfterReadStopsBeforeMutationAndDoesNotAcknowledgeProgress()=runBlocking {
+        val(job,files)=progressFixture();val before=rows();val steps=files.load(SyncIntentFile5(job.intentPath,job.intentHash)).steps
+        val remote=MemoryWorkingRemote(steps);val lease=checkNotNull(TemplateSyncLeases5(db).claim(job.jobId,1000,"boot-execute"))
+        lateinit var work:Deferred<VerifiedWorkingVector5>
+        work=async(start=CoroutineStart.LAZY){executor(files,{1001}).execute(lease,remote)}
+        remote.afterRead={work.cancel()};work.start()
+        var cancelled=false;try{work.await()}catch(_:CancellationException){cancelled=true};assertTrue(cancelled)
+        assertEquals(0,remote.writes);assertEquals(job.intentPath,db.templateSync().job(job.jobId)?.intentPath);assertEquals(before,rows())
     }
 }
